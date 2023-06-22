@@ -128,7 +128,7 @@ int main() {
 	bindTexture(texID, slot);
 
 	// add particles
-	Particle p(0, 0, 100);
+	Particle p(vec2<ParticleData>(0, 0), 100);
 
 	sandbox.addParticle(p);
 
@@ -177,7 +177,7 @@ int main() {
 
 		if (ImGui::Button("Add")) {
 			std::cout << "Adding particle " << posX << " " << posY << " " << radius << std::endl;
-			p = Particle(posX, posY, radius);
+			p = Particle(vec2<ParticleData>(posX, posY), radius);
 			sandbox.addParticle(p);
 		}
 
