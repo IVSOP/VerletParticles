@@ -19,6 +19,8 @@ class Sandbox {
 		GLuint VBO;
 		GLuint IBO;
 
+		size_t pixelsX, pixelsY;
+
 		Particle *particles;
 		size_t len_particles;
 		Vertex *vertices;
@@ -33,7 +35,7 @@ class Sandbox {
 		void calculateVertices();
 
 	public:
-		Sandbox(size_t n_particles);
+		Sandbox(size_t n_particles, size_t pixelsX, size_t pixelsY);
 		~Sandbox();
 
 		void addParticle(Particle &particle);

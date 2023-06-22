@@ -60,7 +60,9 @@ void Sandbox::makeIBO() {
 	delete[] indices;
 }
 
-Sandbox::Sandbox(size_t max_particles) {
+Sandbox::Sandbox(size_t max_particles, size_t pixelsX, size_t pixelsY)
+	: pixelsX(pixelsX), pixelsY(pixelsY)
+	{
 	this->particles = new Particle[max_particles];
 	this->len_particles = 0;
 	this->vertices = new Vertex[max_particles * 4];
@@ -140,8 +142,13 @@ void Sandbox::calculateVertices() {
 		// particle has the coordinates of its center
 		// need to calculate other ones from it, rotation does not matter
 
-		x = particle->posX; y = particle->posY;
-		radius = particle->radius;
+		std::cout << "Before: " << particle->posX << " " << particle->posY << " " << particle->radius << std::endl;
+
+		x = static_cast<GLfloat>(particle->posX) / static_cast<GLfloat>(this->pixelsX);
+		y = static_cast<GLfloat>(particle->posY) / static_cast<GLfloat>(this->pixelsY);
+		radius = static_cast<GLfloat>(particle->radius) / static_cast<GLfloat>(this->pixelsX); // ??????????????????????????????????????????????????????????????????
+
+		std::cout << "After: " << x << " " << y << " " << radius << std::endl;
 
 		/*
 		3(-radius, +radius)				2(+radius, +radius)

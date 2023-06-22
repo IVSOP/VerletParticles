@@ -74,11 +74,14 @@ int main() {
 	glEnable( GL_DEBUG_OUTPUT );
 	glDebugMessageCallback( openglCallbackFunction, NULL );
 
-	//////////////////////////////////////////// Sandbox instance
+	//////////////////////////////////////////// Sandbox and renderer instance
 
 	int width, height;
 	glfwGetWindowSize(window, &width, &height);
-	Sandbox sandbox(1000);
+	Sandbox sandbox(1000, 1000, 1000);
+
+	Renderer renderer(window);
+	renderer.pushSandbox(&sandbox);
 
 	//////////////////////////////////////////// Creating shaders and making program out of the shaders
 	GLCall(const GLuint program = glCreateProgram());
@@ -125,7 +128,7 @@ int main() {
 	bindTexture(texID, slot);
 
 	// add particles
-	Particle p(-1.0f, 0.0f, 0.5f);
+	Particle p(0, 0, 100);
 
 	sandbox.addParticle(p);
 
@@ -139,9 +142,6 @@ int main() {
 
 	GLCall(glfwSwapInterval(1)); // hardcoded sync with monitor fps
 
-	Renderer renderer(window);
-	renderer.pushSandbox(&sandbox);
-
 	GLCall(glUseProgram(program));
 	// this is not really needed (???) since it is allways 0 but I made it anyway
 	GLCall(GLint loc = glGetUniformLocation(program, "u_texture"));
@@ -149,8 +149,7 @@ int main() {
 	GLCall(glUniform1i(loc, (GLint)0));
 
 	float color[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-	double radius = 0.5f;
-	GLfloat posX = 0.0f, posY = 0.0f;
+	int radius = 50, posX = 0, posY = 0;
 	while (!glfwWindowShouldClose(window)) {
 
 		ImGui_ImplOpenGL3_NewFrame();
@@ -168,13 +167,13 @@ int main() {
 
 		ImGui::Text("x:");
 		ImGui::SameLine();
-		ImGui::InputFloat("##x", &posX, 0.01f, 1.0f, "%.3f");
+		ImGui::InputInt("##x", &posX);
 		ImGui::Text("y:");
 		ImGui::SameLine();
-		ImGui::InputFloat("##y", &posY, 0.01f, 1.0f, "%.3f");
+		ImGui::InputInt("##y", &posY);
 		ImGui::Text("radius:");
 		ImGui::SameLine();
-		ImGui::InputDouble("##radius", &radius, 0.01f, 1.0f, "%.8f");
+		ImGui::InputInt("##radius", &radius);
 
 		if (ImGui::Button("Add")) {
 			std::cout << "Adding particle " << posX << " " << posY << " " << radius << std::endl;

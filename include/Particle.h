@@ -5,11 +5,11 @@
 
 class Particle {
 	public:
-		float posX, posY;
+		size_t posX, posY, radius;
 		// GLuint textID;
-		double radius;
-		
-		Particle(float posX, float posY, double radius)
+
+		// measures are in pixels
+		Particle(size_t posX, size_t posY, size_t radius)
 		: posX(posX), posY(posY), radius(radius)
 		{}
 
