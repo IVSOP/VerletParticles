@@ -249,21 +249,30 @@ void Sandbox::handleMouseClickAt(int button, int action, int mods, double xpos, 
 }
 
 void Sandbox::handleKeyPress(int key, int scancode, int action, int mods) {
-	if (action == GLFW_PRESS) {
+	// if (action == GLFW_PRESS) {
 
-	}
+	// }
 }
 
-void Sandbox::onUpdate() {
+void Sandbox::onUpdate(double dt) {
+	applyGravity();
+	updatePositions(dt);
+}
+
+void Sandbox::updatePositions(double dt) {
 	size_t i;
 
-	// Particle *particle;
-
-	for (i = 0; i < this->max_particles; i++) {
-		// ...
+	for (i = 0; i < this->len_particles; i++) {
+		this->particles[i].updatePosition(dt);
 	}
 }
 
-inline int getRandomInRange(int start, int end) {
-	return start + ( rand() % ( end - start + 1 ) );
+void Sandbox::applyGravity() {
+	// TEMPORARY!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	vec2<ParticleData> gravity = {0, 1000};
+	size_t i;
+
+	for (i = 0; i < this->len_particles; i++) {
+		this->particles[i].accelerate(gravity);
+	}
 }

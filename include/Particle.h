@@ -3,6 +3,7 @@
 
 #include <GL/glew.h>
 #include "Vec2.h"
+#include <iostream>
 
 typedef size_t ParticleData;
 
@@ -38,10 +39,16 @@ class Particle {
 		void updatePosition(double dt) {
 			vec2<ParticleData> velocity = current_pos - old_pos; // const???
 
-			old_pos = current_pos;
+			this->old_pos = current_pos;
+			std::cout << "Before: " << current_pos.x << " " << current_pos.y << std::endl;
+			this->current_pos = (current_pos + velocity + accel) * dt * dt;
+			std::cout << "After: " << current_pos.x << " " << current_pos.y << std::endl;
+			std::cout << "Accel was " << accel.x << " " << accel.y << std::endl;
+			this->accel = {0, 0};
+		}
 
-			current_pos = (current_pos + velocity + accel) * dt * dt;
-			accel = {};
+		void accelerate(vec2<ParticleData> accel) {
+			this->accel += accel;
 		}
 };
 

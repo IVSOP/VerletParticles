@@ -59,7 +59,9 @@ class Sandbox {
 		void handleMouseClickAt(int button, int action, int mods, double xpos, double ypos);
 		void handleKeyPress(int key, int scancode, int action, int mods);
 
-		void onUpdate();
+		void onUpdate(double dt);
+		void updatePositions(double dt);
+		void applyGravity();
 };
 
 #endif

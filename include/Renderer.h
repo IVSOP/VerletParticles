@@ -24,9 +24,9 @@ class Renderer {
 
 	public:
 
-		void tick() {
+		void tick(double dt) {
 			for (Sandbox * s : sandboxes) {
-				s->onUpdate();
+				s->onUpdate(dt);
 			}
 		}
 
@@ -40,7 +40,7 @@ class Renderer {
 		void popSandbox();
 
 		void renderSandbox(Sandbox * sandbox) const;
-		void renderAllSandboxes();
+		void renderAllSandboxes(double dt);
 
 		void onKeyPress(int key, int scancode, int action, int mods);
 		void onMouseMove(double xpos, double ypos);

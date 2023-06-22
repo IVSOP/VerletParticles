@@ -182,7 +182,7 @@ int main() {
 		}
 
 		if (ImGui::Button("Tick")) {
-			renderer.tick();
+			renderer.tick(1.0f / 60.0f);
 		}
 
 		ImGui::ShowDemoWindow();
@@ -190,7 +190,7 @@ int main() {
 		ImGui::End();
 		ImGui::Render();
 
-		renderer.renderAllSandboxes();
+		renderer.renderAllSandboxes(1.0f / 60.0f);
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		glfwSwapBuffers(window);

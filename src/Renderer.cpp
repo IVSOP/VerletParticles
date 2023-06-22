@@ -25,11 +25,11 @@ void Renderer::renderSandbox(Sandbox * sandbox) const {
 	GLCall(glDrawElements(GL_TRIANGLES, sandbox->getNumberOfIndices(), GL_UNSIGNED_INT, 0));
 }
 
-void Renderer::renderAllSandboxes() {
+void Renderer::renderAllSandboxes(double dt) {
 	this->timestep_acc += this->timestep;
 	if (timestep_acc >= timestep) {
 		timestep_acc = 0;
-		tick();
+		tick(dt);
 	}
 
 	for (Sandbox *sandbox : this->sandboxes) {
