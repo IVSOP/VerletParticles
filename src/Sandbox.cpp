@@ -142,14 +142,14 @@ void Sandbox::calculateVertices() {
 		// particle has the coordinates of its center
 		// need to calculate other ones from it, rotation does not matter
 
-		std::cout << "Before: " << particle->current_pos.x << " " << particle->current_pos.y << " " << particle->radius << std::endl;
+		// std::cout << "Before: " << particle->current_pos.x << " " << particle->current_pos.y << " " << particle->radius << std::endl;
 
 		// offset by (-1, -1)
 		x = ((static_cast<GLfloat>(particle->current_pos.x) * 2) / static_cast<GLfloat>(this->pixelsX)) - 1.0f;
 		y = ((static_cast<GLfloat>(particle->current_pos.y) * 2) / static_cast<GLfloat>(this->pixelsY)) - 1.0f;
 		radius = (static_cast<GLfloat>(particle->radius) * 2) / static_cast<GLfloat>(this->pixelsX); // ??????????????????????????????????????????????????????????????????
 
-		std::cout << "After: " << x << " " << y << " " << radius << std::endl;
+		// std::cout << "After: " << x << " " << y << " " << radius << std::endl;
 
 		/*
 		3(-radius, +radius)				2(+radius, +radius)
@@ -270,7 +270,7 @@ void Sandbox::updatePositions(double dt) {
 
 void Sandbox::applyGravity() {
 	// TEMPORARY!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	pVec2 gravity = {0, 1};
+	pVec2 gravity = {0.0f, -1000.0f};
 	size_t i;
 
 	for (i = 0; i < this->len_particles; i++) {

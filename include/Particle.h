@@ -3,7 +3,6 @@
 
 #include <GL/glew.h>
 #include <glm/vec2.hpp>
-#include <iostream>
 
 typedef glm::dvec2 pVec2;
 
@@ -41,26 +40,8 @@ class Particle {
 			return *this;
 		}
 
-		void updatePosition(double dt) {
-			glm::dvec2  velocity = current_pos - old_pos; // const???
-
-			std::cout << "Velocity: " << velocity.x << " " << velocity.y << std::endl;
-			std::cout << "Accel: " << accel.x << " " << accel.y << std::endl;
-
-			this->old_pos = current_pos;
-			std::cout << "Before: " << current_pos.x << " " << current_pos.y << std::endl;
-			
-			this->current_pos = current_pos + velocity + (accel * dt * dt);
-			
-			std::cout << "After: " << current_pos.x << " " << current_pos.y << std::endl;
-			std::cout << "Accel was " << accel.x << " " << accel.y << std::endl;
-
-			this->accel = {0, 0};
-		}
-
-		void accelerate(pVec2 accel) {
-			this->accel += accel;
-		}
+		void updatePosition(double dt);
+		void accelerate(pVec2 accel);
 };
 
 #endif

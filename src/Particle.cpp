@@ -23,3 +23,24 @@ Particle::Particle(const Particle &particle) {
 	this->accel = particle.accel;
 	this->radius = particle.radius;
 }
+
+void Particle::updatePosition(double dt) {
+	glm::dvec2  velocity = current_pos - old_pos; // const???
+
+	// std::cout << "Velocity: " << velocity.x << " " << velocity.y << std::endl;
+	// std::cout << "Accel: " << accel.x << " " << accel.y << std::endl;
+
+	this->old_pos = current_pos;
+	// std::cout << "Before: " << current_pos.x << " " << current_pos.y << std::endl;
+	
+	this->current_pos = current_pos + velocity + (accel * dt * dt);
+
+	// std::cout << "After: " << current_pos.x << " " << current_pos.y << std::endl;
+	// std::cout << "Accel was " << accel.x << " " << accel.y << std::endl;
+
+	this->accel = {0, 0};
+}
+
+void Particle::accelerate(pVec2 accel) {
+	this->accel += accel;
+}
