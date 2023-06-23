@@ -34,10 +34,13 @@ include_directories(
 	external/stb
 )
 
+# wtf??
 add_subdirectory(
 	external/glfw
 	src
 ) # build
+
+add_subdirectory(external/glm)
 
 # unecessary since it was specified above?
 target_include_directories(${PROJECT_NAME} # include
@@ -45,6 +48,7 @@ target_include_directories(${PROJECT_NAME} # include
 	PUBLIC external/glfw/include
 	PUBLIC external/imgui/include
 	PUBLIC external/stb
+	PUBLIC external/glm
 )
 
 target_link_directories(${PROJECT_NAME} #link
@@ -56,4 +60,5 @@ target_link_libraries(${PROJECT_NAME}
 	glfw
 	GLEW::GLEW
 	OpenGL::GL
+	glm::glm
 )
