@@ -128,7 +128,7 @@ int main() {
 	bindTexture(texID, slot);
 
 	// add particles
-	Particle p(pVec2(500, 500), 25);
+	Particle p(pVec2(500, 500), 50);
 
 	sandbox.addParticle(p);
 

@@ -62,6 +62,7 @@ class Sandbox {
 		void onUpdate(double dt);
 		void updatePositions(double dt);
 		void applyGravity();
+		void applyConstraint();
 };
 
 #endif

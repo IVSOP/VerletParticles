@@ -4,6 +4,7 @@
 #include <iostream>
 #include "GLErrors.h"
 #include <string.h>
+#include <glm/geometric.hpp>
 
 void Sandbox::makeVAO() {
 	GLuint VAO;
@@ -257,6 +258,7 @@ void Sandbox::handleKeyPress(int key, int scancode, int action, int mods) {
 
 void Sandbox::onUpdate(double dt) {
 	applyGravity();
+	applyConstraint();
 	updatePositions(dt);
 }
 
@@ -275,5 +277,26 @@ void Sandbox::applyGravity() {
 
 	for (i = 0; i < this->len_particles; i++) {
 		this->particles[i].accelerate(gravity);
+	}
+}
+
+void Sandbox::applyConstraint() {
+	const pVec2 position = {500.0f, 500.0f};
+	const double radius = 500.0f;
+
+	pVec2 to_center, n;
+	Particle *particle;
+	double dist_to_center;
+	size_t i;
+
+	for (i = 0; i < this->len_particles; i++) {
+		particle = &(this->particles[i]);
+		to_center = particle->current_pos - position;
+		dist_to_center = glm::length(to_center);
+		// check if particle is clipping constraint bounds
+		if (dist_to_center > radius - particle->radius) {
+			n = to_center / dist_to_center;
+			particle->current_pos = position + (n * (radius - particle->radius));
+		}
 	}
 }
