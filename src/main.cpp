@@ -83,6 +83,9 @@ int main() {
 	Renderer renderer(window);
 	renderer.pushSandbox(&sandbox);
 
+	Spawner spawner(inCircle);
+	sandbox.addSpawner(spawner);
+
 	//////////////////////////////////////////// Creating shaders and making program out of the shaders
 	GLCall(const GLuint program = glCreateProgram());
 
@@ -140,16 +143,19 @@ int main() {
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
-	GLCall(glfwSwapInterval(1)); // hardcoded sync with monitor fps
-
 	GLCall(glUseProgram(program));
 	// this is not really needed (???) since it is allways 0 but I made it anyway
 	GLCall(GLint loc = glGetUniformLocation(program, "u_texture"));
 	// slot is allways 0
 	GLCall(glUniform1i(loc, (GLint)0));
 
+	GLCall(glfwSwapInterval(1)); // hardcoded sync with monitor fps
 	GLfloat color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	int radius = 50, posX = 100, posY = 500;
+	double previousFrameTime = glfwGetTime(), newFrameTime;
+	const double fps_target = 60.0f;
+	const double milis = 1.0f / fps_target;
+
 	while (!glfwWindowShouldClose(window)) {
 
 		ImGui_ImplOpenGL3_NewFrame();
@@ -182,7 +188,7 @@ int main() {
 		}
 
 		if (ImGui::Button("Tick")) {
-			renderer.tick(1.0f / 60.0f);
+			renderer.tick(milis);
 		}
 
 		ImGui::ShowDemoWindow();
@@ -190,8 +196,12 @@ int main() {
 		ImGui::End();
 		ImGui::Render();
 
-		renderer.renderAllSandboxes(1.0f / 60.0f);
+		renderer.renderAllSandboxes(milis);
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+		newFrameTime = glfwGetTime();
+		std::cout << "FPS: " << 1 / (newFrameTime - previousFrameTime) << std::endl;
+		previousFrameTime = newFrameTime;
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

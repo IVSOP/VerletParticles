@@ -15,6 +15,7 @@ add_executable(${PROJECT_NAME}
 	src/Sandbox.cpp
 	src/Renderer.cpp
 	src/Texture.cpp
+	src/Spawner.cpp
 
 	external/imgui/src/imgui.cpp
 	external/imgui/src/imgui_draw.cpp

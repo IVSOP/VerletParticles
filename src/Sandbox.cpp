@@ -6,6 +6,8 @@
 #include <string.h>
 #include <glm/geometric.hpp>
 
+#define SUBSTEPS 8
+
 void Sandbox::makeVAO() {
 	GLuint VAO;
 	GLCall(glGenVertexArrays(1, &VAO));
@@ -260,10 +262,27 @@ void Sandbox::handleKeyPress(int key, int scancode, int action, int mods) {
 }
 
 void Sandbox::onUpdate(double dt) {
-	applyGravity();
-	applyConstraint();
-	solveCollisions();
-	updatePositions(dt);
+	int i, size = this->spawners.size();
+	Particle p; // is there a better way to do this?????
+	double sub_dt = dt / SUBSTEPS;
+	
+	// spawn particles from all spawners
+	for (i = 0; i < size; i++) {
+		if (this->spawners[i].nextParticle(&p) == true) {
+			addParticle(p);
+		}
+	}
+	
+	// calculate physics many times per frame for better result
+
+	// THIS IS MESSY WHEN SPAWNING PARTICLES INSIDE OF EACH OTHER
+	// can also only keep the solve collisions in a loop and the rest out of the loop
+	for (i = 0; i < SUBSTEPS; i++) {
+		applyGravity();
+		solveCollisions();
+		applyConstraint();
+		updatePositions(sub_dt);
+	}
 }
 
 void Sandbox::updatePositions(double dt) {
@@ -343,4 +362,8 @@ void Sandbox::solveCollisions() {
 			}
 		}
 	}
+}
+
+void Sandbox::addSpawner(Spawner &sp) {
+	this->spawners.push_back(sp);
 }

@@ -2,6 +2,8 @@
 #define SANDBOX_H
 
 #include "Particle.h"
+#include "Spawner.h"
+#include <vector>
 
 typedef struct {
 	GLfloat position[3];
@@ -26,6 +28,8 @@ class Sandbox {
 		Vertex *vertices;
 		// size_t len_vertices; not needed, it is always len_particles * 4
 		size_t max_particles;
+
+		std::vector<Spawner> spawners;
 
 		void makeVAO();
 		void makeVBO();
@@ -64,6 +68,8 @@ class Sandbox {
 		void applyGravity();
 		void applyConstraint();
 		void solveCollisions();
+
+		void addSpawner(Spawner &sp);
 };
 
 #endif
