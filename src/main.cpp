@@ -81,7 +81,7 @@ int main() {
 	Sandbox sandbox(1000, 1000, 1000);
 
 	Renderer renderer(window);
-	renderer.pushSandbox(&sandbox);
+	renderer.addSandbox(&sandbox);
 
 	Spawner spawner(centerSpawner);
 	sandbox.addSpawner(spawner);
@@ -197,7 +197,7 @@ int main() {
 		ImGui::End();
 		ImGui::Render();
 
-		renderer.renderAllSandboxes(milis);
+		renderer.renderSandbox(milis);
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		newFrameTime = glfwGetTime();

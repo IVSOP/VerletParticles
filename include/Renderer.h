@@ -12,7 +12,7 @@
 class Renderer {
 	private:
 		GLFWwindow *window;
-		std::vector<Sandbox *> sandboxes;
+		Sandbox * sandbox;
 		ImGuiIO& io = ImGui::GetIO();
 
 		void setCallbacks(GLFWwindow* window);
@@ -25,9 +25,7 @@ class Renderer {
 	public:
 
 		void tick(double dt) {
-			for (Sandbox * s : sandboxes) {
-				s->onUpdate(dt);
-			}
+			this->sandbox->onUpdate(dt);
 		}
 
 		static const double timestep;
@@ -36,11 +34,11 @@ class Renderer {
 		~Renderer() = default;
 
 		// pointer to a sandbox, so that changing it changes the render
-		void pushSandbox(Sandbox *sandbox);
-		void popSandbox();
+		void addSandbox(Sandbox *sandbox);
 
-		void renderSandbox(Sandbox * sandbox) const;
-		void renderAllSandboxes(double dt);
+		// void renderSandbox(Sandbox * sandbox) const;
+		// void renderAllSandboxes(double dt);
+		void renderSandbox(double dt);
 
 		void onKeyPress(int key, int scancode, int action, int mods);
 		void onMouseMove(double xpos, double ypos);
