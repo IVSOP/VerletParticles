@@ -129,8 +129,8 @@ void Sandbox::calculateVertices() {
 	GLfloat *position, *texCoords;
 	Particle *particle;
 	Vertex *_vertices;
-	double radius;
-	float color[] = { 1.0f, 0.0f, 0.0f, 1.0f };
+	GLfloat radius;
+	GLfloat *color; //[] = { 1.0f, 0.0f, 0.0f, 1.0f };
 
 	/*
 		3---2
@@ -140,6 +140,9 @@ void Sandbox::calculateVertices() {
 	for (i = 0; i < this->len_particles; i++)
 	{
 		particle = &(this->particles[i]);
+
+		color = particle->color;
+
 		// particle has the coordinates of its center
 		// need to calculate other ones from it, rotation does not matter
 
@@ -165,7 +168,7 @@ void Sandbox::calculateVertices() {
 		position = (&_vertices[0])->position;
 		texCoords = (&_vertices[0])->texCoords;
 		
-		memcpy(((&_vertices[0])->color), color, sizeof(color));
+		memcpy(((&_vertices[0])->color), color, 4 * sizeof(GLfloat));
 
 		position[0] = x - radius;
 		position[1] = y - radius;
@@ -177,7 +180,7 @@ void Sandbox::calculateVertices() {
 		position = (&_vertices[1])->position;
 		texCoords = (&_vertices[1])->texCoords;
 		
-		memcpy(((&_vertices[1])->color), color, sizeof(color));
+		memcpy(((&_vertices[1])->color), color, 4 * sizeof(GLfloat));
 
 		position[0] = x + radius;
 		position[1] = y - radius;
@@ -190,7 +193,7 @@ void Sandbox::calculateVertices() {
 		position = (&_vertices[2])->position;
 		texCoords = (&_vertices[2])->texCoords;
 		
-		memcpy(((&_vertices[2])->color), color, sizeof(color));
+		memcpy(((&_vertices[2])->color), color, 4 * sizeof(GLfloat));
 
 		position[0] = x + radius;
 		position[1] = y + radius;
@@ -203,7 +206,7 @@ void Sandbox::calculateVertices() {
 		position = (&_vertices[3])->position;
 		texCoords = (&_vertices[3])->texCoords;
 		
-		memcpy(((&_vertices[3])->color), color, sizeof(color));
+		memcpy(((&_vertices[3])->color), color, 4 * sizeof(GLfloat));
 
 		position[0] = x - radius;
 		position[1] = y + radius;
@@ -259,6 +262,7 @@ void Sandbox::handleKeyPress(int key, int scancode, int action, int mods) {
 void Sandbox::onUpdate(double dt) {
 	applyGravity();
 	applyConstraint();
+	solveCollisions();
 	updatePositions(dt);
 }
 
@@ -297,6 +301,46 @@ void Sandbox::applyConstraint() {
 		if (dist_to_center > radius - particle->radius) {
 			n = to_center / dist_to_center;
 			particle->current_pos = position + (n * (radius - particle->radius));
+		}
+	}
+}
+
+// brute force approach
+// I have no idea how the math involved works
+void Sandbox::solveCollisions() {
+	size_t i, j;
+	Particle *p1, *p2;
+	pVec2 collisionAxis, n;
+	double dist, min_dist;
+	const double response_coef = 0.75f;
+	double mass_ratio_1, mass_ratio_2, delta;
+	double p1_radius, p2_radius;
+
+	for (i = 0; i < this->len_particles; i++) {
+		p1 = &(this->particles[i]);
+		p1_radius = p1->radius;
+		for (j = i + 1; j < this->len_particles; j++) {
+			p2 = &(this->particles[j]);
+			p2_radius = p2->radius;
+
+			collisionAxis = p1->current_pos - p2->current_pos;
+			min_dist = p1_radius + p2_radius;
+			dist = (collisionAxis.x * collisionAxis.x) + (collisionAxis.y * collisionAxis.y);
+			// avoid srqt as long as possible
+
+			
+			if (dist < min_dist * min_dist) {
+				dist = sqrt(dist);
+				n = collisionAxis / dist;
+				
+				mass_ratio_1 = p1_radius / (p1_radius + p2_radius);
+				mass_ratio_2 = p2_radius / (p1_radius + p2_radius);
+
+				delta = 0.5f * response_coef * (dist - min_dist);
+
+				p1->current_pos -= n * (mass_ratio_2 * delta);
+				p2->current_pos += n * (mass_ratio_1 * delta);
+			}
 		}
 	}
 }

@@ -63,6 +63,7 @@ class Sandbox {
 		void updatePositions(double dt);
 		void applyGravity();
 		void applyConstraint();
+		void solveCollisions();
 };
 
 #endif

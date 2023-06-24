@@ -3,6 +3,7 @@
 
 #include <GL/glew.h>
 #include <glm/vec2.hpp>
+#include <cstring>
 
 typedef glm::dvec2 pVec2;
 
@@ -16,14 +17,16 @@ class Particle {
 		pVec2 old_pos;
 		pVec2 current_pos;
 		pVec2 accel;
+		GLfloat color[4];
 
 
 		// GLuint textID;
 
 		// measures are in pixels
 		Particle(pVec2 current_pos, size_t radius, pVec2 accel);
-
+		Particle(pVec2 current_pos, size_t radius, pVec2 accel, GLfloat color[4]);
 		Particle(pVec2 current_pos, size_t radius);
+		Particle(pVec2 current_pos, size_t radius, GLfloat color[4]);
 
 		Particle(const Particle &particle);
 
@@ -37,6 +40,7 @@ class Particle {
 			this->old_pos = particle.old_pos;
 			this->accel = particle.accel;
 			this->radius = particle.radius;
+			std::memcpy(this->color, particle.color, 4 * sizeof(GLfloat));
 			return *this;
 		}
 

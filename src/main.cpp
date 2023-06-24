@@ -148,8 +148,8 @@ int main() {
 	// slot is allways 0
 	GLCall(glUniform1i(loc, (GLint)0));
 
-	float color[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-	int radius = 50, posX = 0, posY = 0;
+	GLfloat color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	int radius = 50, posX = 100, posY = 500;
 	while (!glfwWindowShouldClose(window)) {
 
 		ImGui_ImplOpenGL3_NewFrame();
@@ -176,8 +176,8 @@ int main() {
 		ImGui::InputInt("##radius", &radius);
 
 		if (ImGui::Button("Add")) {
-			std::cout << "Adding particle " << posX << " " << posY << " " << radius << std::endl;
-			p = Particle(pVec2(posX, posY), radius);
+			// std::cout << "Adding particle " << posX << " " << posY << " " << radius << " R " << color[0] << " G " << color[1] << " B " << color[2] << std::endl;
+			p = Particle(pVec2(posX, posY), radius, color);
 			sandbox.addParticle(p);
 		}
 
