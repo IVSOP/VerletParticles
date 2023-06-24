@@ -6,21 +6,11 @@
 
 typedef bool spawnerFunc (Particle *p, unsigned long int count, void *userData);
 
-
-
-
-
-#include <iostream>
-
-
-
-
-
-
-
 // some examples of spawner funcs
 // goes in a circle
 bool inCircle(Particle *p, unsigned long int count, void *userData);
+// from center rotates in a circle
+bool centerSpawner(Particle *p, unsigned long int count, void *userData);
 
 class Spawner {
 	private:

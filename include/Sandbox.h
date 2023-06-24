@@ -66,7 +66,8 @@ class Sandbox {
 		void onUpdate(double dt);
 		void updatePositions(double dt);
 		void applyGravity();
-		void applyConstraint();
+		void applyCircleConstraint();
+		void applyRectangleConstraint();
 		void solveCollisions();
 
 		void addSpawner(Spawner &sp);

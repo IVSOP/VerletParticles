@@ -280,7 +280,8 @@ void Sandbox::onUpdate(double dt) {
 	for (i = 0; i < SUBSTEPS; i++) {
 		applyGravity();
 		solveCollisions();
-		applyConstraint();
+		// applyCircleConstraint();
+		applyRectangleConstraint();
 		updatePositions(sub_dt);
 	}
 }
@@ -303,8 +304,8 @@ void Sandbox::applyGravity() {
 	}
 }
 
-void Sandbox::applyConstraint() {
-	const pVec2 position = {500.0f, 500.0f};
+void Sandbox::applyCircleConstraint() {
+	const pVec2 center = {500.0f, 500.0f};
 	const double radius = 500.0f;
 
 	pVec2 to_center, n;
@@ -314,13 +315,51 @@ void Sandbox::applyConstraint() {
 
 	for (i = 0; i < this->len_particles; i++) {
 		particle = &(this->particles[i]);
-		to_center = particle->current_pos - position;
+		to_center = particle->current_pos - center;
 		dist_to_center = glm::length(to_center);
 		// check if particle is clipping constraint bounds
 		if (dist_to_center > radius - particle->radius) {
 			n = to_center / dist_to_center;
-			particle->current_pos = position + (n * (radius - particle->radius));
+			particle->current_pos = center + (n * (radius - particle->radius));
 		}
+	}
+}
+
+void Sandbox::applyRectangleConstraint() {
+	Particle *p; size_t i;
+	const double size_x = 1000.0f / 2.0f; // divide by 2 here to save time
+	const double size_y = 1000.0f / 2.0f;
+	const double margin = 2.0f;
+	pVec2 center = {500.0f, 500.0f};
+	double radius;
+
+	// this is worse than the circle one
+	for (i = 0; i < this->len_particles; i++) {
+		p = &(this->particles[i]);
+		radius = p->radius;
+
+		if (p->current_pos.x + radius > center.x + size_x) {
+			p->current_pos.x = center.x + size_x - radius;
+		} else if (p->current_pos.x - radius < center.x - size_x) {
+			p->current_pos.x = center.x - size_x + radius;
+		}
+
+		if (p->current_pos.y + radius > center.y + size_y) {
+			p->current_pos.y = center.y + size_y - radius;
+		} else if (p->current_pos.y - radius < center.y - size_y) {
+			p->current_pos.y = center.y - size_y + radius;
+		}
+
+		// if (p->current_pos.x > center.x + size_x - margin) {
+		// 	p->current_pos.x = center.x + size_x - margin;
+		// } else if (p->current_pos.x < margin) {
+		// 	p->current_pos.x = margin;
+		// }
+		// if (p->current_pos.y > center.y + size_y - margin) {
+		// 	p->current_pos.y =center.y + size_y - margin;
+		// } else if (p->current_pos.y < margin) {
+		// 	p->current_pos.y = margin;
+		// }
 	}
 }
 

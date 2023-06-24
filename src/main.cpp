@@ -83,7 +83,7 @@ int main() {
 	Renderer renderer(window);
 	renderer.pushSandbox(&sandbox);
 
-	Spawner spawner(inCircle);
+	Spawner spawner(centerSpawner);
 	sandbox.addSpawner(spawner);
 
 	//////////////////////////////////////////// Creating shaders and making program out of the shaders
