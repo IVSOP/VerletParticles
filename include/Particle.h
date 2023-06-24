@@ -19,6 +19,8 @@ class Particle {
 		pVec2 accel;
 		GLfloat color[4];
 
+		// double timeLived;
+
 
 		// GLuint textID;
 

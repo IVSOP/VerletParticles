@@ -131,9 +131,9 @@ int main() {
 	bindTexture(texID, slot);
 
 	// add particles
-	Particle p(pVec2(500, 500), 50);
-
-	sandbox.addParticle(p);
+	Particle p; // still needed for code below
+	// Particle p(pVec2(500, 500), 50);
+	// sandbox.addParticle(p);
 
 	// cleanup
 	GLCall(glDeleteShader(VS));
@@ -156,8 +156,9 @@ int main() {
 	const double fps_target = 60.0f;
 	const double milis = 1.0f / fps_target;
 
-	while (!glfwWindowShouldClose(window)) {
 
+	while (!glfwWindowShouldClose(window))
+	{
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();

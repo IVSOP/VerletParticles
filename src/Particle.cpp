@@ -19,7 +19,6 @@ Particle::Particle(pVec2 current_pos, size_t radius, pVec2 accel, GLfloat new_co
 	std::memcpy(this->color, new_color, 4 * sizeof(GLfloat));
 }
 
-
 Particle::Particle(pVec2 current_pos, size_t radius)
 {
 	this->current_pos = current_pos;
