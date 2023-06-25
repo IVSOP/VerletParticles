@@ -81,8 +81,11 @@ int main() {
 	Renderer renderer(window);
 	renderer.addSandbox(&sandbox);
 
-	Spawner spawner(centerSpawner);
-	sandbox.addSpawner(spawner);
+	// Spawner spawner(centerSpawner);
+	// sandbox.addSpawner(spawner);
+
+	// Spawner spawner2(inCircle);
+	// sandbox.addSpawner(spawner2);
 
 	//////////////////////////////////////////// Creating shaders and making program out of the shaders
 	GLCall(const GLuint program = glCreateProgram());
@@ -148,8 +151,8 @@ int main() {
 	GLCall(glUniform1i(loc, (GLint)0));
 
 	GLCall(glfwSwapInterval(1)); // hardcoded sync with monitor fps
-	GLfloat color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	int radius = 50, posX = 100, posY = 500;
+	GLfloat color[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
+	int radius = 25, posX = 100, posY = 500;
 	double previousFrameTime = glfwGetTime(), newFrameTime;
 	const double fps_target = 60.0f;
 	const double milis = 1.0f / fps_target;

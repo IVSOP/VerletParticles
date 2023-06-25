@@ -25,8 +25,8 @@ class QuadTreeSandbox : public Sandbox {
 		void applyRectangleConstraint();
 		void solveCollisions();
 
-		void collideParticles(Particle *p1, Particle *p2);
-
 };
+
+void collideParticles(Particle *p1, Particle *p2);
 
 #endif

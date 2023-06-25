@@ -11,8 +11,10 @@ QuadTreeSandbox::QuadTreeSandbox(size_t max_particles, size_t pixelsX, size_t pi
 }
 
 void QuadTreeSandbox::addParticle(Particle &particle) {
-	particles[len_particles ++] = particle; // will this copy the struct???
+	particles[len_particles] = particle; // will this copy the struct???
 	// add to tree
+	tree.insert(&(particles[len_particles ]));
+	len_particles ++;
 }
 
 void QuadTreeSandbox::updatePositions(double dt) {
@@ -71,22 +73,12 @@ void QuadTreeSandbox::applyRectangleConstraint() {
 	}
 }
 
-// brute force approach
-// I have no idea how the math involved works
+// janky for now, in the future might make an iterator for the quadtree or something
 void QuadTreeSandbox::solveCollisions() {
-	size_t i, j;
-	Particle *p1, *p2;
-
-	for (i = 0; i < this->len_particles; i++) {
-		p1 = &(this->particles[i]);
-		for (j = i + 1; j < this->len_particles; j++) {
-			p2 = &(this->particles[j]);
-			collideParticles(p1, p2);
-		}
-	}
+	tree.solveCollisions(collideParticles);
 }
 
-void QuadTreeSandbox::collideParticles(Particle *p1, Particle *p2) {
+void collideParticles(Particle *p1, Particle *p2) {
 	pVec2 collisionAxis, n;
 	double dist, min_dist;
 	const double response_coef = 0.75f;
