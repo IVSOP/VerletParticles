@@ -274,6 +274,16 @@ void Sandbox::onUpdate(double dt) {
 	}
 }
 
+void Sandbox::applyGravity() {
+	// TEMPORARY!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	pVec2 gravity = {0.0f, -1000.0f};
+	size_t i;
+
+	for (i = 0; i < this->len_particles; i++) {
+		this->particles[i].accelerate(gravity);
+	}
+}
+
 void Sandbox::addSpawner(Spawner &sp) {
 	this->spawners.push_back(sp);
 }

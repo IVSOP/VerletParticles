@@ -43,7 +43,7 @@ class Sandbox {
 		Sandbox(size_t n_particles, size_t pixelsX, size_t pixelsY);
 		~Sandbox();
 
-		virtual void addParticle(Particle &particle);
+		virtual void addParticle(Particle &particle) = 0;
 
 		size_t getNumberOfVertices() const;
 		size_t getNumberOfParticles() const;
@@ -63,11 +63,11 @@ class Sandbox {
 		void handleKeyPress(int key, int scancode, int action, int mods);
 
 		void onUpdate(double dt);
-		virtual void updatePositions(double dt);
+		virtual void updatePositions(double dt) = 0;
 		void applyGravity();
-		virtual void applyCircleConstraint();
-		virtual void applyRectangleConstraint();
-		virtual void solveCollisions();
+		virtual void applyCircleConstraint() = 0;
+		virtual void applyRectangleConstraint() = 0;
+		virtual void solveCollisions() = 0;
 
 		void addSpawner(Spawner &sp);
 };
