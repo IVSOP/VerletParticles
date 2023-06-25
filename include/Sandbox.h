@@ -3,7 +3,6 @@
 
 #include "Spawner.h"
 #include <vector>
-#include "Grid.h"
 
 typedef struct {
 	GLfloat position[3];
@@ -15,6 +14,9 @@ typedef struct {
 } Vertex;
 
 class Sandbox {
+	protected:
+		Particle *particles;
+		size_t len_particles;
 
 	private:
 		GLuint VAO;
@@ -23,13 +25,9 @@ class Sandbox {
 
 		size_t pixelsX, pixelsY;
 
-		Particle *particles;
-		size_t len_particles;
 		Vertex *vertices;
 		// size_t len_vertices; not needed, it is always len_particles * 4
 		size_t max_particles;
-
-		Grid grid;
 
 		std::vector<Spawner> spawners;
 
@@ -45,7 +43,7 @@ class Sandbox {
 		Sandbox(size_t n_particles, size_t pixelsX, size_t pixelsY);
 		~Sandbox();
 
-		void addParticle(Particle &particle);
+		virtual void addParticle(Particle &particle);
 
 		size_t getNumberOfVertices() const;
 		size_t getNumberOfParticles() const;
@@ -65,21 +63,13 @@ class Sandbox {
 		void handleKeyPress(int key, int scancode, int action, int mods);
 
 		void onUpdate(double dt);
-		void updatePositions(double dt);
+		virtual void updatePositions(double dt);
 		void applyGravity();
-		void applyCircleConstraint();
-		void applyRectangleConstraint();
-		void solveCollisions();
-		void solveCollisionsGrid();
-		void collideParticles(Particle *p1, Particle *p2); // could receive p1 radius to be faster
-		void collideParticlesGrid(GridCell *centerCell, GridCell *secondCell);
+		virtual void applyCircleConstraint();
+		virtual void applyRectangleConstraint();
+		virtual void solveCollisions();
 
 		void addSpawner(Spawner &sp);
-
-
-
-
-		void gridify();
 };
 
 #endif

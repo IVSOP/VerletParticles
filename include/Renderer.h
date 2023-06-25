@@ -6,6 +6,9 @@
 #include "imgui_impl_opengl3.h"
 
 #include "Sandbox.h"
+#include "GridSandbox.h"
+#include "RegularSandbox.h"
+
 #include <vector>
 #include <GLFW/glfw3.h>
 

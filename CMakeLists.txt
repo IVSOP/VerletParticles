@@ -17,6 +17,9 @@ add_executable(${PROJECT_NAME}
 	src/Texture.cpp
 	src/Spawner.cpp
 	src/Grid.cpp
+	src/GridSandbox.cpp
+	src/RegularSandbox.cpp
+	# src/SortedSandbox.cpp
 
 	external/imgui/src/imgui.cpp
 	external/imgui/src/imgui_draw.cpp
