@@ -138,8 +138,9 @@ bool centerSpawner(Particle *p, unsigned long int count, void *userData) {
 		RGBA[3] = 1.0f;
 		HSV_to_RGB(HSV, RGBA);
 
-		*p = Particle(center, (count % 20) + 5, accel, RGBA);
-		return true;		
+		// *p = Particle(center, (count % 20) + 5, accel, RGBA);
+		*p = Particle(center, 20, accel, RGBA);
+		return true;
 	}
 
 	return false;

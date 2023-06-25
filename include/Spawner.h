@@ -2,7 +2,6 @@
 #define SPAWNER_H
 
 #include "Particle.h"
-#include <optional>
 
 typedef bool spawnerFunc (Particle *p, unsigned long int count, void *userData);
 

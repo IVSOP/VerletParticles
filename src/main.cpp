@@ -7,8 +7,6 @@
 #include <GLFW/glfw3.h>
 #include <cmath>
 #include "GLErrors.h"
-#include "Particle.h"
-#include "Sandbox.h"
 #include "Renderer.h"
 #include "Texture.h"
 

@@ -3,6 +3,13 @@
 
 #include "Particle.h"
 
+
+
+#include <iostream>
+
+
+
+
 #define GRID_CELL_CAPACITY 1
 
 typedef struct {
@@ -15,42 +22,40 @@ typedef struct {
 // since the particle coordinates are (0,0) at bottom left,
 // the matrix is left upside down, left to right but bottom to top
 // [0] is (0,0) and corresponds to bottom left
+
+// basically, row 0 is the floor
 struct Grid {
+	public:
 		GridCell *cells;
 		size_t rows, cols, size;
 		// so that to transform into grid coordinates all you need to do is multiply by this
 		pVec2 transform;
 
 		Grid() = delete;
-		Grid(size_t pixel_width, size_t pixel_height, unsigned min_radius) {
-			cols = pixel_width / min_radius;
-			rows = pixel_height / min_radius;
-			size = rows * cols;
-			cells = new GridCell[size];
-			size_t i;
-			for (i = 0; i < size; i++) {
-				cells[i].len_particles = 0;
-			}
-
-			transform = {
-				pixel_width / cols,
-				pixel_height / rows
-			};
-		}
+		Grid(size_t pixel_width, size_t pixel_height, size_t radius);
 
 		~Grid() {
 			delete[] this->cells;
 		}
 
+		// !!!!!! all the inserts assume the partile is not in that cell, if you mess this up there will be repetitions
+
 		void insertIntoGrid(size_t particleIndex, size_t row, size_t col);
-		void removeFromGrid(size_t particleIndex, size_t row, size_t col);
 		void insertIntoGrid(size_t particleIndex, size_t pos);
+		void insertIntoGrid(size_t particleIndex, GridCell *cell);
+		void insertIntoGrid(size_t particleIndex, pVec2 particlePos);
+
+		void removeFromGrid(size_t particleIndex, size_t row, size_t col);
 		void removeFromGrid(size_t particleIndex, size_t pos);
+		void removeFromGrid(size_t particleIndex, GridCell *cell);
+
 		void move(size_t particleIndex, size_t old_row, size_t old_col, size_t new_row, size_t new_col);
 		void move(size_t particleIndex, size_t old_pos, size_t new_pos);
 
 		inline size_t getGridIndexFromParticlePos(pVec2 pos) {
-			return (static_cast<size_t>(pos.x) * rows) + static_cast<size_t>(pos.y);
+			pVec2 new_pos = pos * transform; // contains row and col
+			std::cout << "inserting into grid, turning " << pos.x << "," << pos.y << " into " << static_cast<size_t>(new_pos.x) << "," << static_cast<size_t>(new_pos.y) << std::endl;
+			return getGridIndexFromRowCol(static_cast<size_t>(new_pos.x), static_cast<size_t>(new_pos.y));
 		}
 
 		inline size_t getGridIndexFromRowCol(size_t row, size_t col) {

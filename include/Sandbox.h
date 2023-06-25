@@ -1,7 +1,6 @@
 #ifndef SANDBOX_H
 #define SANDBOX_H
 
-#include "Particle.h"
 #include "Spawner.h"
 #include <vector>
 #include "Grid.h"
@@ -53,8 +52,6 @@ class Sandbox {
 		size_t getNumberOfIndices() const;
 		size_t getMaxNumberParticles() const;
 
-		Particle * getParticle(size_t row, size_t col);
-
 		Vertex * getVertices() const;
 
 		size_t getMaxIndexCount() const;
@@ -75,7 +72,7 @@ class Sandbox {
 		void solveCollisions();
 		void solveCollisionsGrid();
 		void collideParticles(Particle *p1, Particle *p2); // could receive p1 radius to be faster
-		void collideParticlesGrid();
+		void collideParticlesGrid(GridCell *centerCell, GridCell *secondCell);
 
 		void addSpawner(Spawner &sp);
 
