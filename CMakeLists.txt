@@ -19,7 +19,9 @@ add_executable(${PROJECT_NAME}
 	src/Grid.cpp
 	src/GridSandbox.cpp
 	src/RegularSandbox.cpp
-	# src/SortedSandbox.cpp
+	src/SortedSandbox.cpp
+	src/QuadTree.cpp
+	src/QuadTreeSandbox.cpp
 
 	external/imgui/src/imgui.cpp
 	external/imgui/src/imgui_draw.cpp

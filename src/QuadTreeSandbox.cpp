@@ -1,24 +1,21 @@
-#include "SortedSandbox.h"
+#include "QuadTreeSandbox.h"
 
 #include <glm/geometric.hpp>
 
-SortedSandbox::SortedSandbox(size_t max_particles, size_t pixelsX, size_t pixelsY)
-	: Sandbox(max_particles, pixelsX, pixelsY)
+#define MAX_POINTS 4
+
+QuadTreeSandbox::QuadTreeSandbox(size_t max_particles, size_t pixelsX, size_t pixelsY)
+	: Sandbox(max_particles, pixelsX, pixelsY),
+	tree(QuadTreePoint(500, 500), static_cast<double>(pixelsX), static_cast<double>(pixelsY), MAX_POINTS)
 	{
-	this->indices = new uint32_t[Sandbox::max_particles];
 }
 
-SortedSandbox::~SortedSandbox() {
-	delete[] this->indices;
+void QuadTreeSandbox::addParticle(Particle &particle) {
+	particles[len_particles ++] = particle; // will this copy the struct???
+	// add to tree
 }
 
-void SortedSandbox::addParticle(Particle &particle) {
-	particles[len_particles] = particle; // will this copy the struct???
-	this->indices[len_particles] = len_particles;
-	len_particles ++;
-}
-
-void SortedSandbox::updatePositions(double dt) {
+void QuadTreeSandbox::updatePositions(double dt) {
 	size_t i;
 
 	for (i = 0; i < len_particles; i++) {
@@ -26,7 +23,7 @@ void SortedSandbox::updatePositions(double dt) {
 	}
 }
 
-void SortedSandbox::applyCircleConstraint() {
+void QuadTreeSandbox::applyCircleConstraint() {
 	const pVec2 center = {500.0f, 500.0f};
 	const double radius = 500.0f;
 
@@ -47,7 +44,7 @@ void SortedSandbox::applyCircleConstraint() {
 	}
 }
 
-void SortedSandbox::applyRectangleConstraint() {
+void QuadTreeSandbox::applyRectangleConstraint() {
 	Particle *p; size_t i;
 	const double size_x = 1000.0f / 2.0f; // divide by 2 here to save time
 	const double size_y = 1000.0f / 2.0f;
@@ -76,7 +73,7 @@ void SortedSandbox::applyRectangleConstraint() {
 
 // brute force approach
 // I have no idea how the math involved works
-void SortedSandbox::solveCollisions() {
+void QuadTreeSandbox::solveCollisions() {
 	size_t i, j;
 	Particle *p1, *p2;
 
@@ -89,7 +86,7 @@ void SortedSandbox::solveCollisions() {
 	}
 }
 
-void SortedSandbox::collideParticles(Particle *p1, Particle *p2) {
+void QuadTreeSandbox::collideParticles(Particle *p1, Particle *p2) {
 	pVec2 collisionAxis, n;
 	double dist, min_dist;
 	const double response_coef = 0.75f;

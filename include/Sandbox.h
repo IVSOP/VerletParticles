@@ -17,6 +17,10 @@ class Sandbox {
 	protected:
 		Particle *particles;
 		size_t len_particles;
+		
+		Vertex *vertices;
+		// size_t len_vertices; not needed, it is always len_particles * 4
+		size_t max_particles;
 
 	private:
 		GLuint VAO;
@@ -24,10 +28,6 @@ class Sandbox {
 		GLuint IBO;
 
 		size_t pixelsX, pixelsY;
-
-		Vertex *vertices;
-		// size_t len_vertices; not needed, it is always len_particles * 4
-		size_t max_particles;
 
 		std::vector<Spawner> spawners;
 

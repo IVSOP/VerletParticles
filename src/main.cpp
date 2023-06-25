@@ -76,7 +76,7 @@ int main() {
 
 	int width, height;
 	glfwGetWindowSize(window, &width, &height);
-	RegularSandbox sandbox(1000, 1000, 1000);
+	QuadTreeSandbox sandbox(1000, 1000, 1000);
 
 	Renderer renderer(window);
 	renderer.addSandbox(&sandbox);
