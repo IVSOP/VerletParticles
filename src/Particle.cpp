@@ -49,7 +49,7 @@ Particle::Particle(const Particle &particle) {
 }
 
 void Particle::updatePosition(double dt) {
-	glm::dvec2  velocity = current_pos - old_pos; // const???
+	glm::dvec2  velocity = current_pos - old_pos;
 
 	// std::cout << "Velocity: " << velocity.x << " " << velocity.y << std::endl;
 	// std::cout << "Accel: " << accel.x << " " << accel.y << std::endl;

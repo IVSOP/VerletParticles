@@ -3,12 +3,7 @@
 
 #include "Particle.h"
 
-
-
-#include <iostream>
-
-
-
+// #include <iostream>
 
 #define GRID_CELL_CAPACITY 1
 
@@ -48,13 +43,16 @@ struct Grid {
 		void removeFromGrid(size_t particleIndex, size_t row, size_t col);
 		void removeFromGrid(size_t particleIndex, size_t pos);
 		void removeFromGrid(size_t particleIndex, GridCell *cell);
+		void removeFromGrid(size_t particleIndex, pVec2 particlePos);
 
 		void move(size_t particleIndex, size_t old_row, size_t old_col, size_t new_row, size_t new_col);
 		void move(size_t particleIndex, size_t old_pos, size_t new_pos);
 
+		bool particleChangedCells(Particle *p, size_t *old_pos, size_t *new_pos);
+
 		inline size_t getGridIndexFromParticlePos(pVec2 pos) {
 			pVec2 new_pos = pos * transform; // contains row and col
-			std::cout << "inserting into grid, turning " << pos.x << "," << pos.y << " into " << static_cast<size_t>(new_pos.x) << "," << static_cast<size_t>(new_pos.y) << std::endl;
+			// std::cout << "inserting into grid, turning " << pos.x << "," << pos.y << " into " << static_cast<size_t>(new_pos.x) << "," << static_cast<size_t>(new_pos.y) << std::endl;
 			return getGridIndexFromRowCol(static_cast<size_t>(new_pos.x), static_cast<size_t>(new_pos.y));
 		}
 

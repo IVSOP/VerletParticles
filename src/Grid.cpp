@@ -7,7 +7,7 @@ Grid::Grid(size_t pixel_width, size_t pixel_height, size_t min_radius) {
 	cells = new GridCell[size];
 	size_t i;
 	for (i = 0; i < size; i++) {
-		cells[i].len_particles = 0;
+		(&cells[i])->len_particles = 0;
 	}
 
 	// extra division (1 /...) but allows for every insert to only have to multiply by this
@@ -77,10 +77,33 @@ void Grid::removeFromGrid(size_t particleIndex, GridCell *cell) {
 	}
 }
 
+void Grid::removeFromGrid(size_t particleIndex, pVec2 particlePos) {
+	size_t i = getGridIndexFromParticlePos(particlePos);
+	GridCell *cell = &(cells[i]);
+	if (removeFromArr(particleIndex, cell->particle_idx)) {
+		cell->len_particles --;
+	}
+}
+
 void Grid::move(size_t particleIndex, size_t old_row, size_t old_col, size_t new_row, size_t new_col) {
 
 }
 
 void Grid::move(size_t particleIndex, size_t old_pos, size_t new_pos) {
 
+}
+
+// checks if difference from old_pos to current_pos is enought to change to another cell and returns index of the new cell if found
+bool Grid::particleChangedCells(Particle *p, size_t *old_pos, size_t *new_pos) {
+	size_t pos1, pos2;
+
+	pos1 = getGridIndexFromParticlePos(p->old_pos);
+	pos2 = getGridIndexFromParticlePos(p->current_pos);
+
+	if (pos1 != pos2) {
+		*old_pos = pos1;
+		*new_pos = pos1;
+		return true;
+	}
+	return false;
 }

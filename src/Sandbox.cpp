@@ -276,8 +276,8 @@ void Sandbox::onUpdate(double dt) {
 	for (i = 0; i < SUBSTEPS; i++) {
 		applyGravity();
 
-		// solveColisionsGrid();
-		solveCollisions();
+		solveCollisionsGrid();
+		// solveCollisions();
 		// applyCircleConstraint();
 		applyRectangleConstraint();
 		updatePositions(sub_dt);
@@ -285,10 +285,16 @@ void Sandbox::onUpdate(double dt) {
 }
 
 void Sandbox::updatePositions(double dt) {
-	size_t i;
+	size_t i, new_pos, old_pos;
+	Particle *p;
 
 	for (i = 0; i < this->len_particles; i++) {
-		this->particles[i].updatePosition(dt);
+		p = &(this->particles[i]);
+		p->updatePosition(dt);
+		if (grid.particleChangedCells(p, &old_pos, &new_pos)) {
+			grid.removeFromGrid(i, p->old_pos);
+			grid.insertIntoGrid(i, p->current_pos);
+		}
 	}
 }
 
@@ -356,7 +362,6 @@ void Sandbox::solveCollisions() {
 	size_t i, j;
 	Particle *p1, *p2;
 
-
 	for (i = 0; i < this->len_particles; i++) {
 		p1 = &(this->particles[i]);
 		for (j = i + 1; j < this->len_particles; j++) {
@@ -411,7 +416,7 @@ void Sandbox::solveCollisionsGrid() {
 			centerCell = grid.get(row, col);
 			// compare with all surrounding cells
 
-			collideParticlesGrid(centerCell, centerCell); // there may be more than one particle in a grid
+			collideParticlesGrid(centerCell, centerCell); // there may be more than one particle in a grid, and they will collide with each other
 			for (lookup_row = row - 1; lookup_row < row + 2; lookup_row ++) {
 				for (lookup_col = col - 1; lookup_col < col + 2; lookup_col ++) {
 					collideParticlesGrid(centerCell, grid.get(lookup_row, lookup_col));
@@ -441,7 +446,7 @@ void Sandbox::collideParticlesGrid(GridCell *centerCell, GridCell *secondCell) {
 		for (j = 0; j < secondCell->len_particles; j++) {
 			index_p2 = secondCell->particle_idx[j];
 
-			if (index_p1 != index_p2) {
+			if (index_p1 != index_p2) { // particle can't collide with itself
 				p2 = &(this->particles[index_p2]);
 				p2_radius = p2->radius;
 
