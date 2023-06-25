@@ -73,6 +73,9 @@ class Sandbox {
 		void applyCircleConstraint();
 		void applyRectangleConstraint();
 		void solveCollisions();
+		void solveCollisionsGrid();
+		void collideParticles(Particle *p1, Particle *p2); // could receive p1 radius to be faster
+		void collideParticlesGrid();
 
 		void addSpawner(Spawner &sp);
 

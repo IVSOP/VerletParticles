@@ -262,35 +262,6 @@ void Sandbox::handleKeyPress(int key, int scancode, int action, int mods) {
 	// }
 }
 
-void Sandbox::gridify() {
-	// reset entire grid;
-	size_t i;
-	for (i = 0; i < grid.size; i++) {
-		grid.cells[i].len_particles = 0;
-	}
-
-	pVec2 new_pos;
-	size_t grid_pos;
-
-	// fill in grid from scratch
-	for (i = 0; i < this->len_particles; i++) {
-		// get coordinates in grid
-		new_pos = particles[i].current_pos.x * grid.transform;
-
-		grid_pos = grid.getAt(new_pos);
-		if (grid.cells[grid_pos].len_particles != 0) {
-			std::cout << "repetition at " << new_pos.x << " " << new_pos.y << std::endl;
-		} else {
-			std::cout << "adding at " << new_pos.x << " " << new_pos.y << std::endl;
-
-			grid.cells[grid_pos].len_particles = 1;
-			grid.cells[grid_pos].particle_idx = i;
-
-		}
-
-	}
-}
-
 void Sandbox::onUpdate(double dt) {
 	int i, size = this->spawners.size();
 	Particle p; // is there a better way to do this?????
@@ -310,9 +281,7 @@ void Sandbox::onUpdate(double dt) {
 	for (i = 0; i < SUBSTEPS; i++) {
 		applyGravity();
 
-		// temporary to see if grid works
-		gridify();
-
+		// solveColisionsGrid();
 		solveCollisions();
 		// applyCircleConstraint();
 		applyRectangleConstraint();
@@ -383,17 +352,6 @@ void Sandbox::applyRectangleConstraint() {
 		} else if (p->current_pos.y - radius < center.y - size_y) {
 			p->current_pos.y = center.y - size_y + radius;
 		}
-
-		// if (p->current_pos.x > center.x + size_x - margin) {
-		// 	p->current_pos.x = center.x + size_x - margin;
-		// } else if (p->current_pos.x < margin) {
-		// 	p->current_pos.x = margin;
-		// }
-		// if (p->current_pos.y > center.y + size_y - margin) {
-		// 	p->current_pos.y =center.y + size_y - margin;
-		// } else if (p->current_pos.y < margin) {
-		// 	p->current_pos.y = margin;
-		// }
 	}
 }
 
@@ -402,41 +360,51 @@ void Sandbox::applyRectangleConstraint() {
 void Sandbox::solveCollisions() {
 	size_t i, j;
 	Particle *p1, *p2;
+
+
+	for (i = 0; i < this->len_particles; i++) {
+		p1 = &(this->particles[i]);
+		for (j = i + 1; j < this->len_particles; j++) {
+			p2 = &(this->particles[j]);
+			collideParticles(p1, p2);
+		}
+	}
+}
+
+void Sandbox::collideParticles(Particle *p1, Particle *p2) {
 	pVec2 collisionAxis, n;
 	double dist, min_dist;
 	const double response_coef = 0.75f;
 	double mass_ratio_1, mass_ratio_2, delta;
 	double p1_radius, p2_radius;
 
-	for (i = 0; i < this->len_particles; i++) {
-		p1 = &(this->particles[i]);
-		p1_radius = p1->radius;
-		for (j = i + 1; j < this->len_particles; j++) {
-			p2 = &(this->particles[j]);
-			p2_radius = p2->radius;
+	p1_radius = p1->radius;
+	p2_radius = p2->radius;
 
-			collisionAxis = p1->current_pos - p2->current_pos;
-			min_dist = p1_radius + p2_radius;
-			dist = (collisionAxis.x * collisionAxis.x) + (collisionAxis.y * collisionAxis.y);
-			// avoid srqt as long as possible
+	collisionAxis = p1->current_pos - p2->current_pos;
+	min_dist = p1_radius + p2_radius;
+	dist = (collisionAxis.x * collisionAxis.x) + (collisionAxis.y * collisionAxis.y);
+	// avoid srqt as long as possible
 
-			
-			if (dist < min_dist * min_dist) {
-				dist = sqrt(dist);
-				n = collisionAxis / dist;
-				
-				mass_ratio_1 = p1_radius / (p1_radius + p2_radius);
-				mass_ratio_2 = p2_radius / (p1_radius + p2_radius);
+	
+	if (dist < min_dist * min_dist) {
+		dist = sqrt(dist);
+		n = collisionAxis / dist;
+		
+		mass_ratio_1 = p1_radius / (p1_radius + p2_radius);
+		mass_ratio_2 = p2_radius / (p1_radius + p2_radius);
 
-				delta = 0.5f * response_coef * (dist - min_dist);
+		delta = 0.5f * response_coef * (dist - min_dist);
 
-				p1->current_pos -= n * (mass_ratio_2 * delta);
-				p2->current_pos += n * (mass_ratio_1 * delta);
-			}
-		}
+		p1->current_pos -= n * (mass_ratio_2 * delta);
+		p2->current_pos += n * (mass_ratio_1 * delta);
 	}
 }
 
 void Sandbox::addSpawner(Spawner &sp) {
 	this->spawners.push_back(sp);
+}
+
+void Sandbox::solveCollisionsGrid() {
+
 }
