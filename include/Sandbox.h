@@ -4,6 +4,7 @@
 #include "Particle.h"
 #include "Spawner.h"
 #include <vector>
+#include "Grid.h"
 
 typedef struct {
 	GLfloat position[3];
@@ -29,6 +30,8 @@ class Sandbox {
 		// size_t len_vertices; not needed, it is always len_particles * 4
 		size_t max_particles;
 
+		Grid grid;
+
 		std::vector<Spawner> spawners;
 
 		void makeVAO();
@@ -39,6 +42,7 @@ class Sandbox {
 		void calculateVertices();
 
 	public:
+		Sandbox() = delete;
 		Sandbox(size_t n_particles, size_t pixelsX, size_t pixelsY);
 		~Sandbox();
 
@@ -71,6 +75,11 @@ class Sandbox {
 		void solveCollisions();
 
 		void addSpawner(Spawner &sp);
+
+
+
+
+		void gridify();
 };
 
 #endif

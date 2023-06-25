@@ -84,7 +84,7 @@ int main() {
 	renderer.addSandbox(&sandbox);
 
 	Spawner spawner(centerSpawner);
-	sandbox.addSpawner(spawner);
+	// sandbox.addSpawner(spawner);
 
 	//////////////////////////////////////////// Creating shaders and making program out of the shaders
 	GLCall(const GLuint program = glCreateProgram());

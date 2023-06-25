@@ -52,16 +52,18 @@ inline void Renderer::onKeyPress(GLFWwindow* window, int key, int scancode, int 
 
 // called when a key is pressed, for the renderer instance in question
 void Renderer::onKeyPress(int key, int scancode, int action, int mods) {
-	if (action == GLFW_PRESS) {
-		switch (key) {
-			case (GLFW_KEY_ESCAPE):
-				glfwSetWindowShouldClose(this->window, GL_TRUE);
-				break;
-			
-			default:
-				// for (Sandbox * sandbox : this->sandboxes) {
-					sandbox->handleKeyPress(key, scancode, action, mods);
-				// }
+	if (!this->io.WantCaptureKeyboard) {
+		if (action == GLFW_PRESS) {
+			switch (key) {
+				case (GLFW_KEY_ESCAPE):
+					glfwSetWindowShouldClose(this->window, GL_TRUE);
+					break;
+				
+				default:
+					// for (Sandbox * sandbox : this->sandboxes) {
+						sandbox->handleKeyPress(key, scancode, action, mods);
+					// }
+			}
 		}
 	}
 }

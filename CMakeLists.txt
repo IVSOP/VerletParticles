@@ -16,6 +16,7 @@ add_executable(${PROJECT_NAME}
 	src/Renderer.cpp
 	src/Texture.cpp
 	src/Spawner.cpp
+	src/Grid.cpp
 
 	external/imgui/src/imgui.cpp
 	external/imgui/src/imgui_draw.cpp

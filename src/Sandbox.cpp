@@ -64,8 +64,11 @@ void Sandbox::makeIBO() {
 }
 
 Sandbox::Sandbox(size_t max_particles, size_t pixelsX, size_t pixelsY)
-	: pixelsX(pixelsX), pixelsY(pixelsY)
+	// If I dont initialize it here it first calls empty constructor wtf??????????????????????????????????
+	: pixelsX(pixelsX), pixelsY(pixelsY),
+	grid(pixelsX, pixelsY, 1) // !!!!!!!!!!!!!!!!!! for now grid does not take into account max particles
 	{
+
 	this->particles = new Particle[max_particles];
 	this->len_particles = 0;
 	this->vertices = new Vertex[max_particles * 4];
@@ -239,9 +242,6 @@ void Sandbox::getMouseClickRelativePos(size_t *row, size_t *col, double xpos, do
 void Sandbox::handleMouseClickAt(int button, int action, int mods, double xpos, double ypos) {
 	size_t row, col;
 	getMouseClickRelativePos(&row, &col, xpos, ypos);
-	// std::cout << "Constants are " << this->width_constant << "," << this->height_constant << std::endl;
-	// std::cout << "Mouse clicked at " << xpos << "," << ypos << std::endl;
-	// std::cout << "Corresponds to (row,col) " << row << "," << col << std::endl;
 
 	// if (button == GLFW_MOUSE_BUTTON_LEFT) {
 	// 	if (action == GLFW_PRESS) {
@@ -256,9 +256,39 @@ void Sandbox::handleMouseClickAt(int button, int action, int mods, double xpos, 
 }
 
 void Sandbox::handleKeyPress(int key, int scancode, int action, int mods) {
+
 	// if (action == GLFW_PRESS) {
 
 	// }
+}
+
+void Sandbox::gridify() {
+	// reset entire grid;
+	size_t i;
+	for (i = 0; i < grid.size; i++) {
+		grid.cells[i].len_particles = 0;
+	}
+
+	pVec2 new_pos;
+	size_t grid_pos;
+
+	// fill in grid from scratch
+	for (i = 0; i < this->len_particles; i++) {
+		// get coordinates in grid
+		new_pos = particles[i].current_pos.x * grid.transform;
+
+		grid_pos = grid.getAt(new_pos);
+		if (grid.cells[grid_pos].len_particles != 0) {
+			std::cout << "repetition at " << new_pos.x << " " << new_pos.y << std::endl;
+		} else {
+			std::cout << "adding at " << new_pos.x << " " << new_pos.y << std::endl;
+
+			grid.cells[grid_pos].len_particles = 1;
+			grid.cells[grid_pos].particle_idx = i;
+
+		}
+
+	}
 }
 
 void Sandbox::onUpdate(double dt) {
@@ -279,6 +309,10 @@ void Sandbox::onUpdate(double dt) {
 	// can also only keep the solve collisions in a loop and the rest out of the loop
 	for (i = 0; i < SUBSTEPS; i++) {
 		applyGravity();
+
+		// temporary to see if grid works
+		gridify();
+
 		solveCollisions();
 		// applyCircleConstraint();
 		applyRectangleConstraint();
@@ -329,7 +363,7 @@ void Sandbox::applyRectangleConstraint() {
 	Particle *p; size_t i;
 	const double size_x = 1000.0f / 2.0f; // divide by 2 here to save time
 	const double size_y = 1000.0f / 2.0f;
-	const double margin = 2.0f;
+	// const double margin = 2.0f;
 	pVec2 center = {500.0f, 500.0f};
 	double radius;
 
