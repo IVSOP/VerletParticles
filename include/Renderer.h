@@ -9,6 +9,7 @@
 #include "GridSandbox.h"
 #include "RegularSandbox.h"
 #include "QuadTreeSandbox.h"
+#include "SortedSandbox.h"
 
 #include <vector>
 #include <GLFW/glfw3.h>

@@ -21,6 +21,7 @@ add_executable(${PROJECT_NAME}
 	src/RegularSandbox.cpp
 	src/QuadTree.cpp
 	src/QuadTreeSandbox.cpp
+	src/SortedSandbox.cpp
 
 	external/imgui/src/imgui.cpp
 	external/imgui/src/imgui_draw.cpp

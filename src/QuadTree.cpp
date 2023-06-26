@@ -132,33 +132,7 @@ void QuadTree::checkCollisionsInNeighboringQuadrants(QuadTreeNode *node, void ( 
 
 	// 	// Check collisions between particles in the current quadrant and neighboring quadrants
 	// 	for (Particle * point : node->points) {
-	// 		// Check collisions with particles in NW quadrant
-	// 		for (Particle * neighborPoint : nwNode->points) {
-	// 			if (checkCollision(point, neighborPoint)) {
-	// 				handleCollision(point, neighborPoint);
-	// 			}
-	// 		}
-
-	// 		// Check collisions with particles in NE quadrant
-	// 		for (Particle * neighborPoint : neNode->points) {
-	// 			if (checkCollision(point, neighborPoint)) {
-	// 				handleCollision(point, neighborPoint);
-	// 			}
-	// 		}
-
-	// 		// Check collisions with particles in SW quadrant
-	// 		for (Particle * neighborPoint : swNode->points) {
-	// 			if (checkCollision(point, neighborPoint)) {
-	// 				handleCollision(point, neighborPoint);
-	// 			}
-	// 		}
-
-	// 		// Check collisions with particles in SE quadrant
-	// 		for (Particle * neighborPoint : seNode->points) {
-	// 			if (checkCollision(point, neighborPoint)) {
-	// 				handleCollision(point, neighborPoint);
-	// 			}
-	// 		}
+			
 	// 	}
 	// }
 }

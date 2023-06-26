@@ -76,13 +76,13 @@ int main() {
 
 	int width, height;
 	glfwGetWindowSize(window, &width, &height);
-	QuadTreeSandbox sandbox(1000, 1000, 1000);
+	SortedSandbox sandbox(1000, 1000, 1000);
 
 	Renderer renderer(window);
 	renderer.addSandbox(&sandbox);
 
-	// Spawner spawner(centerSpawner);
-	// sandbox.addSpawner(spawner);
+	Spawner spawner(centerSpawner);
+	sandbox.addSpawner(spawner);
 
 	// Spawner spawner2(inCircle);
 	// sandbox.addSpawner(spawner2);
