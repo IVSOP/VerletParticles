@@ -28,7 +28,8 @@ struct Grid {
 		// so that to transform into grid coordinates all you need to do is multiply by this
 		pVec2 transform;
 
-		double radius;
+		// some things assume square, others rectangle, for now I just want this to work
+		double square_diameter;
 
 		Grid() = delete;
 		Grid(size_t pixel_width, size_t pixel_height, size_t radius);

@@ -93,6 +93,9 @@ void GridSandbox::solveCollisions() {
 		grid.insertIntoGrid(i, particles[i].current_pos);
 	}
 
+	if (len_particles > 0)
+		printf("particle 1 is in (%f,%f)\n", particles[1].current_pos.x, particles[1].current_pos.y);
+
 	for (row = 1; row < grid.rows - 1; row++) {
 		for (col = 1; col < grid.cols - 1; col++) {
 			
@@ -178,13 +181,15 @@ void GridSandbox::collideParticles(Particle *p1, Particle *p2) {
 	double dist;
 	constexpr double response_coef = 0.75f;
 	double delta;
-	const double min_dist = grid.radius * 2; // minimum distance between each other for there to be a collision
+	const double min_dist = grid.square_diameter; // minimum distance between each other for there to be a collision
 
 	collisionAxis = p1->current_pos - p2->current_pos;
 	// avoid srqt as long as possible
 	dist = (collisionAxis.x * collisionAxis.x) + (collisionAxis.y * collisionAxis.y);
 	
 	if (dist < min_dist * min_dist) {
+		// printf("colliding particles %ld and %ld\n", p1 - particles, p2 - particles);
+
 		dist = sqrt(dist);
 		n = collisionAxis / dist;
 
@@ -195,25 +200,35 @@ void GridSandbox::collideParticles(Particle *p1, Particle *p2) {
 	}
 }
 
-// // assumes radiuses are the same
 // void GridSandbox::collideParticles(Particle *p1, Particle *p2) {
-// 	constexpr double response_coef = 0.75f;
-// 	constexpr float eps = 0.0001f;
+// 	pVec2 collisionAxis, n;
+// 	double dist, min_dist;
+// 	const double response_coef = 0.75f;
+// 	double mass_ratio_1, mass_ratio_2, delta;
+// 	double p1_radius, p2_radius;
 
-// 	const double min_dist = grid.radius + grid.radius;
-// 	const double min_dist_sq = min_dist * min_dist;
+// 	p1_radius = p1->radius;
+// 	p2_radius = p2->radius;
 
-// 	const pVec2 collisionAxis = p1->current_pos - p2->current_pos;
-// 	// to avoid srqt as long as possible
-// 	const double dist = (collisionAxis.x * collisionAxis.x) + (collisionAxis.y * collisionAxis.y);
+// 	collisionAxis = p1->current_pos - p2->current_pos;
+// 	min_dist = p1_radius + p2_radius;
+// 	dist = (collisionAxis.x * collisionAxis.x) + (collisionAxis.y * collisionAxis.y);
+// 	// avoid srqt as long as possible
 
-// 	if (dist < min_dist_sq && dist > eps) {
-// 		const double dist2 = sqrt(dist);
-// 		const double delta = response_coef * 0.5f * (grid.radius - dist);
-// 		const pVec2 col_vec = (collisionAxis / dist2) * delta;
+	
+// 	if (dist < min_dist * min_dist) {
+// 		printf("colliding particles %ld and %ld\n", p1 - particles, p2 - particles);
+		
+// 		dist = sqrt(dist);
+// 		n = collisionAxis / dist;
+		
+// 		mass_ratio_1 = p1_radius / (p1_radius + p2_radius);
+// 		mass_ratio_2 = p2_radius / (p1_radius + p2_radius);
 
-// 		p1->current_pos -= col_vec;
-// 		p2->current_pos += col_vec;
+// 		delta = 0.5f * response_coef * (dist - min_dist);
+
+// 		p1->current_pos -= n * (mass_ratio_2 * delta);
+// 		p2->current_pos += n * (mass_ratio_1 * delta);
 // 	}
 // }
 

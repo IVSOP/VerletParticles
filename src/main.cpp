@@ -89,23 +89,23 @@ int main() {
 
 	int width, height;
 	glfwGetWindowSize(window, &width, &height);
-	SortedSandbox sandbox(10000, 1000, 1000);
+	GridSandbox sandbox(10000, 1000, 1000);
 
 	Renderer renderer(window);
 	renderer.addSandbox(&sandbox);
 
 	// center point and particle radius, if they decide to use it
-	spawnerInfo info1(pVec2(500, 750), 20);
-	spawnerInfo info2(pVec2(500, 250), 20);
+	// spawnerInfo info1(pVec2(500, 750), 20);
+	// spawnerInfo info2(pVec2(500, 250), 20);
 
-	Spawner spawner1(centerSpawnerFixedSize, &info1);
-	sandbox.addSpawner(spawner1);
+	// Spawner spawner1(centerSpawnerFixedSize, &info1);
+	// sandbox.addSpawner(spawner1);
 
-	Spawner spawner2(centerSpawnerFixedSize, &info2);
-	sandbox.addSpawner(spawner2);
+	// Spawner spawner2(centerSpawnerFixedSize, &info2);
+	// sandbox.addSpawner(spawner2);
 
-	Spawner spawner3(inCircle, &info1);
-	sandbox.addSpawner(spawner3);
+	// Spawner spawner3(inCircle, &info1);
+	// sandbox.addSpawner(spawner3);
 
 	//////////////////////////////////////////// Creating shaders and making program out of the shaders
 	GLCall(const GLuint program = glCreateProgram());
@@ -225,8 +225,8 @@ int main() {
 		ImGui::End();
 		ImGui::Render();
 
-		// renderer.renderSandbox(currentFrameTime - lastFrameTime);
-		renderer.renderSandboxWithoutTick(currentFrameTime - lastFrameTime);
+		renderer.renderSandbox(currentFrameTime - lastFrameTime);
+		// renderer.renderSandboxWithoutTick(currentFrameTime - lastFrameTime);
 
 		// saveFrame();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

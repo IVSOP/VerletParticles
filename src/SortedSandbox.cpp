@@ -92,6 +92,10 @@ void SortedSandbox::solveCollisions() {
 
 	sortArrays();
 
+	if (len_particles > 0)
+		printf("particle 1 is in (%f,%f)\n", particles[1].current_pos.x, particles[1].current_pos.y);
+	
+
 	// will optimize how this gets done in the future, prob with a bitmap or something
 
 	// colliding along x axis
@@ -161,6 +165,8 @@ void SortedSandbox::collideParticles(Particle *p1, Particle *p2) {
 
 	
 	if (dist < min_dist * min_dist) {
+		// printf("colliding particles %ld and %ld\n", p1 - particles, p2 - particles);
+		
 		dist = sqrt(dist);
 		n = collisionAxis / dist;
 		

@@ -6,8 +6,9 @@
 #include <string>
 
 Grid::Grid(size_t pixel_width, size_t pixel_height, size_t particle_radius) {
-	cols = pixel_width / particle_radius;
-	rows = pixel_height / particle_radius;
+	// have to divide or multiply by 2, radius of X means diameter is 2X
+	cols = pixel_width / (2 * particle_radius);
+	rows = pixel_height / (2 * particle_radius);
 	size = rows * cols;
 	cells = new GridCell[size];
 	size_t i;
@@ -16,7 +17,7 @@ Grid::Grid(size_t pixel_width, size_t pixel_height, size_t particle_radius) {
 		(&cells[i])->len_particles = 0;
 	}
 
-	this->radius = particle_radius;
+	this->square_diameter = particle_radius * 2;
 
 	// extra division (1 /...) but allows for every insert to only have to multiply by this
 	transform = {
@@ -24,7 +25,7 @@ Grid::Grid(size_t pixel_width, size_t pixel_height, size_t particle_radius) {
 		1.0f / (pixel_height / rows)
 	};
 
-	printf("Creating grid. pixelsX:%ld pixelsY:%ld radius:%ld cols:%ld rows:%ld transform.x:%f transform.y:%f\n", pixel_width, pixel_height, particle_radius, rows, cols, transform.x, transform.y);	
+	// printf("Creating grid. pixelsX:%ld pixelsY:%ld square_diameter:%f cols:%ld rows:%ld transform.x:%f transform.y:%f\n", pixel_width, pixel_height, square_diameter, rows, cols, transform.x, transform.y);	
 }
 
 // removes a given index, shifting remaining array

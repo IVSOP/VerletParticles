@@ -236,6 +236,9 @@ void Sandbox::handleKeyPress(int key, int scancode, int action, int mods) {
 	// }
 }
 
+// #include <chrono>
+// #include <thread>
+
 void Sandbox::onUpdate(double sub_dt) {
 	int i, size = this->spawners.size();
 	Particle p; // is there a better way to do this?????
@@ -252,6 +255,7 @@ void Sandbox::onUpdate(double sub_dt) {
 
 	// THIS IS MESSY WHEN SPAWNING PARTICLES INSIDE OF EACH OTHER
 	// can also only keep the solve collisions in a loop and the rest out of the loop
+
 	for (i = 0; i < SUBSTEPS; i++) {
 		applyGravity();
 		solveCollisions();
@@ -259,6 +263,7 @@ void Sandbox::onUpdate(double sub_dt) {
 		applyRectangleConstraint();
 		updatePositions(sub_dt);
 	}
+	// std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 
 void Sandbox::applyGravity() {
