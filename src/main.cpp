@@ -98,14 +98,14 @@ int main() {
 	spawnerInfo info1(pVec2(500, 750), 20);
 	spawnerInfo info2(pVec2(500, 250), 20);
 
-	// Spawner spawner1(centerSpawnerFixedSize, &info1);
-	// sandbox.addSpawner(spawner1);
+	Spawner spawner1(centerSpawnerFixedSize, &info1);
+	sandbox.addSpawner(spawner1);
 
-	// Spawner spawner2(centerSpawnerFixedSize, &info2);
-	// sandbox.addSpawner(spawner2);
+	Spawner spawner2(centerSpawnerFixedSize, &info2);
+	sandbox.addSpawner(spawner2);
 
-	// Spawner spawner3(inCircle, &info1);
-	// sandbox.addSpawner(spawner3);
+	Spawner spawner3(inCircle, &info1);
+	sandbox.addSpawner(spawner3);
 
 	//////////////////////////////////////////// Creating shaders and making program out of the shaders
 	GLCall(const GLuint program = glCreateProgram());
@@ -170,7 +170,7 @@ int main() {
 	// slot is allways 0
 	GLCall(glUniform1i(loc, (GLint)0));
 
-	GLCall(glfwSwapInterval(0)); // hardcoded sync with monitor fps
+	GLCall(glfwSwapInterval(1)); // hardcoded sync with monitor fps
 	GLfloat color[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
 	int radius = 20, posX = 100, posY = 500;
 	double previousFrameTime = glfwGetTime(), newFrameTime;
@@ -216,12 +216,18 @@ int main() {
 			renderer.tick();
 		}
 
+		if (ImGui::Button("Render")) {
+			renderer.renderSandbox(currentFrameTime - lastFrameTime);
+		}
+
 		ImGui::ShowDemoWindow();
 
 		ImGui::End();
 		ImGui::Render();
 
-		renderer.renderSandbox(currentFrameTime - lastFrameTime);
+		// renderer.renderSandbox(currentFrameTime - lastFrameTime);
+		renderer.renderSandboxWithoutTick(currentFrameTime - lastFrameTime);
+
 		// saveFrame();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 

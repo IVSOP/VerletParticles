@@ -42,6 +42,13 @@ void Renderer::renderSandbox(double frameDeltaTime) {
 	GLCall(glDrawElements(GL_TRIANGLES, sandbox->getNumberOfIndices(), GL_UNSIGNED_INT, 0));
 }
 
+void Renderer::renderSandboxWithoutTick(double frameDeltaTime) {
+	this->timestep_acc += frameDeltaTime;
+
+	sandbox->loadData();
+	GLCall(glDrawElements(GL_TRIANGLES, sandbox->getNumberOfIndices(), GL_UNSIGNED_INT, 0));
+}
+
 // called by setKeyCallback
 inline void Renderer::onKeyPress(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	Renderer *renderer = (Renderer *) glfwGetWindowUserPointer(window);
