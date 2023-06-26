@@ -1,5 +1,5 @@
-#ifndef QUADTREE_H
-#define QUADTREE_H
+#ifndef QUADTREEARRAY_H
+#define QUADTREEARRAY_H
 
 // quad tree strategy:
 // divide space into quadrants, with a capacity
@@ -22,45 +22,45 @@ typedef pVec2 QuadTreePoint;
 struct QuadTreeNode {
     QuadTreePoint position; // position of center node
     std::vector<Particle *> points;
-    QuadTreeNode* children[4]; // Children quadrants (NW, NE, SW, SE)
 	double half_width, half_height;
 
-	const QuadTreeNode *parent;
-
-    QuadTreeNode(const QuadTreePoint& _position, double _half_width, double _half_height, const QuadTreeNode *_parent)
-	: position(_position), half_width(_half_width), half_height(_half_height), parent(_parent)
+    QuadTreeNode(const QuadTreePoint& _position, double _half_width, double _half_height)
+	: position(_position), half_width(_half_width), half_height(_half_height)
 	{
-        for (int i = 0; i < 4; i++) {
-            children[i] = nullptr;
-        }
-		// std::cout << "position: " << position.x << "," << position.y << " width: " << width << " height: " << height << std::endl;
     }
 };
 
-class QuadTree {
+class QuadTreeArray {
 	private:
 		unsigned int maxPointsPerNode;
+		unsigned int capacity;
+		QuadTreeNode **nodes;
 
 		void Clear(QuadTreeNode *node);
-
 		void insertPoint(QuadTreeNode* node, Particle * particle);
-
 		void subdivideNode(QuadTreeNode* node);
-
 		bool pointInBounds(const QuadTreeNode* node, const Particle * particle);
 	
 	public:
 		QuadTreeNode *root; // easier to loop through it this way
 
-		QuadTree(const QuadTreePoint& center, double width, double height, int maxPoints)
-		: maxPointsPerNode(maxPoints)
+		QuadTreeArray(const QuadTreePoint& center, double width, double height, unsigned int _maxPointsPerNode, unsigned int _capacity)
+		: maxPointsPerNode(_maxPointsPerNode), capacity(_capacity)
 		{
-        	root = new QuadTreeNode(center, width / 2.0, height / 2.0, nullptr);
+			nodes = new QuadTreeNode*[capacity];
+        	root = new QuadTreeNode(center, width / 2.0, height / 2.0);
+
+			unsigned int i;
+			for (i = 0; i < capacity; i++) {
+				nodes[i] = nullptr;
+			}
+
+			// in this tree, there is no root. it is assumed there are already 4 quadrants, otherwise I have nowhere to put the first node *
     	}
 
 		void clearTree();
 
-		~QuadTree() {
+		~QuadTreeArray() {
 			dumpTree();
         	Clear(root);
     	}

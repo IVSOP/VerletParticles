@@ -8,7 +8,6 @@
 #include "Sandbox.h"
 #include "GridSandbox.h"
 #include "RegularSandbox.h"
-#include "SortedSandbox.h"
 #include "QuadTreeSandbox.h"
 
 #include <vector>

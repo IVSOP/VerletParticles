@@ -3,6 +3,7 @@
 
 #include "Sandbox.h"
 #include "QuadTree.h"
+// #include "QuadTreeArray.h"
 
 class QuadTreeSandbox : public Sandbox {
 
@@ -11,6 +12,7 @@ class QuadTreeSandbox : public Sandbox {
 		// size_t len_particles;
 
 		QuadTree tree;
+		// QuadTreeArray tree;
 
 	public:
 		QuadTreeSandbox() = delete;

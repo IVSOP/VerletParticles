@@ -1,6 +1,6 @@
-#include "QuadTree.h"
+#include "QuadTreeArray.h"
 
-void QuadTree::Clear(QuadTreeNode *node) {
+void QuadTreeArray::Clear(QuadTreeNode *node) {
 	// changed this initial check, moved it into the for loop
 	// if (node == nullptr) {
     // 	return;
@@ -15,7 +15,7 @@ void QuadTree::Clear(QuadTreeNode *node) {
 	delete node;
 }
 
-void QuadTree::insertPoint(QuadTreeNode* node, Particle * particle) {
+void QuadTreeArray::insertPoint(QuadTreeNode* node, Particle * particle) {
 	// changed this initial check, moved it into the for loop
 	// if (node == nullptr) {
 	// 	return;
@@ -61,7 +61,7 @@ void QuadTree::insertPoint(QuadTreeNode* node, Particle * particle) {
 	// points that were already there now go into sublevels
 }
 
-void QuadTree::subdivideNode(QuadTreeNode* node) {
+void QuadTreeArray::subdivideNode(QuadTreeNode* node) {
 	const double subWidth = node->half_width / 2.0;
 	const double subHeight = node->half_height / 2.0;
 
@@ -72,7 +72,7 @@ void QuadTree::subdivideNode(QuadTreeNode* node) {
 }
 
 // is this faster than just checking the distance to the center point??
-bool QuadTree::pointInBounds(const QuadTreeNode* node, const Particle * particle) {
+bool QuadTreeArray::pointInBounds(const QuadTreeNode* node, const Particle * particle) {
 	const pVec2 * point = &(particle->current_pos);
 
 	// std::cout << (point->x >= node->position.x - (node->width / 2.0)) << (point->x <= node->position.x + (node->width / 2.0)) << (point->y >= node->position.y - (node->height / 2.0)) << (point->y <= node->position.y + (node->height / 2.0)) << std::endl;
@@ -88,7 +88,7 @@ bool QuadTree::pointInBounds(const QuadTreeNode* node, const Particle * particle
             point->y <= node->position.y + node->half_height);
 }
 
-void QuadTree::solveCollisionsInNode(QuadTreeNode *node, void ( *collideParticles) (Particle *p1, Particle *p2)) {
+void QuadTreeArray::solveCollisionsInNode(QuadTreeNode *node, void ( *collideParticles) (Particle *p1, Particle *p2)) {
 	unsigned int i;
 	// go as deep as possible
 	for (i = 0; i < 4 && node->children[i] != nullptr; i++) {
@@ -122,7 +122,7 @@ void QuadTree::solveCollisionsInNode(QuadTreeNode *node, void ( *collideParticle
 	checkCollisionsInNeighboringQuadrants(node, collideParticles); // simulation is very buggy without this
 }
 
-void QuadTree::checkCollisionsInNeighboringQuadrants(QuadTreeNode *node, void ( *collideParticles) (Particle *p1, Particle *p2)) {
+void QuadTreeArray::checkCollisionsInNeighboringQuadrants(QuadTreeNode *node, void ( *collideParticles) (Particle *p1, Particle *p2)) {
 	// const QuadTreeNode* parent = node->parent;
 	// if (parent != nullptr) {
 	// 	QuadTreeNode* nwNode = parent->children[0];
@@ -163,7 +163,7 @@ void QuadTree::checkCollisionsInNeighboringQuadrants(QuadTreeNode *node, void ( 
 	// }
 }
 
-void QuadTree::solveCollisions(void ( *collideParticles) (Particle *p1, Particle *p2)) {
+void QuadTreeArray::solveCollisions(void ( *collideParticles) (Particle *p1, Particle *p2)) {
 	solveCollisionsInNode(root, collideParticles);
 }
 
@@ -189,11 +189,11 @@ void _dumpTree(QuadTreeNode *node, int depth) {
 	puts("]");
 }
 
-void QuadTree::dumpTree() {
+void QuadTreeArray::dumpTree() {
 	_dumpTree(root, 0);
 }
 
-void QuadTree::clearTree() {
+void QuadTreeArray::clearTree() {
 	root->points.clear();
 	unsigned int i;
 	for (i = 0; i < 4 && root->children[i] != nullptr; i++) {

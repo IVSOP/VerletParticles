@@ -7,6 +7,7 @@
 QuadTreeSandbox::QuadTreeSandbox(size_t max_particles, size_t pixelsX, size_t pixelsY)
 	: Sandbox(max_particles, pixelsX, pixelsY),
 	tree(QuadTreePoint(500, 500), static_cast<double>(pixelsX), static_cast<double>(pixelsY), MAX_POINTS)
+	// tree(QuadTreePoint(500, 500), static_cast<double>(pixelsX), static_cast<double>(pixelsY), MAX_POINTS)
 	{
 }
 
