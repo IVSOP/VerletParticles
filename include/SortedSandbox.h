@@ -16,7 +16,7 @@ class SortedSandbox : public Sandbox {
 	private:
 		// had to use particle * because comparison functions could not acces particles due to not being part of the class
 		Particle **arr_x; size_t len_x;
-		Particle **arr_y; size_t len_y;
+		// Particle **arr_y; size_t len_y;
 
 		// this is messy because functions need to get access to particles
 		void sortArrays();
@@ -38,7 +38,7 @@ class SortedSandbox : public Sandbox {
 		// these will return true if there was a collision
 		// but they will also solve the collision!!!!!!!!!!!!!!!!!!!!
 		bool collisionIsPossibleX(const Particle *p1, const Particle *p2, double radius_p1, double radius_p2);
-		bool collisionIsPossibleY(const Particle *p1, const Particle *p2, double radius_p1, double radius_p2);
+		// bool collisionIsPossibleY(const Particle *p1, const Particle *p2, double radius_p1, double radius_p2);
 
 };
 

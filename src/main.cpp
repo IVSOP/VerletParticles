@@ -81,8 +81,8 @@ int main() {
 	Renderer renderer(window);
 	renderer.addSandbox(&sandbox);
 
-	Spawner spawner(centerSpawner);
-	sandbox.addSpawner(spawner);
+	// Spawner spawner(centerSpawner);
+	// sandbox.addSpawner(spawner);
 
 	// Spawner spawner2(inCircle);
 	// sandbox.addSpawner(spawner2);

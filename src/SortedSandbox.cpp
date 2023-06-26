@@ -7,19 +7,19 @@ SortedSandbox::SortedSandbox(size_t max_particles, size_t pixelsX, size_t pixels
 	: Sandbox(max_particles, pixelsX, pixelsY)
 	{
 	this->arr_x = new Particle*[getMaxNumberParticles()]; len_x = 0;
-	this->arr_y = new Particle*[getMaxNumberParticles()]; len_y = 0;
+	// this->arr_y = new Particle*[getMaxNumberParticles()]; len_y = 0;
 }
 
 SortedSandbox::~SortedSandbox() {
 	delete[] arr_x;
-	delete[] arr_y;
+	// delete[] arr_y;
 }
 
 void SortedSandbox::addParticle(Particle &particle) {
 	particles[len_particles] = particle; // will this copy the struct???
 
 	arr_x[len_x++] = particles + len_particles;
-	arr_y[len_y++] = particles + len_particles;
+	// arr_y[len_y++] = particles + len_particles;
 
 	len_particles++;
 }
@@ -101,49 +101,46 @@ void SortedSandbox::solveCollisions() {
 			radius_p2 = p2->radius;
 
 			// check if particles COULD be colliding according to X axis
-			if (! collisionIsPossibleX(p1, p2, radius_p1, radius_p2)) {
-				break;
+			if (collisionIsPossibleX(p1, p2, radius_p1, radius_p2) == true) {
+				collideParticles(p1, p2);
 			}
-			collideParticles(p1, p2);
+			else break;
 		}
 	}
 
-	// colliding along y axis
-	for (i = 0; i < len_y; i++) {
-		p1 = arr_y[i];
-		radius_p1 = p1->radius;
-		for (j = i + 1; j < len_y; j++) {
-			p2 = arr_y[j];
-			radius_p2 = p2->radius;
+	// // colliding along y axis
+	// for (i = 0; i < len_y; i++) {
+	// 	p1 = arr_y[i];
+	// 	radius_p1 = p1->radius;
+	// 	for (j = i + 1; j < len_y; j++) {
+	// 		p2 = arr_y[j];
+	// 		radius_p2 = p2->radius;
 
-			// check if particles COULD be colliding according to Y axis
-			if (! collisionIsPossibleY(p1, p2, radius_p1, radius_p2)) {
-				break;
-			}
-			collideParticles(p1, p2);
-		}
-	}
+	// 		// check if particles COULD be colliding according to Y axis
+	// 		if (! collisionIsPossibleY(p1, p2, radius_p1, radius_p2)) {
+	// 			break;
+	// 		}
+	// 		collideParticles(p1, p2);
+	// 	}
+	// }
 }
 
 bool SortedSandbox::collisionIsPossibleX(const Particle *p1, const Particle *p2, double radius_p1, double radius_p2) {
 	double sum_radius = radius_p1 + radius_p2;
 	double distance_x = p1->current_pos.x - p2->current_pos.x;
 
-	if (distance_x < sum_radius) { // collision is possible
-		return true;
-	}
-	return false;
+	return (abs(distance_x) < sum_radius);
 }
 
-bool SortedSandbox::collisionIsPossibleY(const Particle *p1, const Particle *p2, double radius_p1, double radius_p2) {
-	double sum_radius = radius_p1 + radius_p2;
-	double distance_y = p1->current_pos.y - p2->current_pos.y;
+// bool SortedSandbox::collisionIsPossibleY(const Particle *p1, const Particle *p2, double radius_p1, double radius_p2) {
+// 	double sum_radius = radius_p1 + radius_p2;
+// 	double distance_y = p1->current_pos.y - p2->current_pos.y;
 
-	if (distance_y < sum_radius) { // collision is possible
-		return true;
-	}
-	return false;
-}
+// 	if (distance_y < sum_radius) { // collision is possible
+// 		return true;
+// 	}
+// 	return false;
+// }
 
 void SortedSandbox::collideParticles(Particle *p1, Particle *p2) {
 	pVec2 collisionAxis, n;
@@ -185,6 +182,6 @@ inline bool cmpParticlesY(const Particle *p1, const Particle *p2) {
 
 void SortedSandbox::sortArrays() {
 	std::sort(arr_x, arr_x + len_x, cmpParticlesX);
-	std::sort(arr_y, arr_y + len_y, cmpParticlesY);
+	// std::sort(arr_y, arr_y + len_y, cmpParticlesY);
 }
 
