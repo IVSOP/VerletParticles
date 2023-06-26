@@ -11,6 +11,13 @@
 
 // bool cmp(const Type1 &a, const Type2 &b);
 
+
+// IMPORTANT: for now, this works great for particles of the same size
+// however, when they have different sizes, the loop that checks collisions
+// stops suddenly when the collision is not possible with a small particle,
+// while it should still be possible if the particle was bigger
+// I am trying to think of a way to fix this, but if the particles have the same size it should be pretty good
+
 class SortedSandbox : public Sandbox {
 
 	private:

@@ -76,16 +76,22 @@ int main() {
 
 	int width, height;
 	glfwGetWindowSize(window, &width, &height);
-	SortedSandbox sandbox(1000, 1000, 1000);
+	SortedSandbox sandbox(10000, 1000, 1000);
 
 	Renderer renderer(window);
 	renderer.addSandbox(&sandbox);
 
-	// Spawner spawner(centerSpawner);
-	// sandbox.addSpawner(spawner);
+	centerSpawnerInfo info1(pVec2(500, 750));
+	centerSpawnerInfo info2(pVec2(500, 250));
 
-	// Spawner spawner2(inCircle);
-	// sandbox.addSpawner(spawner2);
+
+	Spawner spawner1(centerSpawnerFixedSize, &info1);
+	sandbox.addSpawner(spawner1);
+	Spawner spawner2(centerSpawnerFixedSize, &info2);
+	sandbox.addSpawner(spawner2);
+
+	// Spawner spawner3(inCircle);
+	// sandbox.addSpawner(spawner3, nullptr);
 
 	//////////////////////////////////////////// Creating shaders and making program out of the shaders
 	GLCall(const GLuint program = glCreateProgram());

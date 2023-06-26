@@ -119,8 +119,9 @@ bool inCircle(Particle *p, unsigned long int count, void *userData) {
 }
 
 bool centerSpawner(Particle *p, unsigned long int count, void *userData) {
+	centerSpawnerInfo *info = (centerSpawnerInfo *)userData;
 	if (count % 2 == 0) { // once every 2 ticks
-		pVec2 center = {500.0f, 750.0f};
+		pVec2 center = info->center;
 
 		// counter will act as degrees
 		double rad = (static_cast<double>(count) / 180) * M_PI;
@@ -139,7 +140,34 @@ bool centerSpawner(Particle *p, unsigned long int count, void *userData) {
 		HSV_to_RGB(HSV, RGBA);
 
 		*p = Particle(center, (count % 20) + 5, accel, RGBA);
-		// *p = Particle(center, 20, accel, RGBA);
+		return true;
+	}
+
+	return false;
+}
+
+bool centerSpawnerFixedSize(Particle *p, unsigned long int count, void *userData) {
+	centerSpawnerInfo *info = (centerSpawnerInfo *)userData;
+	if (count % 2 == 0) { // once every 2 ticks
+		pVec2 center = info->center;
+
+		// counter will act as degrees
+		double rad = (static_cast<double>(count) / 180) * M_PI;
+		// needs to be offset for center to match and then resized
+		pVec2 accel = {cos(rad), sin(rad)};
+
+		accel *= 1000000.0;
+
+		GLfloat HSV[3] = {
+			static_cast<GLfloat>(count % 360),
+			1.0f,
+			1.0f
+		},
+		RGBA[4];
+		RGBA[3] = 1.0f;
+		HSV_to_RGB(HSV, RGBA);
+
+		*p = Particle(center, 5, accel, RGBA);
 		return true;
 	}
 
