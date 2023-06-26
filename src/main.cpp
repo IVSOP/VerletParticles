@@ -10,6 +10,19 @@
 #include "Renderer.h"
 #include "Texture.h"
 
+void saveFrame() {
+	char filename[] = "frame.tga";
+	int* buffer = new int[ 1000 * 1000 * 3 ];
+					 // width, height
+	glReadPixels( 0, 0, 1000, 1000, GL_BGR, GL_UNSIGNED_BYTE, buffer );
+
+	FILE   *out = fopen(filename, "w");
+	short  TGAhead[] = {0, 2, 0, 0, 0, 0, 1000, 1000, 24};
+	fwrite(&TGAhead, sizeof(TGAhead), 1, out);
+	fwrite(buffer, 3 * 1000 * 1000, 1, out);
+	fclose(out);
+}
+
 // will break on huge files, bad error checking
 const GLchar *readFromFile(char *filepath) {
 	FILE *fp = fopen(filepath, "r");
@@ -206,6 +219,7 @@ int main() {
 		ImGui::Render();
 
 		renderer.renderSandbox(milis);
+		// saveFrame();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		newFrameTime = glfwGetTime();

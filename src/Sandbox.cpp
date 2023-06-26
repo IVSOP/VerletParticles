@@ -231,9 +231,10 @@ void Sandbox::handleMouseClickAt(int button, int action, int mods, double xpos, 
 }
 
 void Sandbox::handleKeyPress(int key, int scancode, int action, int mods) {
-
-	// if (action == GLFW_PRESS) {
-
+	// if (action == GLFW_RELEASE) {
+	// 	if (key == GLFW_KEY_SPACE) {
+	// 		saveFrame();
+	// 	}
 	// }
 }
 

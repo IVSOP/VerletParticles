@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <string>
+
 Grid::Grid(size_t pixel_width, size_t pixel_height, size_t particle_radius) {
 	cols = pixel_width / particle_radius;
 	rows = pixel_height / particle_radius;

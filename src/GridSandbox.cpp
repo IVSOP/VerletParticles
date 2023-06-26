@@ -93,7 +93,6 @@ void GridSandbox::solveCollisions() {
 		grid.insertIntoGrid(i, particles[i].current_pos);
 	}
 
-	// the borders are not iterated over
 	for (row = 1; row < grid.rows - 1; row++) {
 		for (col = 1; col < grid.cols - 1; col++) {
 			
@@ -114,6 +113,47 @@ void GridSandbox::solveCollisions() {
 			collideParticlesBetweenCells(centerCell, grid.get(row - 1, col + 1));
 		}
 	}
+
+	// floor and ceiling
+	row = grid.rows - 1; // last row
+	for (col = 1; col < grid.cols - 1; col ++) {
+
+		// ceiling
+		centerCell = grid.get(row, col);
+		collideParticlesBetweenCells(centerCell, grid.get(row, col - 1));
+		collideParticlesSameCell(centerCell);
+		collideParticlesBetweenCells(centerCell, grid.get(row, col + 1));
+		
+		// floor
+		centerCell = grid.get(0, col);
+		collideParticlesBetweenCells(centerCell, grid.get(0, col - 1));
+		collideParticlesSameCell(centerCell);
+		collideParticlesBetweenCells(centerCell, grid.get(0, col + 1));
+	}
+
+	// walls
+	col = grid.cols - 1;
+	for (row = 1; row < grid.rows - 1; row ++) {
+
+		// left
+		centerCell = grid.get(row, 0);
+		collideParticlesBetweenCells(centerCell, grid.get(row - 1, 0));
+		collideParticlesSameCell(centerCell);
+		collideParticlesBetweenCells(centerCell, grid.get(row + 1, 0));
+		
+		// right
+		centerCell = grid.get(row, col);
+		collideParticlesBetweenCells(centerCell, grid.get(row - 1, col));
+		collideParticlesSameCell(centerCell);
+		collideParticlesBetweenCells(centerCell, grid.get(row + 1, col));
+	}
+
+	// corners only need to check themselves
+	// collideParticlesSameCell(grid.get(0, 0));
+	// collideParticlesSameCell(grid.get(0, grid.cols - 1));
+	// collideParticlesSameCell(grid.get(grid.rows - 1, grid.cols - 1));
+	// collideParticlesSameCell(grid.get(grid.rows - 1, 0));
+	
 }
 
 // checks all particles from centerCell vs all particles from secondCell, as long as particles do not have the same index
