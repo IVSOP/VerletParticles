@@ -81,17 +81,18 @@ int main() {
 	Renderer renderer(window);
 	renderer.addSandbox(&sandbox);
 
-	centerSpawnerInfo info1(pVec2(500, 750));
-	centerSpawnerInfo info2(pVec2(500, 250));
-
+	// center point and particle radius, if they decide to use it
+	spawnerInfo info1(pVec2(500, 750), 5);
+	spawnerInfo info2(pVec2(500, 250), 5);
 
 	Spawner spawner1(centerSpawnerFixedSize, &info1);
 	sandbox.addSpawner(spawner1);
+
 	Spawner spawner2(centerSpawnerFixedSize, &info2);
 	sandbox.addSpawner(spawner2);
 
-	// Spawner spawner3(inCircle);
-	// sandbox.addSpawner(spawner3, nullptr);
+	Spawner spawner3(inCircle, &info1);
+	sandbox.addSpawner(spawner3);
 
 	//////////////////////////////////////////// Creating shaders and making program out of the shaders
 	GLCall(const GLuint program = glCreateProgram());

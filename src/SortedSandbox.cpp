@@ -21,6 +21,8 @@ void SortedSandbox::addParticle(Particle &particle) {
 	arr_x[len_x++] = particles + len_particles;
 	// arr_y[len_y++] = particles + len_particles;
 
+	addColorToParticle(len_particles, particle.color);
+
 	len_particles++;
 }
 
@@ -184,4 +186,3 @@ void SortedSandbox::sortArrays() {
 	std::sort(arr_x, arr_x + len_x, cmpParticlesX);
 	// std::sort(arr_y, arr_y + len_y, cmpParticlesY);
 }
-

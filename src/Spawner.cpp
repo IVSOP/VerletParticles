@@ -5,29 +5,29 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-Spawner::Spawner(spawnerFunc *func) {
-	this->count = 0;
-	this->func = func;
-	this->userData = nullptr;
-}
+// Spawner::Spawner(spawnerFunc *func) {
+// 	this->count = 0;
+// 	this->func = func;
+// 	this->info = nullptr;
+// }
 
-Spawner::Spawner(spawnerFunc *func, void *userData) {
+Spawner::Spawner(spawnerFunc *func, spawnerInfo *info) {
 	this->count = 0;
 	this->func = func;
-	this->userData = userData;
+	this->info = info;
 }
 
 Spawner::Spawner(const Spawner &spawner) {
 	this->count = spawner.count;
 	this->func = spawner.func;
-	this->userData = spawner.userData;
+	this->info = spawner.info;
 }
 
 // calls function with count and userData. function can choose to use it or not, and by default data is nullptr
 // p is a pointer that will be filled with the particle data
 // returns true if particle was created (I didn't feel like using std::optional)
 bool Spawner::nextParticle(Particle *p) {
-	bool ret = func(p, count, userData);
+	bool ret = func(p, count, info);
 	this->count++;
 	return ret;
 }
@@ -74,7 +74,7 @@ void HSV_to_RGB(const GLfloat HSV[3], GLfloat RGB[3]) {
 	}  
 }
 
-bool inCircle(Particle *p, unsigned long int count, void *userData) {
+bool inCircle(Particle *p, unsigned long int count, spawnerInfo *info) {
 	if (count % 5 == 0) { // once every 5 ticks
 		double radius = 500.0f;
 		pVec2 center = {500.0f, 500.0f};
@@ -111,15 +111,14 @@ bool inCircle(Particle *p, unsigned long int count, void *userData) {
 		// std::cout << static_cast<float>(count % 360) << std::endl;
 		// std::cout << RGBA[0] << " " << RGBA[1] << " " << RGBA[2] << std::endl;
 
-		*p = Particle(pos, 20, accel, RGBA);
+		*p = Particle(pos, info->particle_radius, accel, RGBA);
 		return true;		
 	}
 
 	return false;
 }
 
-bool centerSpawner(Particle *p, unsigned long int count, void *userData) {
-	centerSpawnerInfo *info = (centerSpawnerInfo *)userData;
+bool centerSpawner(Particle *p, unsigned long int count, spawnerInfo *info) {
 	if (count % 2 == 0) { // once every 2 ticks
 		pVec2 center = info->center;
 
@@ -146,8 +145,7 @@ bool centerSpawner(Particle *p, unsigned long int count, void *userData) {
 	return false;
 }
 
-bool centerSpawnerFixedSize(Particle *p, unsigned long int count, void *userData) {
-	centerSpawnerInfo *info = (centerSpawnerInfo *)userData;
+bool centerSpawnerFixedSize(Particle *p, unsigned long int count, spawnerInfo *info) {
 	if (count % 2 == 0) { // once every 2 ticks
 		pVec2 center = info->center;
 
@@ -167,7 +165,7 @@ bool centerSpawnerFixedSize(Particle *p, unsigned long int count, void *userData
 		RGBA[3] = 1.0f;
 		HSV_to_RGB(HSV, RGBA);
 
-		*p = Particle(center, 5, accel, RGBA);
+		*p = Particle(center, info->particle_radius, accel, RGBA);
 		return true;
 	}
 

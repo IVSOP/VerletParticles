@@ -3,35 +3,36 @@
 
 #include "Particle.h"
 
-typedef bool spawnerFunc (Particle *p, unsigned long int count, void *userData);
+
+struct spawnerInfo {
+	pVec2 center;
+	double particle_radius;
+
+	spawnerInfo(pVec2 _center, double _particle_radius)
+		: center(_center), particle_radius(_particle_radius)
+	{}
+};
+
+typedef bool spawnerFunc (Particle *p, unsigned long int count, spawnerInfo *info);
 
 // some examples of spawner funcs
 
 
-bool inCircle(Particle *p, unsigned long int count, void *userData);
-
-struct centerSpawnerInfo {
-	pVec2 center;
-
-	centerSpawnerInfo(pVec2 _center)
-		: center(_center)
-	{}
-};
-
+bool inCircle(Particle *p, unsigned long int count, spawnerInfo *info);
 // from center rotates in a circle
-bool centerSpawner(Particle *p, unsigned long int count, void *userData);
-bool centerSpawnerFixedSize(Particle *p, unsigned long int count, void *userData);
+bool centerSpawner(Particle *p, unsigned long int count, spawnerInfo *info);
+bool centerSpawnerFixedSize(Particle *p, unsigned long int count, spawnerInfo *info);
 
 class Spawner {
 	private:
 		unsigned long int count;
 		spawnerFunc *func;
-		void *userData;
+		spawnerInfo *info;
 
 	public:
 		Spawner() = delete;
-		Spawner(spawnerFunc *func);
-		Spawner(spawnerFunc *func, void *userData);
+		// Spawner(spawnerFunc *func);
+		Spawner(spawnerFunc *func, spawnerInfo *info);
 		~Spawner() = default;
 
 		Spawner(const Spawner &spawner);
@@ -39,7 +40,7 @@ class Spawner {
 		Spawner& operator = (const Spawner& spawner) {
 			this->count = spawner.count;
 			this->func = spawner.func;
-			this->userData = spawner.userData;
+			this->info = spawner.info;
 			return *this;
 		}
 

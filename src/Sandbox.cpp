@@ -122,8 +122,6 @@ void Sandbox::calculateVertices() {
 	Particle *particle;
 	Vertex *_vertices;
 	GLfloat radius;
-	GLfloat *color; //[] = { 1.0f, 0.0f, 0.0f, 1.0f };
-
 	/*
 		3---2
 		|   |
@@ -132,8 +130,6 @@ void Sandbox::calculateVertices() {
 	for (i = 0; i < this->len_particles; i++)
 	{
 		particle = &(this->particles[i]);
-
-		color = particle->color;
 
 		// particle has the coordinates of its center
 		// need to calculate other ones from it, rotation does not matter
@@ -159,8 +155,6 @@ void Sandbox::calculateVertices() {
 		
 		position = (&_vertices[0])->position;
 		texCoords = (&_vertices[0])->texCoords;
-		
-		memcpy(((&_vertices[0])->color), color, 4 * sizeof(GLfloat));
 
 		position[0] = x - radius;
 		position[1] = y - radius;
@@ -171,8 +165,6 @@ void Sandbox::calculateVertices() {
 		
 		position = (&_vertices[1])->position;
 		texCoords = (&_vertices[1])->texCoords;
-		
-		memcpy(((&_vertices[1])->color), color, 4 * sizeof(GLfloat));
 
 		position[0] = x + radius;
 		position[1] = y - radius;
@@ -184,8 +176,6 @@ void Sandbox::calculateVertices() {
 
 		position = (&_vertices[2])->position;
 		texCoords = (&_vertices[2])->texCoords;
-		
-		memcpy(((&_vertices[2])->color), color, 4 * sizeof(GLfloat));
 
 		position[0] = x + radius;
 		position[1] = y + radius;
@@ -197,8 +187,6 @@ void Sandbox::calculateVertices() {
 
 		position = (&_vertices[3])->position;
 		texCoords = (&_vertices[3])->texCoords;
-		
-		memcpy(((&_vertices[3])->color), color, 4 * sizeof(GLfloat));
 
 		position[0] = x - radius;
 		position[1] = y + radius;
@@ -286,4 +274,13 @@ void Sandbox::applyGravity() {
 
 void Sandbox::addSpawner(Spawner &sp) {
 	this->spawners.push_back(sp);
+}
+
+void Sandbox::addColorToParticle(size_t index, GLfloat *color) {
+	int i;
+	Vertex *vertex;
+	for (i = 0; i < 4; i++) {
+		vertex = this->vertices + (index * 4) + i;
+		memcpy(vertex->color, color, 4 * sizeof(GLfloat));
+	}
 }

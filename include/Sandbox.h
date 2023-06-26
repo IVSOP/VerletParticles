@@ -22,6 +22,8 @@ class Sandbox {
 		// size_t len_vertices; not needed, it is always len_particles * 4
 		size_t max_particles;
 
+		void addColorToParticle(size_t index, GLfloat *color);
+
 	private:
 		GLuint VAO;
 		GLuint VBO;
