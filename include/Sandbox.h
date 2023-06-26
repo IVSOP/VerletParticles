@@ -4,6 +4,8 @@
 #include "Spawner.h"
 #include <vector>
 
+#define SUBSTEPS 8
+
 typedef struct {
 	GLfloat position[3];
 	GLfloat color[4]; // RGBA
@@ -64,7 +66,7 @@ class Sandbox {
 		void handleMouseClickAt(int button, int action, int mods, double xpos, double ypos);
 		void handleKeyPress(int key, int scancode, int action, int mods);
 
-		void onUpdate(double dt);
+		void onUpdate(double sub_dt);
 		virtual void updatePositions(double dt) = 0;
 		void applyGravity();
 		virtual void applyCircleConstraint() = 0;

@@ -176,30 +176,46 @@ void GridSandbox::collideParticlesBetweenCells(GridCell *centerCell, GridCell *s
 void GridSandbox::collideParticles(Particle *p1, Particle *p2) {
 	pVec2 collisionAxis, n;
 	double dist;
-	const double response_coef = 0.75f;
-	double mass_ratio_1, mass_ratio_2, delta;
-	const double p1_radius = grid.radius;
-	const double p2_radius = grid.radius;
-	const double min_dist = grid.radius * 2;
+	constexpr double response_coef = 0.75f;
+	double delta;
+	const double min_dist = grid.radius * 2; // minimum distance between each other for there to be a collision
 
 	collisionAxis = p1->current_pos - p2->current_pos;
-	dist = (collisionAxis.x * collisionAxis.x) + (collisionAxis.y * collisionAxis.y);
 	// avoid srqt as long as possible
-
+	dist = (collisionAxis.x * collisionAxis.x) + (collisionAxis.y * collisionAxis.y);
 	
 	if (dist < min_dist * min_dist) {
 		dist = sqrt(dist);
 		n = collisionAxis / dist;
-		
-		mass_ratio_1 = p1_radius / (p1_radius + p2_radius);
-		mass_ratio_2 = p2_radius / (p1_radius + p2_radius);
 
 		delta = 0.5f * response_coef * (dist - min_dist);
 
-		p1->current_pos -= n * (mass_ratio_2 * delta);
-		p2->current_pos += n * (mass_ratio_1 * delta);
+		p1->current_pos -= n * (0.5 * delta);
+		p2->current_pos += n * (0.5 * delta);
 	}
 }
+
+// // assumes radiuses are the same
+// void GridSandbox::collideParticles(Particle *p1, Particle *p2) {
+// 	constexpr double response_coef = 0.75f;
+// 	constexpr float eps = 0.0001f;
+
+// 	const double min_dist = grid.radius + grid.radius;
+// 	const double min_dist_sq = min_dist * min_dist;
+
+// 	const pVec2 collisionAxis = p1->current_pos - p2->current_pos;
+// 	// to avoid srqt as long as possible
+// 	const double dist = (collisionAxis.x * collisionAxis.x) + (collisionAxis.y * collisionAxis.y);
+
+// 	if (dist < min_dist_sq && dist > eps) {
+// 		const double dist2 = sqrt(dist);
+// 		const double delta = response_coef * 0.5f * (grid.radius - dist);
+// 		const pVec2 col_vec = (collisionAxis / dist2) * delta;
+
+// 		p1->current_pos -= col_vec;
+// 		p2->current_pos += col_vec;
+// 	}
+// }
 
 // separate funciton to avoid an extra if in the normal one
 void GridSandbox::collideParticlesSameCell(GridCell *cell) {

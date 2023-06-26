@@ -6,8 +6,6 @@
 #include <string.h>
 #include <glm/geometric.hpp>
 
-#define SUBSTEPS 8
-
 void Sandbox::makeVAO() {
 	GLuint VAO;
 	GLCall(glGenVertexArrays(1, &VAO));
@@ -238,10 +236,10 @@ void Sandbox::handleKeyPress(int key, int scancode, int action, int mods) {
 	// }
 }
 
-void Sandbox::onUpdate(double dt) {
+void Sandbox::onUpdate(double sub_dt) {
 	int i, size = this->spawners.size();
 	Particle p; // is there a better way to do this?????
-	double sub_dt = dt / SUBSTEPS;
+	// double sub_dt = dt / SUBSTEPS;
 	
 	// spawn particles from all spawners
 	for (i = 0; i < size; i++) {

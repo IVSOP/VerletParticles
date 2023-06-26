@@ -89,14 +89,14 @@ int main() {
 
 	int width, height;
 	glfwGetWindowSize(window, &width, &height);
-	GridSandbox sandbox(10000, 1000, 1000);
+	SortedSandbox sandbox(10000, 1000, 1000);
 
 	Renderer renderer(window);
 	renderer.addSandbox(&sandbox);
 
 	// center point and particle radius, if they decide to use it
-	// spawnerInfo info1(pVec2(500, 750), 5);
-	// spawnerInfo info2(pVec2(500, 250), 5);
+	spawnerInfo info1(pVec2(500, 750), 20);
+	spawnerInfo info2(pVec2(500, 250), 20);
 
 	// Spawner spawner1(centerSpawnerFixedSize, &info1);
 	// sandbox.addSpawner(spawner1);
@@ -170,16 +170,19 @@ int main() {
 	// slot is allways 0
 	GLCall(glUniform1i(loc, (GLint)0));
 
-	GLCall(glfwSwapInterval(1)); // hardcoded sync with monitor fps
+	GLCall(glfwSwapInterval(0)); // hardcoded sync with monitor fps
 	GLfloat color[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
 	int radius = 20, posX = 100, posY = 500;
 	double previousFrameTime = glfwGetTime(), newFrameTime;
-	const double fps_target = 60.0f;
-	const double milis = 1.0f / fps_target;
-
+	
+	
+	double lastFrameTime = glfwGetTime(),
+	currentFrameTime;
 
 	while (!glfwWindowShouldClose(window))
 	{
+		currentFrameTime = glfwGetTime();
+
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
@@ -210,7 +213,7 @@ int main() {
 		}
 
 		if (ImGui::Button("Tick")) {
-			renderer.tick(milis);
+			renderer.tick();
 		}
 
 		ImGui::ShowDemoWindow();
@@ -218,7 +221,7 @@ int main() {
 		ImGui::End();
 		ImGui::Render();
 
-		renderer.renderSandbox(milis);
+		renderer.renderSandbox(currentFrameTime - lastFrameTime);
 		// saveFrame();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -228,6 +231,8 @@ int main() {
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+
+		lastFrameTime = currentFrameTime;
 	}
 
 	ImGui_ImplOpenGL3_Shutdown();

@@ -2,8 +2,6 @@
 #include "GLErrors.h"
 #include <iostream>
 
-const double Renderer::timestep = 1.0f / (60.0f * 8.0f);
-
 void Renderer::setCallbacks(GLFWwindow* window) {
 	glfwSetWindowUserPointer(window, this);
 	
@@ -33,11 +31,11 @@ void Renderer::addSandbox(Sandbox *sandbox) {
 // 	}
 // }
 
-void Renderer::renderSandbox(double dt) {
-	this->timestep_acc += this->timestep;
+void Renderer::renderSandbox(double frameDeltaTime) {
+	this->timestep_acc += frameDeltaTime;
 	if (timestep_acc >= timestep) {
-		timestep_acc = 0;
-		tick(dt);
+		timestep_acc -= timestep;
+		tick();
 	}
 
 	sandbox->loadData();

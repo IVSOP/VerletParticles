@@ -14,6 +14,8 @@
 #include <vector>
 #include <GLFW/glfw3.h>
 
+#define FPS 60
+
 class Renderer {
 	private:
 		GLFWwindow *window;
@@ -26,16 +28,23 @@ class Renderer {
 		static void onMouseClick(GLFWwindow* window, int button, int action, int mods);
 
 		double timestep_acc;
+		double timestep;
+		double substep;
 
 	public:
 
-		void tick(double dt) {
-			this->sandbox->onUpdate(dt);
+		void tick() {
+			this->sandbox->onUpdate(substep);
 		}
 
-		static const double timestep;
+		Renderer(GLFWwindow* window) { 
+			this->timestep_acc = 0;
+			this->window = window;
+			setCallbacks(window);
+			timestep = 1.0f / FPS;
+			substep = timestep / SUBSTEPS;
+		}
 
-		Renderer(GLFWwindow* window) { this->timestep_acc = 0; this->window = window; setCallbacks(window); };
 		~Renderer() = default;
 
 		// pointer to a sandbox, so that changing it changes the render
@@ -43,7 +52,7 @@ class Renderer {
 
 		// void renderSandbox(Sandbox * sandbox) const;
 		// void renderAllSandboxes(double dt);
-		void renderSandbox(double dt);
+		void renderSandbox(double frameDeltaTime);
 
 		void onKeyPress(int key, int scancode, int action, int mods);
 		void onMouseMove(double xpos, double ypos);

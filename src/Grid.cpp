@@ -24,7 +24,7 @@ Grid::Grid(size_t pixel_width, size_t pixel_height, size_t particle_radius) {
 		1.0f / (pixel_height / rows)
 	};
 
-	// printf("Creating grid. pixelsX:%ld pixelsY:%ld radius:%ld cols:%ld rows:%ld transform.x:%f transform.y:%f\n", pixel_width, pixel_height, particle_radius, rows, cols, transform.x, transform.y);	
+	printf("Creating grid. pixelsX:%ld pixelsY:%ld radius:%ld cols:%ld rows:%ld transform.x:%f transform.y:%f\n", pixel_width, pixel_height, particle_radius, rows, cols, transform.x, transform.y);	
 }
 
 // removes a given index, shifting remaining array
