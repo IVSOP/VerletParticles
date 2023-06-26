@@ -80,21 +80,69 @@ void SortedSandbox::applyRectangleConstraint() {
 	}
 }
 
-// brute force approach
-// I have no idea how the math involved works
+// approach here is different since I need to get distance between particles anyway
+// check nearest along x axis and y axis
+// for now they look at the front but not back (they assume everything at the back was already treated in previous calls)
 void SortedSandbox::solveCollisions() {
 	size_t i, j;
 	Particle *p1, *p2;
+	double radius_p1, radius_p2;
 
 	sortArrays();
 
-	for (i = 0; i < this->len_particles; i++) {
-		p1 = &(this->particles[i]);
-		for (j = i + 1; j < this->len_particles; j++) {
-			p2 = &(this->particles[j]);
+	// will optimize how this gets done in the future, prob with a bitmap or something
+
+	// colliding along x axis
+	for (i = 0; i < len_x; i++) {
+		p1 = arr_x[i];
+		radius_p1 = p1->radius;
+		for (j = i + 1; j < len_x; j++) {
+			p2 = arr_x[j];
+			radius_p2 = p2->radius;
+
+			// check if particles COULD be colliding according to X axis
+			if (! collisionIsPossibleX(p1, p2, radius_p1, radius_p2)) {
+				break;
+			}
 			collideParticles(p1, p2);
 		}
 	}
+
+	// colliding along y axis
+	for (i = 0; i < len_y; i++) {
+		p1 = arr_y[i];
+		radius_p1 = p1->radius;
+		for (j = i + 1; j < len_y; j++) {
+			p2 = arr_y[j];
+			radius_p2 = p2->radius;
+
+			// check if particles COULD be colliding according to Y axis
+			if (! collisionIsPossibleY(p1, p2, radius_p1, radius_p2)) {
+				break;
+			}
+			collideParticles(p1, p2);
+		}
+	}
+}
+
+bool SortedSandbox::collisionIsPossibleX(const Particle *p1, const Particle *p2, double radius_p1, double radius_p2) {
+	double sum_radius = radius_p1 + radius_p2;
+	double distance_x = p1->current_pos.x - p2->current_pos.x;
+
+	if (distance_x < sum_radius) { // collision is possible
+		return true;
+	}
+	return false;
+}
+
+bool SortedSandbox::collisionIsPossibleY(const Particle *p1, const Particle *p2, double radius_p1, double radius_p2) {
+	double sum_radius = radius_p1 + radius_p2;
+	double distance_y = p1->current_pos.y - p2->current_pos.y;
+
+	if (distance_y < sum_radius) { // collision is possible
+		return true;
+	}
+	return false;
 }
 
 void SortedSandbox::collideParticles(Particle *p1, Particle *p2) {

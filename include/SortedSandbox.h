@@ -3,6 +3,8 @@
 
 #include "Sandbox.h"
 
+#include <iostream>
+
 // sweep and prune strategy
 // sort particles according to X axis and Y axis separately
 // check for collisions in both
@@ -33,6 +35,10 @@ class SortedSandbox : public Sandbox {
 		void solveCollisions();
 
 		void collideParticles(Particle *p1, Particle *p2);
+		// these will return true if there was a collision
+		// but they will also solve the collision!!!!!!!!!!!!!!!!!!!!
+		bool collisionIsPossibleX(const Particle *p1, const Particle *p2, double radius_p1, double radius_p2);
+		bool collisionIsPossibleY(const Particle *p1, const Particle *p2, double radius_p1, double radius_p2);
 
 };
 
