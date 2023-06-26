@@ -4,6 +4,8 @@
 #include "Grid.h"
 #include "Sandbox.h"
 
+#define GRID_PARTICLE_SIZE 20
+
 class GridSandbox : public Sandbox {
 
 	private:
@@ -25,7 +27,9 @@ class GridSandbox : public Sandbox {
 		void applyRectangleConstraint();
 		void solveCollisions();
 
-		void collideParticlesGrid(GridCell *centerCell, GridCell *secondCell);
+		void collideParticlesBetweenCells(GridCell *centerCell, GridCell *secondCell);
+		void collideParticlesSameCell(GridCell *cell);
+		void collideParticles(Particle *p1, Particle *p2);
 };
 
 #endif

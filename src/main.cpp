@@ -76,23 +76,23 @@ int main() {
 
 	int width, height;
 	glfwGetWindowSize(window, &width, &height);
-	SortedSandbox sandbox(10000, 1000, 1000);
+	GridSandbox sandbox(10000, 1000, 1000);
 
 	Renderer renderer(window);
 	renderer.addSandbox(&sandbox);
 
 	// center point and particle radius, if they decide to use it
-	spawnerInfo info1(pVec2(500, 750), 5);
-	spawnerInfo info2(pVec2(500, 250), 5);
+	// spawnerInfo info1(pVec2(500, 750), 5);
+	// spawnerInfo info2(pVec2(500, 250), 5);
 
-	Spawner spawner1(centerSpawnerFixedSize, &info1);
-	sandbox.addSpawner(spawner1);
+	// Spawner spawner1(centerSpawnerFixedSize, &info1);
+	// sandbox.addSpawner(spawner1);
 
-	Spawner spawner2(centerSpawnerFixedSize, &info2);
-	sandbox.addSpawner(spawner2);
+	// Spawner spawner2(centerSpawnerFixedSize, &info2);
+	// sandbox.addSpawner(spawner2);
 
-	Spawner spawner3(inCircle, &info1);
-	sandbox.addSpawner(spawner3);
+	// Spawner spawner3(inCircle, &info1);
+	// sandbox.addSpawner(spawner3);
 
 	//////////////////////////////////////////// Creating shaders and making program out of the shaders
 	GLCall(const GLuint program = glCreateProgram());
@@ -159,7 +159,7 @@ int main() {
 
 	GLCall(glfwSwapInterval(1)); // hardcoded sync with monitor fps
 	GLfloat color[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
-	int radius = 25, posX = 100, posY = 500;
+	int radius = 20, posX = 100, posY = 500;
 	double previousFrameTime = glfwGetTime(), newFrameTime;
 	const double fps_target = 60.0f;
 	const double milis = 1.0f / fps_target;

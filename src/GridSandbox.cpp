@@ -2,29 +2,33 @@
 
 #include <glm/geometric.hpp>
 
+#include <stdio.h>
+
 GridSandbox::GridSandbox(size_t max_particles, size_t pixelsX, size_t pixelsY)
 	: Sandbox(max_particles, pixelsX, pixelsY),
-	  grid(pixelsX, pixelsY, 20) // !!!!!!!!!!!!!!!!!! for now grid does not take into account max particles
+	  grid(pixelsX, pixelsY, GRID_PARTICLE_SIZE) // !!!!!!!!!!!!!!!!!! for now grid does not take into account max particles
 	{
 }
 
 void GridSandbox::addParticle(Particle &particle) {
 	this->particles[this->len_particles] = particle; // will this copy the struct???
+	addColorToParticle(len_particles, particle.color);
+
 	grid.insertIntoGrid(this->len_particles, particle.current_pos);
 	this->len_particles ++;
 }
 
 void GridSandbox::updatePositions(double dt) {
-	size_t i, new_pos, old_pos;
+	size_t i; // , new_pos, old_pos;
 	Particle *p;
 
 	for (i = 0; i < this->len_particles; i++) {
 		p = &(this->particles[i]);
 		p->updatePosition(dt);
-		if (grid.particleChangedCells(p, &old_pos, &new_pos)) {
-			grid.removeFromGrid(i, p->old_pos);
-			grid.insertIntoGrid(i, p->current_pos);
-		}
+		// if (grid.particleChangedCells(p, &old_pos, &new_pos)) {
+		// 	grid.removeFromGrid(i, p->old_pos);
+		// 	grid.insertIntoGrid(i, p->current_pos);
+		// }
 	}
 }
 
@@ -76,10 +80,18 @@ void GridSandbox::applyRectangleConstraint() {
 	}
 }
 
-
+// change this so that instead of colliding between cells
+// I take one particle at a time from center and compare to all other particles???
 void GridSandbox::solveCollisions() {
-	size_t row, col, lookup_row, lookup_col;
+	size_t row, col;
 	GridCell *centerCell;
+
+	// rebuild entire grid
+	grid.clear();
+	size_t i;
+	for (i = 0; i < len_particles; i++) {
+		grid.insertIntoGrid(i, particles[i].current_pos);
+	}
 
 	// the borders are not iterated over
 	for (row = 1; row < grid.rows - 1; row++) {
@@ -88,66 +100,76 @@ void GridSandbox::solveCollisions() {
 			centerCell = grid.get(row, col);
 			// compare with all surrounding cells
 
-			collideParticlesGrid(centerCell, centerCell); // there may be more than one particle in a grid, and they will collide with each other
-			for (lookup_row = row - 1; lookup_row < row + 2; lookup_row ++) {
-				for (lookup_col = col - 1; lookup_col < col + 2; lookup_col ++) {
-					collideParticlesGrid(centerCell, grid.get(lookup_row, lookup_col));
-				}
-			}
+			// decided to unroll loop for simplicity, idk
+			collideParticlesBetweenCells(centerCell, grid.get(row + 1, col - 1));
+			collideParticlesBetweenCells(centerCell, grid.get(row + 1, col));
+			collideParticlesBetweenCells(centerCell, grid.get(row + 1, col + 1));
+
+			collideParticlesBetweenCells(centerCell, grid.get(row, col - 1));
+			collideParticlesSameCell(centerCell);
+			collideParticlesBetweenCells(centerCell, grid.get(row, col + 1));
+
+			collideParticlesBetweenCells(centerCell, grid.get(row - 1, col - 1));
+			collideParticlesBetweenCells(centerCell, grid.get(row - 1, col));
+			collideParticlesBetweenCells(centerCell, grid.get(row - 1, col + 1));
 		}
 	}
 }
 
 // checks all particles from centerCell vs all particles from secondCell, as long as particles do not have the same index
-void GridSandbox::collideParticlesGrid(GridCell *centerCell, GridCell *secondCell) {
-	pVec2 collisionAxis, n;
-	double dist, min_dist;
-	const double response_coef = 0.75f;
-	double mass_ratio_1, mass_ratio_2, delta;
-	double p1_radius, p2_radius;
-
-	size_t index_p1, index_p2;
-
+void GridSandbox::collideParticlesBetweenCells(GridCell *centerCell, GridCell *secondCell) {
+	size_t i, j;
 	Particle *p1, *p2;
 
-	int i, j;
 	for (i = 0; i < centerCell->len_particles; i++) {
-		index_p1 = centerCell->particle_idx[i];
-		p1 = &(particles[index_p1]);
-		p1_radius = p1->radius;
+		p1 = &(particles[centerCell->particle_idx[i]]);
+
 		for (j = 0; j < secondCell->len_particles; j++) {
-			index_p2 = secondCell->particle_idx[j];
+			p2 = &(particles[secondCell->particle_idx[j]]);
 
-			if (index_p1 != index_p2) { // particle can't collide with itself
-				p2 = &(particles[index_p2]);
-				p2_radius = p2->radius;
+			collideParticles(p1, p2);
+		}
+	}
+}
 
-				collisionAxis = p1->current_pos - p2->current_pos;
-				min_dist = p1_radius + p2_radius;
-				dist = (collisionAxis.x * collisionAxis.x) + (collisionAxis.y * collisionAxis.y);
-				// avoid srqt as long as possible
+// assumes radiuses are the same
+void GridSandbox::collideParticles(Particle *p1, Particle *p2) {
+	pVec2 collisionAxis, n;
+	double dist;
+	const double response_coef = 0.75f;
+	double mass_ratio_1, mass_ratio_2, delta;
+	const double p1_radius = grid.radius;
+	const double p2_radius = grid.radius;
+	const double min_dist = grid.radius * 2;
 
-				// collision ocurred, need to update grid to reflect this
-				if (dist < min_dist * min_dist) {
-					dist = sqrt(dist);
-					n = collisionAxis / dist;
-					
-					mass_ratio_1 = p1_radius / (p1_radius + p2_radius);
-					mass_ratio_2 = p2_radius / (p1_radius + p2_radius);
+	collisionAxis = p1->current_pos - p2->current_pos;
+	dist = (collisionAxis.x * collisionAxis.x) + (collisionAxis.y * collisionAxis.y);
+	// avoid srqt as long as possible
 
-					delta = 0.5f * response_coef * (dist - min_dist);
+	
+	if (dist < min_dist * min_dist) {
+		dist = sqrt(dist);
+		n = collisionAxis / dist;
+		
+		mass_ratio_1 = p1_radius / (p1_radius + p2_radius);
+		mass_ratio_2 = p2_radius / (p1_radius + p2_radius);
 
-					grid.removeFromGrid(index_p1, centerCell);
-					grid.removeFromGrid(index_p2, secondCell);
+		delta = 0.5f * response_coef * (dist - min_dist);
 
-					p1->current_pos -= n * (mass_ratio_2 * delta);
-					p2->current_pos += n * (mass_ratio_1 * delta);
+		p1->current_pos -= n * (mass_ratio_2 * delta);
+		p2->current_pos += n * (mass_ratio_1 * delta);
+	}
+}
 
-					grid.insertIntoGrid(index_p1, p1->current_pos);
-					grid.insertIntoGrid(index_p2, p2->current_pos);
-				}
-
-			}
+// separate funciton to avoid an extra if in the normal one
+void GridSandbox::collideParticlesSameCell(GridCell *cell) {
+	size_t i, j;
+	Particle *p1, *p2;
+	for (i = 0; i < cell->len_particles; i++) {
+		p1 = &(particles[i]);
+		for (j = i + 1; j < cell->len_particles; j++) {
+			p2 = &(particles[j]);
+			collideParticles(p1, p2);
 		}
 	}
 }

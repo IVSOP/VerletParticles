@@ -1,20 +1,28 @@
 #include "Grid.h"
 
-Grid::Grid(size_t pixel_width, size_t pixel_height, size_t min_radius) {
-	cols = pixel_width / min_radius;
-	rows = pixel_height / min_radius;
+#include <stdlib.h>
+#include <stdio.h>
+
+Grid::Grid(size_t pixel_width, size_t pixel_height, size_t particle_radius) {
+	cols = pixel_width / particle_radius;
+	rows = pixel_height / particle_radius;
 	size = rows * cols;
 	cells = new GridCell[size];
 	size_t i;
+
 	for (i = 0; i < size; i++) {
 		(&cells[i])->len_particles = 0;
 	}
+
+	this->radius = particle_radius;
 
 	// extra division (1 /...) but allows for every insert to only have to multiply by this
 	transform = {
 		1.0f / (pixel_width / cols),
 		1.0f / (pixel_height / rows)
 	};
+
+	// printf("Creating grid. pixelsX:%ld pixelsY:%ld radius:%ld cols:%ld rows:%ld transform.x:%f transform.y:%f\n", pixel_width, pixel_height, particle_radius, rows, cols, transform.x, transform.y);	
 }
 
 // removes a given index, shifting remaining array
@@ -37,23 +45,34 @@ bool removeFromArr(size_t particleIndex, size_t arr[GRID_CELL_CAPACITY]) {
 
 void Grid::insertIntoGrid(size_t particleIndex, size_t row, size_t col) {
 	GridCell *cell = get(row, col);
+	if (cell->len_particles == GRID_CELL_CAPACITY) {
+		exit(5);
+	}
 	cell->particle_idx[cell->len_particles ++] = particleIndex;
 }
 
 void Grid::insertIntoGrid(size_t particleIndex, size_t pos) {
 	GridCell *cell = get(pos);
+	if (cell->len_particles == GRID_CELL_CAPACITY) {
+		exit(5);
+	}
 	cell->particle_idx[cell->len_particles ++] = particleIndex;
 }
 
 void Grid::insertIntoGrid(size_t particleIndex, GridCell *cell) {
+	if (cell->len_particles == GRID_CELL_CAPACITY) {
+		exit(5);
+	}
 	cell->particle_idx[cell->len_particles ++] = particleIndex;
 }
 
-void Grid::insertIntoGrid(size_t particleIndex, pVec2 particlePos) {
-
+void Grid::insertIntoGrid(size_t particleIndex, const pVec2& particlePos) {
 	size_t i = getGridIndexFromParticlePos(particlePos);
 	GridCell *cell = &(cells[i]);
-	// std::cout << "Inserting into grid at " << i << " which corresponds to " << i / cols << "," << i % cols << std::endl;
+	if (cell->len_particles == GRID_CELL_CAPACITY) {
+		exit(5);
+	}
+	// printf("Inserting into grid at %ld, from (%f, %f) which corresponds to (%ld,%ld)\n", i, particlePos.x, particlePos.y, i / cols, i % cols);
 	cell->particle_idx[cell->len_particles ++] = particleIndex;
 }
 
@@ -77,7 +96,7 @@ void Grid::removeFromGrid(size_t particleIndex, GridCell *cell) {
 	}
 }
 
-void Grid::removeFromGrid(size_t particleIndex, pVec2 particlePos) {
+void Grid::removeFromGrid(size_t particleIndex, const pVec2& particlePos) {
 	size_t i = getGridIndexFromParticlePos(particlePos);
 	GridCell *cell = &(cells[i]);
 	if (removeFromArr(particleIndex, cell->particle_idx)) {
