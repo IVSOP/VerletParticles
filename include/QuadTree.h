@@ -57,6 +57,8 @@ class QuadTree {
         	root = new QuadTreeNode(center, width / 2.0, height / 2.0);
     	}
 
+		void clearTree();
+
 		~QuadTree() {
 			dumpTree();
         	Clear(root);

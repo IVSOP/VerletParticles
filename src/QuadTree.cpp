@@ -62,8 +62,8 @@ void QuadTree::insertPoint(QuadTreeNode* node, Particle * particle) {
 }
 
 void QuadTree::subdivideNode(QuadTreeNode* node) {
-	double subWidth = node->half_width / 2.0;
-	double subHeight = node->half_height / 2.0;
+	const double subWidth = node->half_width / 2.0;
+	const double subHeight = node->half_height / 2.0;
 
 	node->children[0] = new QuadTreeNode(QuadTreePoint(node->position.x - subWidth, node->position.y - subHeight), subWidth, subHeight);
 	node->children[1] = new QuadTreeNode(QuadTreePoint(node->position.x + subWidth, node->position.y - subHeight), subWidth, subHeight);
@@ -140,4 +140,13 @@ void _dumpTree(QuadTreeNode *node, int depth) {
 
 void QuadTree::dumpTree() {
 	_dumpTree(root, 0);
+}
+
+void QuadTree::clearTree() {
+	root->points.clear();
+	unsigned int i;
+	for (i = 0; i < 4 && root->children[i] != nullptr; i++) {
+		Clear(root->children[i]);
+		root->children[i] = nullptr;
+	}
 }

@@ -19,6 +19,8 @@ class QuadTreeSandbox : public Sandbox {
 
 		void addParticle(Particle &particle);
 
+		// void onUpdate();
+
 		void updatePositions(double dt);
 		// void applyGravity();
 		void applyCircleConstraint();

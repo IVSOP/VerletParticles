@@ -13,15 +13,17 @@ QuadTreeSandbox::QuadTreeSandbox(size_t max_particles, size_t pixelsX, size_t pi
 void QuadTreeSandbox::addParticle(Particle &particle) {
 	particles[len_particles] = particle; // will this copy the struct???
 	// add to tree
-	tree.insert(&(particles[len_particles ]));
+	tree.insert(&(particles[len_particles]));
 	len_particles ++;
 }
 
 void QuadTreeSandbox::updatePositions(double dt) {
 	size_t i;
 
+	tree.clearTree();
 	for (i = 0; i < len_particles; i++) {
 		particles[i].updatePosition(dt);
+		tree.insert(&(particles[i]));
 	}
 }
 
