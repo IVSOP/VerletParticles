@@ -83,6 +83,9 @@ void GridSandbox::applyRectangleConstraint() {
 // change this so that instead of colliding between cells
 // I take one particle at a time from center and compare to all other particles???
 void GridSandbox::solveCollisions() {
+
+	// make cols and rows into variables??
+
 	size_t row, col;
 	GridCell *centerCell;
 
@@ -93,76 +96,137 @@ void GridSandbox::solveCollisions() {
 		grid.insertIntoGrid(i, particles[i].current_pos);
 	}
 
-	if (len_particles > 0)
-		printf("particle 1 is in (%f,%f)\n", particles[1].current_pos.x, particles[1].current_pos.y);
+	// there were glitches due to the order the particles were being processed
+	// decided to simplify and just put an if into collideParticlesBetweenCells to check for out of bounds
 
-	for (row = 1; row < grid.rows - 1; row++) {
-		for (col = 1; col < grid.cols - 1; col++) {
-			
+	for (row = 0; row < grid.rows; row++) {
+		for (col = 0; col < grid.cols; col++) {
 			centerCell = grid.get(row, col);
 			// compare with all surrounding cells
 
-			// decided to unroll loop for simplicity, idk
-			collideParticlesBetweenCells(centerCell, grid.get(row + 1, col - 1));
-			collideParticlesBetweenCells(centerCell, grid.get(row + 1, col));
-			collideParticlesBetweenCells(centerCell, grid.get(row + 1, col + 1));
+			collideParticlesBetweenCellsV2(centerCell, row + 1, col - 1);
+			collideParticlesBetweenCellsV2(centerCell, row + 1, col);
+			collideParticlesBetweenCellsV2(centerCell, row + 1, col + 1);
 
-			collideParticlesBetweenCells(centerCell, grid.get(row, col - 1));
+			collideParticlesBetweenCellsV2(centerCell, row, col - 1);
 			collideParticlesSameCell(centerCell);
-			collideParticlesBetweenCells(centerCell, grid.get(row, col + 1));
+			collideParticlesBetweenCellsV2(centerCell, row, col + 1);
 
-			collideParticlesBetweenCells(centerCell, grid.get(row - 1, col - 1));
-			collideParticlesBetweenCells(centerCell, grid.get(row - 1, col));
-			collideParticlesBetweenCells(centerCell, grid.get(row - 1, col + 1));
+			collideParticlesBetweenCellsV2(centerCell, row - 1, col - 1);
+			collideParticlesBetweenCellsV2(centerCell, row - 1, col);
+			collideParticlesBetweenCellsV2(centerCell, row - 1, col + 1);
 		}
 	}
 
-	// floor and ceiling
-	row = grid.rows - 1; // last row
-	for (col = 1; col < grid.cols - 1; col ++) {
+	// if (len_particles > 0)
+	// 	printf("particle 1 is in (%f,%f)\n", particles[1].current_pos.x, particles[1].current_pos.y);
 
-		// ceiling
-		centerCell = grid.get(row, col);
-		collideParticlesBetweenCells(centerCell, grid.get(row, col - 1));
-		collideParticlesSameCell(centerCell);
-		collideParticlesBetweenCells(centerCell, grid.get(row, col + 1));
+	// for (row = 1; row < grid.rows - 1; row++) {
+	// 	for (col = 1; col < grid.cols - 1; col++) {
+			
+	// 		centerCell = grid.get(row, col);
+	// 		// compare with all surrounding cells
+
+	// 		// decided to unroll loop for simplicity, idk
+	// 		collideParticlesBetweenCells(centerCell, grid.get(row + 1, col - 1));
+	// 		collideParticlesBetweenCells(centerCell, grid.get(row + 1, col));
+	// 		collideParticlesBetweenCells(centerCell, grid.get(row + 1, col + 1));
+
+	// 		collideParticlesBetweenCells(centerCell, grid.get(row, col - 1));
+	// 		collideParticlesSameCell(centerCell);
+	// 		collideParticlesBetweenCells(centerCell, grid.get(row, col + 1));
+
+	// 		collideParticlesBetweenCells(centerCell, grid.get(row - 1, col - 1));
+	// 		collideParticlesBetweenCells(centerCell, grid.get(row - 1, col));
+	// 		collideParticlesBetweenCells(centerCell, grid.get(row - 1, col + 1));
+	// 	}
+	// }
+
+	// // floor and ceiling
+	// row = grid.rows - 1; // last row
+	// for (col = 1; col < grid.cols - 1; col ++) {
+
+	// 	// ceiling
+	// 	centerCell = grid.get(row, col);
+	// 	collideParticlesBetweenCells(centerCell, grid.get(row, col - 1));
+	// 	collideParticlesSameCell(centerCell);
+	// 	collideParticlesBetweenCells(centerCell, grid.get(row, col + 1));
 		
-		// floor
-		centerCell = grid.get(0, col);
-		collideParticlesBetweenCells(centerCell, grid.get(0, col - 1));
-		collideParticlesSameCell(centerCell);
-		collideParticlesBetweenCells(centerCell, grid.get(0, col + 1));
-	}
+	// 	// floor
+	// 	centerCell = grid.get(0, col);
+	// 	collideParticlesBetweenCells(centerCell, grid.get(0, col - 1));
+	// 	collideParticlesSameCell(centerCell);
+	// 	collideParticlesBetweenCells(centerCell, grid.get(0, col + 1));
+	// }
 
-	// walls
-	col = grid.cols - 1;
-	for (row = 1; row < grid.rows - 1; row ++) {
+	// // walls
+	// col = grid.cols - 1;
+	// for (row = 1; row < grid.rows - 1; row ++) {
 
-		// left
-		centerCell = grid.get(row, 0);
-		collideParticlesBetweenCells(centerCell, grid.get(row - 1, 0));
-		collideParticlesSameCell(centerCell);
-		collideParticlesBetweenCells(centerCell, grid.get(row + 1, 0));
+	// 	// right
+	// 	centerCell = grid.get(row, col);
+	// 	collideParticlesBetweenCells(centerCell, grid.get(row - 1, col));
+	// 	collideParticlesSameCell(centerCell);
+	// 	collideParticlesBetweenCells(centerCell, grid.get(row + 1, col));
+
+	// 	// left
+	// 	centerCell = grid.get(row, 0);
+	// 	collideParticlesBetweenCells(centerCell, grid.get(row - 1, 0));
+	// 	collideParticlesSameCell(centerCell);
+	// 	collideParticlesBetweenCells(centerCell, grid.get(row + 1, 0));
 		
-		// right
-		centerCell = grid.get(row, col);
-		collideParticlesBetweenCells(centerCell, grid.get(row - 1, col));
-		collideParticlesSameCell(centerCell);
-		collideParticlesBetweenCells(centerCell, grid.get(row + 1, col));
-	}
+	// }
 
-	// corners only need to check themselves
-	// collideParticlesSameCell(grid.get(0, 0));
-	// collideParticlesSameCell(grid.get(0, grid.cols - 1));
-	// collideParticlesSameCell(grid.get(grid.rows - 1, grid.cols - 1));
-	// collideParticlesSameCell(grid.get(grid.rows - 1, 0));
-	
+	// // corners
+	// // this in theory shoulnt be needed but without it there are explosions and segfaults
+	// // bottom left
+	// centerCell = grid.get(0, 0);
+	// collideParticlesSameCell(centerCell);
+	// // collideParticlesBetweenCells(centerCell, grid.get(1, 0));
+	// // collideParticlesBetweenCells(centerCell, grid.get(0, 1));
+	// // bottom right
+	// centerCell = grid.get(0, grid.cols - 1);
+	// collideParticlesSameCell(centerCell);
+	// // collideParticlesBetweenCells(centerCell, grid.get(0, grid.cols - 2));
+	// // collideParticlesBetweenCells(centerCell, grid.get(1, grid.cols - 1));
+	// // top left
+	// centerCell = grid.get(grid.rows - 1, grid.cols - 1);
+	// collideParticlesSameCell(centerCell);
+	// // collideParticlesBetweenCells(centerCell, grid.get(grid.rows - 2, grid.cols - 1));
+	// // collideParticlesBetweenCells(centerCell, grid.get(grid.rows - 1, grid.cols - 2));
+	// // top right
+	// centerCell = grid.get(grid.rows - 1, 0);
+	// collideParticlesSameCell(centerCell);
+	// // collideParticlesBetweenCells(centerCell, grid.get(grid.rows - 1, 1));
+	// // collideParticlesBetweenCells(centerCell, grid.get(grid.rows - 2, 0));
 }
 
 // checks all particles from centerCell vs all particles from secondCell, as long as particles do not have the same index
 void GridSandbox::collideParticlesBetweenCells(GridCell *centerCell, GridCell *secondCell) {
 	size_t i, j;
 	Particle *p1, *p2;
+
+	for (i = 0; i < centerCell->len_particles; i++) {
+		p1 = &(particles[centerCell->particle_idx[i]]);
+
+		for (j = 0; j < secondCell->len_particles; j++) {
+			p2 = &(particles[secondCell->particle_idx[j]]);
+
+			collideParticles(p1, p2);
+		}
+	}
+}
+
+void GridSandbox::collideParticlesBetweenCellsV2(GridCell *centerCell, size_t row, size_t col) {
+	size_t i, j;
+	Particle *p1, *p2;
+
+	// if it is 0 - 1 will overflow and end up bigger anyway, no need to check
+	if (row >= grid.rows || col >= grid.cols) {
+		return;
+	}
+
+	GridCell *secondCell = grid.get(row, col);
 
 	for (i = 0; i < centerCell->len_particles; i++) {
 		p1 = &(particles[centerCell->particle_idx[i]]);

@@ -28,6 +28,7 @@ class GridSandbox : public Sandbox {
 		void solveCollisions();
 
 		void collideParticlesBetweenCells(GridCell *centerCell, GridCell *secondCell);
+		void collideParticlesBetweenCellsV2(GridCell *centerCell, size_t row, size_t col);
 		void collideParticlesSameCell(GridCell *cell);
 		void collideParticles(Particle *p1, Particle *p2);
 };

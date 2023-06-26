@@ -95,8 +95,8 @@ int main() {
 	renderer.addSandbox(&sandbox);
 
 	// center point and particle radius, if they decide to use it
-	// spawnerInfo info1(pVec2(500, 750), 20);
-	// spawnerInfo info2(pVec2(500, 250), 20);
+	spawnerInfo info1(pVec2(500, 750), 20);
+	spawnerInfo info2(pVec2(500, 250), 20);
 
 	// Spawner spawner1(centerSpawnerFixedSize, &info1);
 	// sandbox.addSpawner(spawner1);
