@@ -69,6 +69,7 @@ Sandbox::Sandbox(size_t max_particles, size_t pixelsX, size_t pixelsY)
 	this->len_particles = 0;
 	this->vertices = new Vertex[max_particles * 4];
 	this->max_particles = max_particles;
+	this->current_tick = 0;
 
 	makeVAO();
 	makeVBO();
@@ -240,6 +241,7 @@ void Sandbox::handleKeyPress(int key, int scancode, int action, int mods) {
 // #include <chrono>
 // #include <thread>
 
+// got lazy, assumes it went through a tick when this is called
 void Sandbox::onUpdate(double sub_dt) {
 	int i, size = this->spawners.size();
 	Particle p; // is there a better way to do this?????
@@ -247,15 +249,13 @@ void Sandbox::onUpdate(double sub_dt) {
 	
 	// spawn particles from all spawners
 	for (i = 0; i < size; i++) {
-		if (this->spawners[i].nextParticle(&p) == true) {
+		if (this->spawners[i].nextParticle(current_tick, &p) == true) {
+			p.ID = len_particles; // set particle ID to len particles since it already acts as a counter
 			addParticle(p);
 		}
 	}
 	
 	// calculate physics many times per frame for better result
-
-	// THIS IS MESSY WHEN SPAWNING PARTICLES INSIDE OF EACH OTHER
-	// can also only keep the solve collisions in a loop and the rest out of the loop
 
 	for (i = 0; i < SUBSTEPS; i++) {
 		applyGravity();
@@ -265,11 +265,13 @@ void Sandbox::onUpdate(double sub_dt) {
 		updatePositions(sub_dt);
 	}
 	// std::this_thread::sleep_for(std::chrono::milliseconds(75));
+
+	current_tick ++;
 }
 
 void Sandbox::applyGravity() {
 	// TEMPORARY!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	pVec2 gravity = {0.0f, -1000.0f};
+	constexpr pVec2 gravity = {0.0f, -1000.0f};
 	size_t i;
 
 	for (i = 0; i < this->len_particles; i++) {

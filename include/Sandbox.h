@@ -32,6 +32,7 @@ class Sandbox {
 		GLuint IBO;
 
 		size_t pixelsX, pixelsY;
+		size_t current_tick;
 
 		std::vector<Spawner> spawners;
 

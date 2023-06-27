@@ -7,7 +7,7 @@
 
 typedef glm::dvec2 pVec2;
 
-class Particle {
+struct Particle {
 	public:
 		// values are in pixels
 		// positions (0,0) start at bottom left corner (opengl (-1, -1))
@@ -18,6 +18,8 @@ class Particle {
 		pVec2 current_pos;
 		pVec2 accel;
 		GLfloat color[4];
+
+		unsigned int ID;
 
 		// double timeLived;
 

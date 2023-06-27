@@ -11,25 +11,32 @@
 // 	this->info = nullptr;
 // }
 
-Spawner::Spawner(spawnerFunc *func, spawnerInfo *info) {
+Spawner::Spawner(size_t start_tick, size_t end_tick, spawnerFunc *func, spawnerInfo *info) {
 	this->count = 0;
 	this->func = func;
 	this->info = info;
+	this->start_tick = start_tick;
+	this->end_tick = end_tick;
 }
 
 Spawner::Spawner(const Spawner &spawner) {
 	this->count = spawner.count;
 	this->func = spawner.func;
 	this->info = spawner.info;
+	this->start_tick = spawner.start_tick;
+	this->end_tick = spawner.end_tick;
 }
 
 // calls function with count and userData. function can choose to use it or not, and by default data is nullptr
 // p is a pointer that will be filled with the particle data
 // returns true if particle was created (I didn't feel like using std::optional)
-bool Spawner::nextParticle(Particle *p) {
-	bool ret = func(p, count, info);
-	this->count++;
-	return ret;
+bool Spawner::nextParticle(size_t current_tick, Particle *p) {
+	if (current_tick >= start_tick && current_tick <= end_tick) {
+		bool ret = func(p, count, info);
+		this->count++;
+		return ret;
+	}
+	return false;
 }
 
 void HSV_to_RGB(const GLfloat HSV[3], GLfloat RGB[3]) {

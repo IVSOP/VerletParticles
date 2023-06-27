@@ -307,3 +307,42 @@ void GridSandbox::collideParticlesSameCell(GridCell *cell) {
 		}
 	}
 }
+
+// dumps each row into a file with the ID of each particle
+void GridSandbox::dumpGridToFile() {
+	FILE *file = fopen("grid_dump.csv", "w");
+	GridCell *cell;
+	int len;
+
+	char buff[16];
+
+	size_t row, col;
+	for (row = 0; row < grid.rows; row++) {
+		for (col = 0; col < grid.cols - 1; col++) {
+			// for now I assume in the end 1 particle per grid
+			cell = grid.get(row, col);
+			if (cell->len_particles != 0) {
+				printf("printing %ld %ld, particle is in %f,%f\n", row, col, particles[cell->particle_idx[0]].current_pos.x, particles[cell->particle_idx[0]].current_pos.y);
+				exit(1);
+				len = snprintf(buff, 16, "%d,", particles[cell->particle_idx[0]].ID);
+				fwrite(buff, 1, len, file);
+			} else {
+				buff[0] = ',';
+				fwrite(buff + 0, 1, 1, file);
+			}
+
+			// itoa()?? idc if it is slow
+		}
+		// final iteration is out of loop
+		cell = grid.get(row, col);
+		if (cell->len_particles != 0) {
+			len = snprintf(buff, 16, "%d\n", particles[cell->particle_idx[0]].ID);
+			fwrite(buff, 1, len, file);
+		} else {
+			buff[0] = ','; buff[1] = '\n';
+			fwrite(buff + 0, 1, 2, file);
+		}
+	}
+
+	fclose(file);
+}

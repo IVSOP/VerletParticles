@@ -89,17 +89,17 @@ int main() {
 
 	int width, height;
 	glfwGetWindowSize(window, &width, &height);
-	GridSandbox sandbox(10000, 1000, 1000);
+	GridSandbox sandbox(5000, 1000, 1000);
 
 	Renderer renderer(window);
 	renderer.addSandbox(&sandbox);
 
 	// center point and particle radius, if they decide to use it
-	spawnerInfo info1(pVec2(500, 750), 20);
-	spawnerInfo info2(pVec2(500, 250), 20);
+	spawnerInfo info1(pVec2(500, 750), GRID_PARTICLE_SIZE, nullptr);
+	spawnerInfo info2(pVec2(500, 250), GRID_PARTICLE_SIZE, nullptr);
 
-	Spawner spawner1(centerSpawnerFixedSize, &info1);
-	sandbox.addSpawner(spawner1);
+	// Spawner spawner1(0, 1000, centerSpawnerFixedSize, &info1);
+	// sandbox.addSpawner(spawner1);
 
 	// Spawner spawner2(centerSpawnerFixedSize, &info2);
 	// sandbox.addSpawner(spawner2);
@@ -205,16 +205,16 @@ int main() {
 
 	GLCall(glfwSwapInterval(1)); // hardcoded sync with monitor fps
 	GLfloat color[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
-	int radius = 20, posX = 100, posY = 500;
+	int radius = GRID_PARTICLE_SIZE, posX = 100, posY = 500;
 	double previousFrameTime = glfwGetTime(), newFrameTime;
 	
 	
 	double lastFrameTime = glfwGetTime(),
 	currentFrameTime;
 
-	for (int i = 0;  i < 100; i++) {
-		renderer.tick();
-	}
+	// for (int i = 0;  i < 100; i++) {
+	// 	renderer.tick();
+	// }
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -255,6 +255,11 @@ int main() {
 
 		if (ImGui::Button("Render")) {
 			renderer.renderSandbox(currentFrameTime - lastFrameTime);
+		}
+
+		if (ImGui::Button("Dump grid")) {
+			// will only compile if sandbox is grid sandbox
+			sandbox.dumpGridToFile();
 		}
 
 		ImGui::ShowDemoWindow();

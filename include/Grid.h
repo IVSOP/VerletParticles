@@ -5,7 +5,7 @@
 
 // #include <iostream>
 
-#define GRID_CELL_CAPACITY 4
+#define GRID_CELL_CAPACITY 3
 
 typedef struct {
 	size_t particle_idx[GRID_CELL_CAPACITY];

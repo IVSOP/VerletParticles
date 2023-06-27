@@ -7,9 +7,10 @@
 struct spawnerInfo {
 	pVec2 center;
 	double particle_radius;
+	GLfloat *color_feed; // color lookup for each particle ID
 
-	spawnerInfo(pVec2 _center, double _particle_radius)
-		: center(_center), particle_radius(_particle_radius)
+	spawnerInfo(pVec2 _center, double _particle_radius, GLfloat *_color_feed)
+		: center(_center), particle_radius(_particle_radius), color_feed(_color_feed)
 	{}
 };
 
@@ -29,10 +30,14 @@ class Spawner {
 		spawnerFunc *func;
 		spawnerInfo *info;
 
+		// particles start spawning on start_tick, end in end_tick
+		size_t start_tick, end_tick;
+
 	public:
+		
 		Spawner() = delete;
 		// Spawner(spawnerFunc *func);
-		Spawner(spawnerFunc *func, spawnerInfo *info);
+		Spawner(size_t start_tick, size_t end_tick, spawnerFunc *func, spawnerInfo *info);
 		~Spawner() = default;
 
 		Spawner(const Spawner &spawner);
@@ -41,10 +46,15 @@ class Spawner {
 			this->count = spawner.count;
 			this->func = spawner.func;
 			this->info = spawner.info;
+			this->start_tick = spawner.start_tick;
+			this->end_tick = spawner.end_tick;
 			return *this;
 		}
 
-		bool nextParticle(Particle *p);
+		// if it chose to spawn particle, returns true
+		// else returns false
+		// it would be more efficient to delete spawner when ticks run out, but wont do it for now
+		bool nextParticle(size_t current_tick, Particle *p);
 };
 
 

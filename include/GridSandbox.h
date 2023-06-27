@@ -4,7 +4,7 @@
 #include "Grid.h"
 #include "Sandbox.h"
 
-#define GRID_PARTICLE_SIZE 20
+#define GRID_PARTICLE_SIZE 5
 
 class GridSandbox : public Sandbox {
 
@@ -31,6 +31,8 @@ class GridSandbox : public Sandbox {
 		void collideParticlesBetweenCellsV2(GridCell *centerCell, size_t row, size_t col);
 		void collideParticlesSameCell(GridCell *cell);
 		void collideParticles(Particle *p1, Particle *p2);
+
+		void dumpGridToFile();
 };
 
 #endif
