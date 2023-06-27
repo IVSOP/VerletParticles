@@ -25,11 +25,11 @@ struct Grid {
 	public:
 		GridCell *cells;
 		size_t rows, cols, size;
-		// so that to transform into grid coordinates all you need to do is multiply by this
-		pVec2 transform;
 
 		// some things assume square, others rectangle, for now I just want this to work
 		double square_diameter;
+		// so that to transform into grid coordinates all you need to do is multiply by this
+		double inverse_square_diameter;
 
 		Grid() = delete;
 		Grid(size_t pixel_width, size_t pixel_height, size_t radius);
@@ -63,9 +63,9 @@ struct Grid {
 		bool particleChangedCells(Particle *p, size_t *old_pos, size_t *new_pos);
 
 		inline size_t getGridIndexFromParticlePos(pVec2 pos) {
-			pVec2 new_pos = pos * transform; // contains row and col
+			pVec2 new_pos = pos * inverse_square_diameter; // contains row and col
 			// std::cout << "inserting into grid, turning " << pos.x << "," << pos.y << " into " << static_cast<size_t>(new_pos.x) << "," << static_cast<size_t>(new_pos.y) << std::endl;
-			return getGridIndexFromRowCol(static_cast<size_t>(new_pos.x), static_cast<size_t>(new_pos.y));
+			return getGridIndexFromRowCol(static_cast<size_t>(new_pos.y), static_cast<size_t>(new_pos.x));
 		}
 
 		inline size_t getGridIndexFromRowCol(size_t row, size_t col) {

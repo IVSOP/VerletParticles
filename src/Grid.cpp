@@ -20,10 +20,7 @@ Grid::Grid(size_t pixel_width, size_t pixel_height, size_t particle_radius) {
 	this->square_diameter = particle_radius * 2;
 
 	// extra division (1 /...) but allows for every insert to only have to multiply by this
-	transform = {
-		1.0f / (pixel_width / cols),
-		1.0f / (pixel_height / rows)
-	};
+	inverse_square_diameter = 1.0 / square_diameter;
 
 	// printf("Creating grid. pixelsX:%ld pixelsY:%ld square_diameter:%f cols:%ld rows:%ld transform.x:%f transform.y:%f\n", pixel_width, pixel_height, square_diameter, rows, cols, transform.x, transform.y);	
 }

@@ -98,8 +98,8 @@ int main() {
 	spawnerInfo info1(pVec2(500, 750), GRID_PARTICLE_SIZE, nullptr);
 	spawnerInfo info2(pVec2(500, 250), GRID_PARTICLE_SIZE, nullptr);
 
-	// Spawner spawner1(0, 1000, centerSpawnerFixedSize, &info1);
-	// sandbox.addSpawner(spawner1);
+	Spawner spawner1(0, 5000, centerSpawnerFixedSize, &info1);
+	sandbox.addSpawner(spawner1);
 
 	// Spawner spawner2(centerSpawnerFixedSize, &info2);
 	// sandbox.addSpawner(spawner2);
