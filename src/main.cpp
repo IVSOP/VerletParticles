@@ -98,14 +98,47 @@ int main() {
 	spawnerInfo info1(pVec2(500, 750), 20);
 	spawnerInfo info2(pVec2(500, 250), 20);
 
-	// Spawner spawner1(centerSpawnerFixedSize, &info1);
-	// sandbox.addSpawner(spawner1);
+	Spawner spawner1(centerSpawnerFixedSize, &info1);
+	sandbox.addSpawner(spawner1);
 
 	// Spawner spawner2(centerSpawnerFixedSize, &info2);
 	// sandbox.addSpawner(spawner2);
 
 	// Spawner spawner3(inCircle, &info1);
 	// sandbox.addSpawner(spawner3);
+
+	//////////////////////////////////////////// test case, now works
+
+		// GLfloat red[] = {1.0f, 0.0f, 0.0f, 1.0f};
+		// GLfloat green[] = {0.0f, 1.0f, 0.0f, 0.75f};
+		// GLfloat blue[] = {0.0f, 0.0f, 1.0f, 0.75f};
+
+		// Particle p1;
+		// int idx;
+		// for (idx = 0; idx < 25; idx++) {
+		// 	p1 = Particle(pVec2(20 + idx * 40, 20), 20, red);
+		// 	sandbox.addParticle(p1);
+		// }
+
+		// // green and blue are not detected for like 10 frames in a row, how is that possible?
+		// // and each frame has 8 checks
+		// // they literally go inside each other fully
+		// for (idx = 0; idx < 15; idx++) {
+		// 	if (idx == 10) {
+		// 		p1 = Particle(pVec2(100, 100 + idx * 40), 20, green);
+		// 	} else if (idx == 6) {
+		// 		p1 = Particle(pVec2(100, 100 + idx * 40), 20, blue);
+		// 	} else {
+		// 		p1 = Particle(pVec2(100, 100 + idx * 40), 20, red);
+		// 	}
+		// 	sandbox.addParticle(p1);
+		// }
+
+		// p1 = Particle(pVec2(100 + 5, 900), 20, red);
+		// sandbox.addParticle(p1);
+
+	// particles in bottom left are clearly going inside each other completely
+
 
 	//////////////////////////////////////////// Creating shaders and making program out of the shaders
 	GLCall(const GLuint program = glCreateProgram());
@@ -178,6 +211,10 @@ int main() {
 	
 	double lastFrameTime = glfwGetTime(),
 	currentFrameTime;
+
+	for (int i = 0;  i < 100; i++) {
+		renderer.tick();
+	}
 
 	while (!glfwWindowShouldClose(window))
 	{

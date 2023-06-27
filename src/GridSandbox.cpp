@@ -209,7 +209,7 @@ void GridSandbox::collideParticlesBetweenCells(GridCell *centerCell, GridCell *s
 	for (i = 0; i < centerCell->len_particles; i++) {
 		p1 = &(particles[centerCell->particle_idx[i]]);
 
-		for (j = 0; j < secondCell->len_particles; j++) {
+		for (j = i + 1; j < secondCell->len_particles; j++) {
 			p2 = &(particles[secondCell->particle_idx[j]]);
 
 			collideParticles(p1, p2);
@@ -252,7 +252,6 @@ void GridSandbox::collideParticles(Particle *p1, Particle *p2) {
 	dist = (collisionAxis.x * collisionAxis.x) + (collisionAxis.y * collisionAxis.y);
 	
 	if (dist < min_dist * min_dist) {
-		// printf("colliding particles %ld and %ld\n", p1 - particles, p2 - particles);
 
 		dist = sqrt(dist);
 		n = collisionAxis / dist;
@@ -301,9 +300,9 @@ void GridSandbox::collideParticlesSameCell(GridCell *cell) {
 	size_t i, j;
 	Particle *p1, *p2;
 	for (i = 0; i < cell->len_particles; i++) {
-		p1 = &(particles[i]);
+		p1 = &(particles[cell->particle_idx[i]]);
 		for (j = i + 1; j < cell->len_particles; j++) {
-			p2 = &(particles[j]);
+			p2 = &(particles[cell->particle_idx[j]]);
 			collideParticles(p1, p2);
 		}
 	}

@@ -120,6 +120,7 @@ void Sandbox::calculateVertices() {
 	Particle *particle;
 	Vertex *_vertices;
 	GLfloat radius;
+
 	/*
 		3---2
 		|   |
@@ -263,7 +264,7 @@ void Sandbox::onUpdate(double sub_dt) {
 		applyRectangleConstraint();
 		updatePositions(sub_dt);
 	}
-	// std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	// std::this_thread::sleep_for(std::chrono::milliseconds(75));
 }
 
 void Sandbox::applyGravity() {
