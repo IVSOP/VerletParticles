@@ -26,12 +26,13 @@ class Sandbox {
 
 		void addColorToParticle(size_t index, GLfloat *color);
 
+		size_t pixelsX, pixelsY;
+
 	private:
 		GLuint VAO;
 		GLuint VBO;
 		GLuint IBO;
 
-		size_t pixelsX, pixelsY;
 		size_t current_tick;
 
 		std::vector<Spawner> spawners;

@@ -44,6 +44,7 @@ struct Particle {
 			this->old_pos = particle.old_pos;
 			this->accel = particle.accel;
 			this->radius = particle.radius;
+			this->ID = particle.ID;
 			std::memcpy(this->color, particle.color, 4 * sizeof(GLfloat));
 			return *this;
 		}

@@ -125,6 +125,52 @@ bool inCircle(Particle *p, unsigned long int count, spawnerInfo *info) {
 	return false;
 }
 
+bool inCircleReverse(Particle *p, unsigned long int count, spawnerInfo *info) {
+	if (count % 5 == 0) { // once every 5 ticks
+		// double radius = 500.0f;
+		// pVec2 center = {500.0f, 500.0f};
+		double radius = 250.0f;
+		pVec2 center = {250.0f, 250.0f};
+
+		// counter will act as degrees
+		double rad = (static_cast<double>(count) / 180) * M_PI;
+		// needs to be offset for center to match and then resized
+		pVec2 pos = {sin(rad), cos(rad),};
+		pos *= radius;
+		pos += center;
+		// move them to middle so they don't clip into wall and get launched
+		pVec2 offset = center - pos;
+
+		pVec2 accel = offset * 3500.0; // since this is already calculated might as well do some acceleration in the direction of the center
+
+		offset /= 20; // 20 = radius
+
+		pos += offset;
+
+		// std::cout << pos.x << "," << pos.y << std::endl;
+
+		// color depends on count and cycles around
+		// this corresponds to looping HSV, but I then have to turn it into RGB
+
+		GLfloat HSV[3] = {
+			static_cast<GLfloat>(count % 360),
+			1.0f,
+			1.0f
+		},
+		RGBA[4];
+		RGBA[3] = 1.0f;
+		HSV_to_RGB(HSV, RGBA);
+
+		// std::cout << static_cast<float>(count % 360) << std::endl;
+		// std::cout << RGBA[0] << " " << RGBA[1] << " " << RGBA[2] << std::endl;
+
+		*p = Particle(pos, info->particle_radius, accel, RGBA);
+		return true;		
+	}
+
+	return false;
+}
+
 bool centerSpawner(Particle *p, unsigned long int count, spawnerInfo *info) {
 	if (count % 2 == 0) { // once every 2 ticks
 		pVec2 center = info->center;

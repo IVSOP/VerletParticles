@@ -20,6 +20,7 @@ typedef bool spawnerFunc (Particle *p, unsigned long int count, spawnerInfo *inf
 
 
 bool inCircle(Particle *p, unsigned long int count, spawnerInfo *info);
+bool inCircleReverse(Particle *p, unsigned long int count, spawnerInfo *info);
 // from center rotates in a circle
 bool centerSpawner(Particle *p, unsigned long int count, spawnerInfo *info);
 bool centerSpawnerFixedSize(Particle *p, unsigned long int count, spawnerInfo *info);

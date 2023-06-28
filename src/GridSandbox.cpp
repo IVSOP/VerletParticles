@@ -11,7 +11,7 @@ GridSandbox::GridSandbox(size_t max_particles, size_t pixelsX, size_t pixelsY)
 }
 
 void GridSandbox::addParticle(Particle &particle) {
-	this->particles[this->len_particles] = particle; // will this copy the struct???
+	this->particles[this->len_particles] = particle; // will this copy the struct??? yes
 	addColorToParticle(len_particles, particle.color);
 
 	grid.insertIntoGrid(this->len_particles, particle.current_pos);
@@ -55,27 +55,48 @@ void GridSandbox::applyCircleConstraint() {
 
 void GridSandbox::applyRectangleConstraint() {
 	Particle *p; size_t i;
-	const double size_x = 1000.0f / 2.0f; // divide by 2 here to save time
-	const double size_y = 1000.0f / 2.0f;
 	// const double margin = 2.0f;
-	pVec2 center = {500.0f, 500.0f};
 	double radius;
+	const double size_x = pixelsX;
+	const double size_y = pixelsY;
 
 	// this is worse than the circle one
 	for (i = 0; i < len_particles; i++) {
 		p = &(particles[i]);
 		radius = p->radius;
 
-		if (p->current_pos.x + radius > center.x + size_x) {
-			p->current_pos.x = center.x + size_x - radius;
-		} else if (p->current_pos.x - radius < center.x - size_x) {
-			p->current_pos.x = center.x - size_x + radius;
+		// kept this here as comment so I could explain the ugliness of final solution
+
+		// const double half_size_x = pixelsX / 2.0f; // divide by 2 here to save time
+		// const double half_size_y = pixelsY / 2.0f;
+		// const pVec2 center = {250.0f, 250.0f}; is just the same as (half_size_x, half_size_y). by substituting then simplifying, I got final form
+
+		// if (p->current_pos.x + radius > center.x + half_size_x) {
+		// 	p->current_pos.x = center.x + half_size_x - radius;
+		// } else if (p->current_pos.x - radius < center.x - half_size_x) {
+		// 	p->current_pos.x = center.x - half_size_x + radius;
+		// }
+
+		// if (p->current_pos.y + radius > center.y + half_size_y) {
+		// 	p->current_pos.y = center.y + half_size_y - radius;
+		// } else if (p->current_pos.y - radius < center.y - half_size_y) {
+		// 	p->current_pos.y = center.y - half_size_y + radius;
+		// }
+
+		// NOTE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+		// Maybe I was dumb, this is no longer a rectangle but a square, can't tell
+		// anyway will use for now since it is faster
+
+		if (p->current_pos.x + radius > pixelsX) {
+			p->current_pos.x = size_x - radius;
+		} else if (p->current_pos.x - radius < 0) {
+			p->current_pos.x = 0 + radius;
 		}
 
-		if (p->current_pos.y + radius > center.y + size_y) {
-			p->current_pos.y = center.y + size_y - radius;
-		} else if (p->current_pos.y - radius < center.y - size_y) {
-			p->current_pos.y = center.y - size_y + radius;
+		if (p->current_pos.y + radius > size_y) {
+			p->current_pos.y = size_y - radius;
+		} else if (p->current_pos.y - radius < 0) {
+			p->current_pos.y = 0 + radius;
 		}
 	}
 }
@@ -312,6 +333,7 @@ void GridSandbox::collideParticlesSameCell(GridCell *cell) {
 void GridSandbox::dumpGridToFile() {
 	FILE *file = fopen("grid_dump.csv", "w");
 	GridCell *cell;
+	Particle *p;
 	int len;
 
 	char buff[16];
@@ -322,9 +344,9 @@ void GridSandbox::dumpGridToFile() {
 			// for now I assume in the end 1 particle per grid
 			cell = grid.get(row, col);
 			if (cell->len_particles != 0) {
-				printf("printing %ld %ld, particle is in %f,%f\n", row, col, particles[cell->particle_idx[0]].current_pos.x, particles[cell->particle_idx[0]].current_pos.y);
-				exit(1);
-				len = snprintf(buff, 16, "%d,", particles[cell->particle_idx[0]].ID);
+				p = &(particles[cell->particle_idx[0]]);
+				// printf("printing %ld %ld, particle is in %f,%f\n", row, col, particles[cell->particle_idx[0]].current_pos.x, particles[cell->particle_idx[0]].current_pos.y);
+				len = snprintf(buff, 16, "%d,", p->ID);
 				fwrite(buff, 1, len, file);
 			} else {
 				buff[0] = ',';
@@ -336,7 +358,8 @@ void GridSandbox::dumpGridToFile() {
 		// final iteration is out of loop
 		cell = grid.get(row, col);
 		if (cell->len_particles != 0) {
-			len = snprintf(buff, 16, "%d\n", particles[cell->particle_idx[0]].ID);
+			p = &(particles[cell->particle_idx[0]]);
+			len = snprintf(buff, 16, "%d\n", p->ID);
 			fwrite(buff, 1, len, file);
 		} else {
 			buff[0] = ','; buff[1] = '\n';

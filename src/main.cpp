@@ -89,23 +89,23 @@ int main() {
 
 	int width, height;
 	glfwGetWindowSize(window, &width, &height);
-	GridSandbox sandbox(5000, 1000, 1000);
+	GridSandbox sandbox(5000, 500, 500);
 
 	Renderer renderer(window);
 	renderer.addSandbox(&sandbox);
 
 	// center point and particle radius, if they decide to use it
-	spawnerInfo info1(pVec2(500, 750), GRID_PARTICLE_SIZE, nullptr);
-	spawnerInfo info2(pVec2(500, 250), GRID_PARTICLE_SIZE, nullptr);
+	spawnerInfo info1(pVec2(250, 250), GRID_PARTICLE_SIZE, nullptr);
+	spawnerInfo info2(pVec2(250, 465), GRID_PARTICLE_SIZE, nullptr);
 
-	Spawner spawner1(0, 5000, centerSpawnerFixedSize, &info1);
+	Spawner spawner1(0, 2500, centerSpawnerFixedSize, &info1);
 	sandbox.addSpawner(spawner1);
 
-	// Spawner spawner2(centerSpawnerFixedSize, &info2);
-	// sandbox.addSpawner(spawner2);
+	Spawner spawner2(2500, 5000, centerSpawnerFixedSize, &info2);
+	sandbox.addSpawner(spawner2);
 
-	// Spawner spawner3(inCircle, &info1);
-	// sandbox.addSpawner(spawner3);
+	Spawner spawner3(0, 2000, inCircleReverse, &info1);
+	sandbox.addSpawner(spawner3);
 
 	//////////////////////////////////////////// test case, now works
 
