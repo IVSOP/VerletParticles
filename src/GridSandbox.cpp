@@ -405,14 +405,14 @@ GLfloat *GridSandbox::convert_png(const char *path) {
 	// first just sums things into buff
 
 	// need to divide png into same number of cells as grid
-	const int size = width * height * BPP;
+	// const unsigned int size = width * height * BPP;
 	// everything here assumes squared image and grid
 	// size / grid.size would probably work
-	const int pixel_width_cell = width / grid.cols;
+	const unsigned int pixel_width_cell = width / grid.cols;
 
 
 
-	GLfloat R, G, B, A;
+	GLfloat R, G, B;//, A;
 	// need to normalize into floats, 0 == 0, 255 == 1
 
 	// current_pixel == i * 4
@@ -422,8 +422,8 @@ GLfloat *GridSandbox::convert_png(const char *path) {
 	// then, counter restarts
 
 	// offsets are to avoid repeating calculations
-	int pixel, line, offset, offset2;
-	int row, col, cell_offset, cell_offset2; // these offsets expand to row * cols + col, turning (row, col) into position in buff
+	unsigned int pixel, line, offset, offset2;
+	unsigned int row, col, cell_offset, cell_offset2; // these offsets expand to row * cols + col, turning (row, col) into position in buff
 
 
 	// every pixel_width_cell lines, move to cell above
@@ -454,7 +454,7 @@ GLfloat *GridSandbox::convert_png(const char *path) {
 	// total number of pixels per cell, so I can get the average
 	const float pixel_width_cell_squared = static_cast<float>(pixel_width_cell) * static_cast<float>(pixel_width_cell);
 
-	int i;
+	unsigned int i;
 	for (i = 0; i < grid.size; i += 4) {
 		buff[i + 0] /= pixel_width_cell_squared;
 		buff[i + 1] /= pixel_width_cell_squared;
@@ -464,6 +464,7 @@ GLfloat *GridSandbox::convert_png(const char *path) {
 	}
 
 	stbi_image_free(image);
+	return buff;
 }
 
 void GridSandbox::clear() {
@@ -473,3 +474,46 @@ void GridSandbox::clear() {
 		grid.cells[i].len_particles = 0;
 	}
 }
+
+// input is colors averaged in a grid over the image
+// output is colors orderer by the ID of particles
+// i.e. particle #69 will get its color in ...[69]
+
+// due to erros like particle being .005 away from next cell, there might be more than one particle per cell
+// in those cases, remaining particles get black since color array was calloc'd
+GLfloat *GridSandbox::parseColorsByGrid(GLfloat *colors) {
+	GridCell *cell;
+	unsigned int ID;
+
+	GLfloat *final_colors = (GLfloat *)calloc(4 * grid.size, sizeof(GLfloat));
+
+	size_t row, col, offset, offset2;
+	for (row = 0; row < grid.rows; row++) {
+		offset = row * grid.cols;
+		for (col = 0; col < grid.cols; col++) {
+			offset2 = offset + col;
+			cell = grid.get(row, col);
+			
+			if (cell->len_particles != 0) {
+				ID = (&(particles[cell->particle_idx[0]]))->ID;
+
+				final_colors[ID + 0] = colors[offset2 + 0];
+				final_colors[ID + 1] = colors[offset2 + 1];
+				final_colors[ID + 2] = colors[offset2 + 2];
+				final_colors[ID + 3] = colors[offset2 + 3];
+			}
+
+			// if (cell->len_particles > 1) { // used as a check to make sure 1 particle per cell
+				// fprintf(stderr, "More than one particle in cell row %ld col %ld\n", row, col);
+				// printf("particle locations are:\n");
+				// for (int i = 1; i < cell->len_particles; i++) {
+					// printf("%f %f\n", particles[cell->particle_idx[i]].current_pos.x, particles[cell->particle_idx[i]].current_pos.y);
+				// }
+				// exit(10);
+			// }
+		}
+	}
+
+	return final_colors;
+}
+

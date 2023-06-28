@@ -122,20 +122,26 @@ int main() {
 		Spawner spawner7(1750, 2100, fixedSpawner, &info6);
 		sandbox.addSpawner(spawner7);
 
+		// get averages of pixel values of the grid
 		GLfloat * colors = sandbox.convert_png("res/radiation_symbol.png");
 
 		// run simulation once
 		for (int i = 0; i < 2150; i++) {
 			renderer.tick();
+			// printf("%d\n", i);
 		}
+
+		// sort colors according to ID of particle in that square of the grid
+		// didnt feel like sorting, made new array
+
+		GLfloat *color_feed = sandbox.parseColorsByGrid(colors);
+		free(colors); 
 
 		sandbox.clear();
 
-		free(colors);
-
-		// for (int i = 0; i < 1500; i++) {
-		// 	renderer.tick();
-		// }
+		for (int i = 0; i < 1500; i++) {
+			renderer.tick();
+		}
 
 	//////////////////////////////////////////// Creating shaders and making program out of the shaders
 	GLCall(const GLuint program = glCreateProgram());
@@ -279,6 +285,8 @@ int main() {
 
 		lastFrameTime = currentFrameTime;
 	}
+
+	free(color_feed);
 
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();

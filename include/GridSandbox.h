@@ -37,6 +37,8 @@ class GridSandbox : public Sandbox {
 		GLfloat *convert_png(const char *path);
 
 		void clear();
+
+		GLfloat *parseColorsByGrid(GLfloat *colors);
 };
 
 #endif
