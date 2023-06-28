@@ -33,6 +33,10 @@ class GridSandbox : public Sandbox {
 		void collideParticles(Particle *p1, Particle *p2);
 
 		void dumpGridToFile();
+
+		GLfloat *convert_png(const char *path);
+
+		void clear();
 };
 
 #endif

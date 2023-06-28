@@ -51,6 +51,8 @@ class Sandbox {
 
 		virtual void addParticle(Particle &particle) = 0;
 
+		virtual void clear() = 0; // allways needs to set len_particles = 0, maybe wrap this with something and dont make the entire thing virtual
+
 		size_t getNumberOfVertices() const;
 		size_t getNumberOfParticles() const;
 		size_t getNumberOfIndices() const;

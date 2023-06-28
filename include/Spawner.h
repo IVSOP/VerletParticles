@@ -8,9 +8,14 @@ struct spawnerInfo {
 	pVec2 center;
 	double particle_radius;
 	GLfloat *color_feed; // color lookup for each particle ID
+	pVec2 accel;
 
 	spawnerInfo(pVec2 _center, double _particle_radius, GLfloat *_color_feed)
 		: center(_center), particle_radius(_particle_radius), color_feed(_color_feed)
+	{}
+
+	spawnerInfo(pVec2 _center, double _particle_radius, GLfloat *_color_feed, pVec2 _accel)
+		: center(_center), particle_radius(_particle_radius), color_feed(_color_feed), accel(_accel)
 	{}
 };
 
@@ -24,6 +29,8 @@ bool inCircleReverse(Particle *p, unsigned long int count, spawnerInfo *info);
 // from center rotates in a circle
 bool centerSpawner(Particle *p, unsigned long int count, spawnerInfo *info);
 bool centerSpawnerFixedSize(Particle *p, unsigned long int count, spawnerInfo *info);
+
+bool fixedSpawner(Particle *p, unsigned long int count, spawnerInfo *info);
 
 class Spawner {
 	private:

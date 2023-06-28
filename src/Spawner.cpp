@@ -107,7 +107,7 @@ bool inCircle(Particle *p, unsigned long int count, spawnerInfo *info) {
 		// this corresponds to looping HSV, but I then have to turn it into RGB
 
 		GLfloat HSV[3] = {
-			static_cast<GLfloat>(count % 360),
+			static_cast<GLfloat>(1 + (count % 359)),
 			1.0f,
 			1.0f
 		},
@@ -153,7 +153,7 @@ bool inCircleReverse(Particle *p, unsigned long int count, spawnerInfo *info) {
 		// this corresponds to looping HSV, but I then have to turn it into RGB
 
 		GLfloat HSV[3] = {
-			static_cast<GLfloat>(count % 360),
+			static_cast<GLfloat>(1 + (count % 359)),
 			1.0f,
 			1.0f
 		},
@@ -183,7 +183,7 @@ bool centerSpawner(Particle *p, unsigned long int count, spawnerInfo *info) {
 		accel *= 1000000.0;
 
 		GLfloat HSV[3] = {
-			static_cast<GLfloat>(count % 360),
+			static_cast<GLfloat>(1 + (count % 359)),
 			1.0f,
 			1.0f
 		},
@@ -210,7 +210,7 @@ bool centerSpawnerFixedSize(Particle *p, unsigned long int count, spawnerInfo *i
 		accel *= 1000000.0;
 
 		GLfloat HSV[3] = {
-			static_cast<GLfloat>(count % 360),
+			static_cast<GLfloat>(1 + (count % 359)),
 			1.0f,
 			1.0f
 		},
@@ -222,5 +222,22 @@ bool centerSpawnerFixedSize(Particle *p, unsigned long int count, spawnerInfo *i
 		return true;
 	}
 
+	return false;
+}
+
+// spawns particles in place and applies acceleration present in info
+bool fixedSpawner(Particle *p, unsigned long int count, spawnerInfo *info) {
+	if (count % 2 == 0) {
+		GLfloat HSV[3] = {
+			static_cast<GLfloat>(1 + (count % 359)),
+			1.0f,
+			1.0f
+		},
+		RGBA[4];
+		RGBA[3] = 1.0f;
+		HSV_to_RGB(HSV, RGBA);
+		*p = Particle(info->center, info->particle_radius, info->accel, RGBA);
+		return true;
+	}
 	return false;
 }

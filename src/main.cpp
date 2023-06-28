@@ -45,6 +45,8 @@ const GLchar *readFromFile(char *filepath) {
 	return ret;
 }
 
+// I tried to make main simpler but it was a mess because of opengl, implied huge rework of everything
+// might try it in the future
 int main() {
 	if (!glfwInit()) {
 		perror("GLFW window failed to initiate");
@@ -87,58 +89,53 @@ int main() {
 
 	//////////////////////////////////////////// Sandbox and renderer instance
 
-	int width, height;
-	glfwGetWindowSize(window, &width, &height);
-	GridSandbox sandbox(5000, 500, 500);
+		int width, height;
+		glfwGetWindowSize(window, &width, &height);
+		GridSandbox sandbox(5000, 500, 500); // why tf can I change this and not window pixels and it just works???????? i dont even know anymore, it works too well its just inconsistent
 
-	Renderer renderer(window);
-	renderer.addSandbox(&sandbox);
+		Renderer renderer(window);
+		renderer.addSandbox(&sandbox);
 
-	// center point and particle radius, if they decide to use it
-	spawnerInfo info1(pVec2(250, 250), GRID_PARTICLE_SIZE, nullptr);
-	spawnerInfo info2(pVec2(250, 465), GRID_PARTICLE_SIZE, nullptr);
+		// center point and particle radius, if they decide to use it
+		spawnerInfo info1(pVec2(250, 250), GRID_PARTICLE_SIZE, nullptr);
+		spawnerInfo info2(pVec2(250, 465), GRID_PARTICLE_SIZE, nullptr);
+		spawnerInfo info3(pVec2(GRID_PARTICLE_SIZE, 500 - GRID_PARTICLE_SIZE), GRID_PARTICLE_SIZE, nullptr, pVec2(250000.0, 0));
+		spawnerInfo info4(pVec2(GRID_PARTICLE_SIZE, 500 - (GRID_PARTICLE_SIZE * 3)), GRID_PARTICLE_SIZE, nullptr, pVec2(240000.0, 0));
+		spawnerInfo info5(pVec2(GRID_PARTICLE_SIZE, 500 - (GRID_PARTICLE_SIZE * 5)), GRID_PARTICLE_SIZE, nullptr, pVec2(230000.0, 0));
+		spawnerInfo info6(pVec2(500 - GRID_PARTICLE_SIZE, 500 - GRID_PARTICLE_SIZE), GRID_PARTICLE_SIZE, nullptr, pVec2(- 250000.0, 0));
 
-	Spawner spawner1(0, 2500, centerSpawnerFixedSize, &info1);
-	sandbox.addSpawner(spawner1);
+		// Spawner spawner1(0, 2500, centerSpawnerFixedSize, &info1);
+		// sandbox.addSpawner(spawner1);
 
-	Spawner spawner2(2500, 5000, centerSpawnerFixedSize, &info2);
-	sandbox.addSpawner(spawner2);
+		// Spawner spawner2(2500, 5000, centerSpawnerFixedSize, &info2);
+		// sandbox.addSpawner(spawner2);
 
-	Spawner spawner3(0, 2000, inCircleReverse, &info1);
-	sandbox.addSpawner(spawner3);
+		// Spawner spawner3(0, 2000, inCircleReverse, &info1);
+		// sandbox.addSpawner(spawner3);
 
-	//////////////////////////////////////////// test case, now works
+		Spawner spawner4(0, 2100, fixedSpawner, &info3);
+		sandbox.addSpawner(spawner4);
+		Spawner spawner5(50, 1750, fixedSpawner, &info4);
+		sandbox.addSpawner(spawner5);
+		Spawner spawner6(100, 1750, fixedSpawner, &info5);
+		sandbox.addSpawner(spawner6);
+		Spawner spawner7(1750, 2100, fixedSpawner, &info6);
+		sandbox.addSpawner(spawner7);
 
-		// GLfloat red[] = {1.0f, 0.0f, 0.0f, 1.0f};
-		// GLfloat green[] = {0.0f, 1.0f, 0.0f, 0.75f};
-		// GLfloat blue[] = {0.0f, 0.0f, 1.0f, 0.75f};
+		GLfloat * colors = sandbox.convert_png("res/radiation_symbol.png");
 
-		// Particle p1;
-		// int idx;
-		// for (idx = 0; idx < 25; idx++) {
-		// 	p1 = Particle(pVec2(20 + idx * 40, 20), 20, red);
-		// 	sandbox.addParticle(p1);
+		// run simulation once
+		for (int i = 0; i < 2150; i++) {
+			renderer.tick();
+		}
+
+		sandbox.clear();
+
+		free(colors);
+
+		// for (int i = 0; i < 1500; i++) {
+		// 	renderer.tick();
 		// }
-
-		// // green and blue are not detected for like 10 frames in a row, how is that possible?
-		// // and each frame has 8 checks
-		// // they literally go inside each other fully
-		// for (idx = 0; idx < 15; idx++) {
-		// 	if (idx == 10) {
-		// 		p1 = Particle(pVec2(100, 100 + idx * 40), 20, green);
-		// 	} else if (idx == 6) {
-		// 		p1 = Particle(pVec2(100, 100 + idx * 40), 20, blue);
-		// 	} else {
-		// 		p1 = Particle(pVec2(100, 100 + idx * 40), 20, red);
-		// 	}
-		// 	sandbox.addParticle(p1);
-		// }
-
-		// p1 = Particle(pVec2(100 + 5, 900), 20, red);
-		// sandbox.addParticle(p1);
-
-	// particles in bottom left are clearly going inside each other completely
-
 
 	//////////////////////////////////////////// Creating shaders and making program out of the shaders
 	GLCall(const GLuint program = glCreateProgram());
@@ -206,9 +203,9 @@ int main() {
 	GLCall(glfwSwapInterval(1)); // hardcoded sync with monitor fps
 	GLfloat color[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
 	int radius = GRID_PARTICLE_SIZE, posX = 100, posY = 500;
+
 	double previousFrameTime = glfwGetTime(), newFrameTime;
-	
-	
+	// wtf???????????????????????????????????????????????????? twice??? and without this it doesnt work??????????????????????????????????????????
 	double lastFrameTime = glfwGetTime(),
 	currentFrameTime;
 
