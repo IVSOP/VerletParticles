@@ -27,13 +27,12 @@ class Sandbox {
 		void addColorToParticle(size_t index, GLfloat *color);
 
 		size_t pixelsX, pixelsY;
+		size_t current_tick;
 
 	private:
 		GLuint VAO;
 		GLuint VBO;
 		GLuint IBO;
-
-		size_t current_tick;
 
 		std::vector<Spawner> spawners;
 
@@ -51,7 +50,7 @@ class Sandbox {
 
 		virtual void addParticle(Particle &particle) = 0;
 
-		virtual void clear() = 0; // allways needs to set len_particles = 0, maybe wrap this with something and dont make the entire thing virtual
+		virtual void clear() = 0; // allways needs to set len_particles = 0 and current_tick = 0, maybe wrap this with something and dont make the entire thing virtual
 
 		size_t getNumberOfVertices() const;
 		size_t getNumberOfParticles() const;

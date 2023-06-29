@@ -376,6 +376,8 @@ void GridSandbox::dumpGridToFile() {
 
 // #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
 
 // for now I assume it is squared
 GLfloat *GridSandbox::convert_png(const char *path) {
@@ -411,7 +413,6 @@ GLfloat *GridSandbox::convert_png(const char *path) {
 	const unsigned int pixel_width_cell = width / grid.cols;
 
 
-
 	GLfloat R, G, B;//, A;
 	// need to normalize into floats, 0 == 0, 255 == 1
 
@@ -422,46 +423,61 @@ GLfloat *GridSandbox::convert_png(const char *path) {
 	// then, counter restarts
 
 	// offsets are to avoid repeating calculations
-	unsigned int pixel, line, offset, offset2;
+	unsigned int pixel_col, pixel_row, offset, offset2;
 	unsigned int row, col, cell_offset, cell_offset2; // these offsets expand to row * cols + col, turning (row, col) into position in buff
 
 
-	// every pixel_width_cell lines, move to cell above
+
+	// wtf is this
 	for (row = 0; row < grid.rows; row++) {
 		cell_offset = row * grid.cols;
-		for (line = 0; line < pixel_width_cell; line ++) { // goes from bottom to top
-			offset = line * width;
+		for (pixel_row = 0; pixel_row < pixel_width_cell; pixel_row ++) {
+			// offset = pixel_row * width;
 			// every pixel_width_cell, move to next cell
 			for (col = 0; col < grid.cols; col++) {
-				for (pixel = 0; pixel < pixel_width_cell; pixel ++) { // goes from left to right
-					offset2 = offset + (pixel * 4); // is += 4 in the loop faster? idc
+				for (pixel_col = 0; pixel_col < pixel_width_cell; pixel_col ++) {
+					// offset2 = offset + (pixel_col * 4); // is += 4 in the loop faster? idc
+
+					offset2 = ((pixel_col) + (pixel_row * width) + (col * pixel_width_cell) + (row * grid.cols * pixel_width_cell)) * 4;
 					cell_offset2 = cell_offset + col;
+
+					// printf("%d\n", offset2);
+
 					R = static_cast<GLfloat>(image[offset2 + 0]) / 255.0f;
 					G = static_cast<GLfloat>(image[offset2 + 1]) / 255.0f;
 					B = static_cast<GLfloat>(image[offset2 + 2]) / 255.0f;
 					// A = static_cast<GLfloat>(image[offset2 + 3]) / 255.0f;
 
-					buff[cell_offset2 + 0] += R;
-					buff[cell_offset2 + 1] += G;
-					buff[cell_offset2 + 2] += B;
+					buff[(cell_offset2 * 4) + 0] += R;
+					buff[(cell_offset2 * 4) + 1] += G;
+					buff[(cell_offset2 * 4) + 2] += B;
 					// buff[cell_offset2 + 3] += A;
 				}
 			}
 		}
 	}
-
+	// exit(1);
 
 	// total number of pixels per cell, so I can get the average
 	const float pixel_width_cell_squared = static_cast<float>(pixel_width_cell) * static_cast<float>(pixel_width_cell);
 
 	unsigned int i;
-	for (i = 0; i < grid.size; i += 4) {
-		buff[i + 0] /= pixel_width_cell_squared;
-		buff[i + 1] /= pixel_width_cell_squared;
-		buff[i + 2] /= pixel_width_cell_squared;
+	for (i = 0; i < grid.size; i ++) {
+		buff[(i * 4) + 0] /= pixel_width_cell_squared;
+		buff[(i * 4) + 1] /= pixel_width_cell_squared;
+		buff[(i * 4) + 2] /= pixel_width_cell_squared;
 		// buff[i + 3] /= pixel_width_cell_squared;
-		buff[i + 3] = 1.0f;
+		buff[(i * 4) + 3] = 1.0f;
+
+		// printf("buff[%d] (R) is %f\n", i * 4, buff[i * 4]);
 	}
+
+	// exit(1);
+
+	char filename[] = "img.png";
+	stbi_write_png(filename, grid.cols, grid.rows, 4, buff, grid.cols * 4);
+
+	exit(1);
 
 	stbi_image_free(image);
 	return buff;
@@ -469,6 +485,7 @@ GLfloat *GridSandbox::convert_png(const char *path) {
 
 void GridSandbox::clear() {
 	Sandbox::len_particles = 0;
+	Sandbox::current_tick = 0;
 	size_t i;
 	for (i = 0; i < grid.size; i++) {
 		grid.cells[i].len_particles = 0;
@@ -501,6 +518,9 @@ GLfloat *GridSandbox::parseColorsByGrid(GLfloat *colors) {
 				final_colors[ID + 1] = colors[offset2 + 1];
 				final_colors[ID + 2] = colors[offset2 + 2];
 				final_colors[ID + 3] = colors[offset2 + 3];
+
+
+				// printf("setting colors for ID %d %f %f %f %f\n", ID, final_colors[ID + 0], final_colors[ID + 1], final_colors[ID + 2], final_colors[ID + 3]);
 			}
 
 			// if (cell->len_particles > 1) { // used as a check to make sure 1 particle per cell

@@ -19,18 +19,18 @@ struct spawnerInfo {
 	{}
 };
 
-typedef bool spawnerFunc (Particle *p, unsigned long int count, spawnerInfo *info);
+typedef bool spawnerFunc (Particle *p, unsigned long int count, spawnerInfo *info, unsigned int ID);
 
 // some examples of spawner funcs
 
 
-bool inCircle(Particle *p, unsigned long int count, spawnerInfo *info);
-bool inCircleReverse(Particle *p, unsigned long int count, spawnerInfo *info);
+bool inCircle(Particle *p, unsigned long int count, spawnerInfo *info, unsigned int ID);
+bool inCircleReverse(Particle *p, unsigned long int count, spawnerInfo *info, unsigned int ID);
 // from center rotates in a circle
-bool centerSpawner(Particle *p, unsigned long int count, spawnerInfo *info);
-bool centerSpawnerFixedSize(Particle *p, unsigned long int count, spawnerInfo *info);
+bool centerSpawner(Particle *p, unsigned long int count, spawnerInfo *info, unsigned int ID);
+bool centerSpawnerFixedSize(Particle *p, unsigned long int count, spawnerInfo *info, unsigned int ID);
 
-bool fixedSpawner(Particle *p, unsigned long int count, spawnerInfo *info);
+bool fixedSpawner(Particle *p, unsigned long int count, spawnerInfo *info, unsigned int ID);
 
 class Spawner {
 	private:
@@ -62,7 +62,7 @@ class Spawner {
 		// if it chose to spawn particle, returns true
 		// else returns false
 		// it would be more efficient to delete spawner when ticks run out, but wont do it for now
-		bool nextParticle(size_t current_tick, Particle *p);
+		bool nextParticle(size_t current_tick, Particle *p, unsigned int ID);
 };
 
 

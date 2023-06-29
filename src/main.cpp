@@ -126,9 +126,9 @@ int main() {
 		GLfloat * colors = sandbox.convert_png("res/radiation_symbol.png");
 
 		// run simulation once
-		for (int i = 0; i < 2150; i++) {
+		for (int i = 0; i < 2200; i++) {
 			renderer.tick();
-			// printf("%d\n", i);
+			printf("%d\n", i);
 		}
 
 		// sort colors according to ID of particle in that square of the grid
@@ -139,9 +139,14 @@ int main() {
 
 		sandbox.clear();
 
-		for (int i = 0; i < 1500; i++) {
-			renderer.tick();
-		}
+		info3.color_feed = color_feed;
+		info4.color_feed = color_feed;
+		info5.color_feed = color_feed;
+		info6.color_feed = color_feed;
+
+		// for (int i = 0; i < 1500; i++) {
+		// 	renderer.tick();
+		// }
 
 	//////////////////////////////////////////// Creating shaders and making program out of the shaders
 	GLCall(const GLuint program = glCreateProgram());

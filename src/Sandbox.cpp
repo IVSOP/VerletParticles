@@ -248,9 +248,8 @@ void Sandbox::onUpdate(double sub_dt) {
 	// double sub_dt = dt / SUBSTEPS;
 	
 	// spawn particles from all spawners
-	for (i = 0; i < size; i++) {
-		if (this->spawners[i].nextParticle(current_tick, &p) == true) {
-			p.ID = len_particles; // set particle ID to len particles since it already acts as a counter
+	for (i = 0; i < size; i++) {							// messy workaround
+		if (this->spawners[i].nextParticle(current_tick, &p, len_particles) == true) {
 			addParticle(p);
 		}
 	}
