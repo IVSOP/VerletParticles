@@ -1,6 +1,16 @@
 # VerletParticles
 
-## Very simple particle physics simulation
+## Very simple particle physics simulation, with image rendering
+
+Inspiration: https://youtu.be/lS_qeBy3aQI
+
+Example:
+<div id="Installing"/>
+<p float="left">
+  <img src="res/Screenshot1.png" width="175" />
+  <img src="res/Screenshot2.png" width="175" /> 
+  <img src="res/Screenshot3.png" width="175" />
+</p>
 
 *******
  1. [Installing](#Installing)
@@ -10,11 +20,10 @@
  5. [Documentation](#Documentation)
 *******
 
-<div id="Installing"/>
 
 ## Installing
 
-Currently make install was not implemented
+Currently make install has not been implemented
 
 Download source code **recursivelly**, i.e. `git clone git@github.com:IVSOP/VerletParticles.git --recursive`
 
@@ -29,6 +38,7 @@ Download source code **recursivelly**, i.e. `git clone git@github.com:IVSOP/Verl
 
    ### Compiling and Running
    * Use the script `run.sh` to compile and run
+   * For now, image is not passed as argument but its path is used in main, near sandboxes and spawners
 
 *******
 
@@ -37,13 +47,19 @@ Download source code **recursivelly**, i.e. `git clone git@github.com:IVSOP/Verl
 ## Current state
 This is a personal project I created to learn OpenGL and physics simulations. It is coded in C++ and simulates particle movement using Verlet integration.
 
+It now works in rendering an image from particles, but only in a square simulation space with all particles having the same size.
+
+Note: only tested RGBA (4 channel) squared PNG, with 8 bit pixels
+
 Working algorithms:
+* grid (GridSandbox) (particles are placed in a static grid, and must ALLWAYS be of the same size (use GRID_PARTICLE_SIZE in GridSandbox.h))
+
+Stopped working due to some changes, will fix in the future
 * brute force (RegularSandbox)
-* quad tree (QuadTreeSandbox) (glitches when particles collide near quadrant borders)
 * sorting (SortedSandbox) (glitches when particles have different sizes)
+* quad tree (QuadTreeSandbox) (glitches when particles collide near quadrant borders)
 
 Algorithms being worked on:
-* grid (particles are placed in a static grid)
 * quad tree array (quad tree is allocated as an array)
 
 For now there is no SIMD, gpu calculations, etc.
@@ -60,11 +76,13 @@ Spawners are easy to make, currently there is only one being used but other exam
 
 The structure is currently messy but will be fixed
 
-In main, I make a Renderer, a Sandbox and some Spawners. The sandbox is added to the renderer and the spawners are added to the sandbox
+To run, you need a Renderer, Sandbox and (optional) Spawners
 
-The renderer, every frame, requests an update from the sandbox, that must spawn particles from the spawner, set the GPU data needed for the display, and solve collisions
+The sandbox can have many implementations, currently GridSandbox is the only one working and also the fastest
 
-The Sandbox class provides some of these functionalities, while collisions and updates must be handled in a child class. For example, RegularSandbox, SortedSandbox, etc. are all children of Sandbox
+Spawners will, given a spawnFunc, spawn particles in a given certain place, acceleration, color, etc.
+
+Better explanation in the future
 
 *******
 

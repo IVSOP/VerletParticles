@@ -126,14 +126,20 @@ int main() {
 
 		// run simulation once
 		int i;
+		std::cout << "Running simulation for 2100 ticks" << std::endl;
 		for (i = 0; i < 2100; i++) {
 			renderer.tick();
 			renderer.renderSandboxWithoutTick();
-			printf("%d\n", i);
+			if (i % 100 == 0) {
+				printf("tick #%d\n", i);
+			}
 		}
 
 		// get colors according to particle position
+		std::cout << "Calculating colors from this position" << std::endl;
 		GLfloat * color_feed = sandbox.getParticleColorsFromImage("res/radiation_symbol.png");
+
+		std::cout << "Finished, clearing and starting visual simulation" << std::endl;
 
 		sandbox.clear();
 
@@ -231,7 +237,7 @@ int main() {
 		// glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		ImGui::Begin("Spawn a circle");
+		ImGui::Begin("Menu");
 
 		
 		ImGui::ColorPicker4("##ColorPicker", color, false | ImGuiColorEditFlags_DisplayRGB, NULL);
@@ -265,7 +271,7 @@ int main() {
 			sandbox.dumpGridToFile();
 		}
 
-		ImGui::ShowDemoWindow();
+		// ImGui::ShowDemoWindow();
 
 		ImGui::End();
 		ImGui::Render();
