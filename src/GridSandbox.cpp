@@ -361,7 +361,7 @@ void GridSandbox::dumpGridToFile() {
 			if (cell->len_particles != 0) {
 				p = &(particles[cell->particle_idx[0]]);
 				// printf("printing %ld %ld, particle is in %f,%f\n", row, col, particles[cell->particle_idx[0]].current_pos.x, particles[cell->particle_idx[0]].current_pos.y);
-				len = snprintf(buff, 16, "%d,", p->ID);
+				len = snprintf(buff, 16, "%d,", getParticleID(p));
 				fwrite(buff, 1, len, file);
 			} else {
 				if (cell->len_particles > 1) { // used as a check to make sure
@@ -378,7 +378,7 @@ void GridSandbox::dumpGridToFile() {
 		cell = grid.get(row, col);
 		if (cell->len_particles != 0) {
 			p = &(particles[cell->particle_idx[0]]);
-			len = snprintf(buff, 16, "%d\n", p->ID);
+			len = snprintf(buff, 16, "%d\n", getParticleID(p));
 			fwrite(buff, 1, len, file);
 		} else {
 			buff[0] = ','; buff[1] = '\n';
@@ -528,7 +528,7 @@ GLfloat *GridSandbox::parseColorsByGrid(GLfloat *colors) {
 			cell = grid.get(row, col);
 			
 			if (cell->len_particles != 0) {
-				ID = (&(particles[cell->particle_idx[0]]))->ID;
+				ID = getParticleID(&(particles[cell->particle_idx[0]]));
 
 				final_colors[ID + 0] = colors[offset2 + 0];
 				final_colors[ID + 1] = colors[offset2 + 1];

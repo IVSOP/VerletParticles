@@ -19,7 +19,7 @@ struct Particle {
 		pVec2 accel;
 		GLfloat color[4];
 
-		unsigned int ID;
+		// unsigned int ID; a particle's ID can just be its position in the array of particles
 
 		// double timeLived;
 
@@ -42,7 +42,6 @@ struct Particle {
 			this->old_pos = particle.old_pos;
 			this->accel = particle.accel;
 			this->radius = particle.radius;
-			this->ID = particle.ID;
 			std::memcpy(this->color, particle.color, 4 * sizeof(GLfloat));
 			return *this;
 		}

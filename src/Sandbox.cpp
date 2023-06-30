@@ -246,7 +246,7 @@ void Sandbox::getAverageColor(unsigned char *image, int width, int height, GLflo
 	const int radius = static_cast<int>(p->radius),
 	diameter = 2 * radius;
 
-	GLfloat *target_colors = colors + (p->ID * 4);
+	GLfloat *target_colors = colors + (getParticleID(p) * 4);
 
 	// for loops start at 0, need to apply this offset to be in the bottom left corner of square
 	// each X value is worth 1 pixel

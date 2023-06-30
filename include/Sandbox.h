@@ -68,6 +68,10 @@ class Sandbox {
 
 		GLfloat * getParticleColorsFromImage(const char *filename);
 		void getAverageColor(unsigned char *image, int width, int height, GLfloat *colors, Particle *p);
+
+		unsigned int getParticleID(Particle *p) const {
+			return p - particles;
+		}
 };
 
 #endif

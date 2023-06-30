@@ -6,7 +6,6 @@ Particle::Particle(pVec2 current_pos, size_t radius, pVec2 accel)
 	this->old_pos = current_pos;
 	this->accel = accel;
 	this->radius = radius;
-	this->ID = 0;
 	GLfloat new_color[] = {10.0f, 1.0f, 1.0f, 1.0f };
 	std::memcpy(this->color, new_color, 4 * sizeof(GLfloat));
 }
@@ -17,7 +16,6 @@ Particle::Particle(pVec2 current_pos, size_t radius, pVec2 accel, GLfloat new_co
 	this->old_pos = current_pos;
 	this->accel = accel;
 	this->radius = radius;
-	this->ID = 0;
 	std::memcpy(this->color, new_color, 4 * sizeof(GLfloat));
 }
 
@@ -27,7 +25,6 @@ Particle::Particle(pVec2 current_pos, size_t radius)
 	this->old_pos = current_pos;
 	this->radius = radius;
 	this->accel = {0, 0};
-	this->ID = 0;
 	GLfloat new_color[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	std::memcpy(this->color, new_color, 4 * sizeof(GLfloat));
 }
@@ -38,7 +35,6 @@ Particle::Particle(pVec2 current_pos, size_t radius, GLfloat new_color[4])
 	this->old_pos = current_pos;
 	this->radius = radius;
 	this->accel = {0, 0};
-	this->ID = 0;
 	std::memcpy(this->color, new_color, 4 * sizeof(GLfloat));
 
 }
@@ -49,7 +45,6 @@ Particle::Particle(const Particle &particle) {
 	this->old_pos = particle.old_pos;
 	this->accel = particle.accel;
 	this->radius = particle.radius;
-	this->ID = particle.ID;
 	memcpy(this->color, particle.color, 4 * sizeof(GLfloat));
 }
 
