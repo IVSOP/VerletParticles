@@ -45,8 +45,6 @@ const GLchar *readFromFile(char *filepath) {
 	return ret;
 }
 
-// I tried to make main simpler but it was a mess because of opengl, implied huge rework of everything
-// might try it in the future
 int main() {
 	if (!glfwInit()) {
 		perror("GLFW window failed to initiate");
@@ -105,14 +103,15 @@ int main() {
 		spawnerInfo info5(pVec2(GRID_PARTICLE_SIZE, 1000 - (GRID_PARTICLE_SIZE * 5)), GRID_PARTICLE_SIZE, nullptr, pVec2(315000.0, 0));
 		spawnerInfo info6(pVec2(1000 - GRID_PARTICLE_SIZE, 1000 - GRID_PARTICLE_SIZE), GRID_PARTICLE_SIZE, nullptr, pVec2(- 325000.0, 0));
 
-		// Spawner spawner1(0, 2500, centerSpawnerFixedSize, &info1);
+		// Spawner spawner1(0, 2200, centerSpawnerFixedSize, &info2);
 		// sandbox.addSpawner(spawner1);
 
-		// Spawner spawner2(2500, 5000, centerSpawnerFixedSize, &info2);
+		// Spawner spawner2(0, 2200, inCircle, &info2);
 		// sandbox.addSpawner(spawner2);
-
-		// Spawner spawner3(0, 2000, inCircleReverse, &info1);
+		
+		// Spawner spawner3(0, 2200, inCircleReverse, &info2);
 		// sandbox.addSpawner(spawner3);
+
 
 		Spawner spawner4(0, 2100, fixedSpawner, &info3);
 		sandbox.addSpawner(spawner4);

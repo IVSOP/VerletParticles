@@ -101,19 +101,29 @@ bool inCircle(Particle *p, unsigned long int count, spawnerInfo *info, unsigned 
 
 		pos += offset;
 
+		if (info->color_feed == nullptr) {
+			// GLfloat HSV[3] = {
+			// 	static_cast<GLfloat>(1 + (count % 359)),
+			// 	1.0f,
+			// 	1.0f
+			// },
+			// RGBA[4];
+			// RGBA[3] = 1.0f;
+			// HSV_to_RGB(HSV, RGBA);
+
+			GLfloat RGBA[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+
+			*p = Particle(pos, info->particle_radius, accel, RGBA);
+			// got lazy
+			p->ID = ID;
+		} else {
+			*p = Particle(pos, info->particle_radius, accel, &(info->color_feed[ID * 4]));
+			// got lazy
+			p->ID = ID;
+		}
 		// color depends on count and cycles around
 		// this corresponds to looping HSV, but I then have to turn it into RGB
 
-		GLfloat HSV[3] = {
-			static_cast<GLfloat>(1 + (count % 359)),
-			1.0f,
-			1.0f
-		},
-		RGBA[4];
-		RGBA[3] = 1.0f;
-		HSV_to_RGB(HSV, RGBA);
-
-		*p = Particle(pos, info->particle_radius, accel, RGBA);
 		return true;		
 	}
 
@@ -124,8 +134,8 @@ bool inCircleReverse(Particle *p, unsigned long int count, spawnerInfo *info, un
 	if (count % 5 == 0) { // once every 5 ticks
 		// double radius = 500.0f;
 		// pVec2 center = {500.0f, 500.0f};
-		double radius = 250.0f;
-		pVec2 center = {250.0f, 250.0f};
+		double radius = 500.0f;
+		pVec2 center = {500.0f, 500.0f};
 
 		// counter will act as degrees
 		double rad = (static_cast<double>(count) / 180) * M_PI;
@@ -147,19 +157,26 @@ bool inCircleReverse(Particle *p, unsigned long int count, spawnerInfo *info, un
 		// color depends on count and cycles around
 		// this corresponds to looping HSV, but I then have to turn it into RGB
 
-		GLfloat HSV[3] = {
-			static_cast<GLfloat>(1 + (count % 359)),
-			1.0f,
-			1.0f
-		},
-		RGBA[4];
-		RGBA[3] = 1.0f;
-		HSV_to_RGB(HSV, RGBA);
+		if (info->color_feed == nullptr) {
+			// GLfloat HSV[3] = {
+			// 	static_cast<GLfloat>(1 + (count % 359)),
+			// 	1.0f,
+			// 	1.0f
+			// },
+			// RGBA[4];
+			// RGBA[3] = 1.0f;
+			// HSV_to_RGB(HSV, RGBA);
 
-		// std::cout << static_cast<float>(count % 360) << std::endl;
-		// std::cout << RGBA[0] << " " << RGBA[1] << " " << RGBA[2] << std::endl;
+			GLfloat RGBA[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 
-		*p = Particle(pos, info->particle_radius, accel, RGBA);
+			*p = Particle(pos, info->particle_radius, accel, RGBA);
+			// got lazy
+			p->ID = ID;
+		} else {
+			*p = Particle(pos, info->particle_radius, accel, &(info->color_feed[ID * 4]));
+			// got lazy
+			p->ID = ID;
+		}
 		return true;		
 	}
 
@@ -187,6 +204,8 @@ bool centerSpawner(Particle *p, unsigned long int count, spawnerInfo *info, unsi
 		HSV_to_RGB(HSV, RGBA);
 
 		*p = Particle(center, (count % 20) + 5, accel, RGBA);
+		// got lazy
+		p->ID = ID;
 		return true;
 	}
 
@@ -220,7 +239,7 @@ bool centerSpawnerFixedSize(Particle *p, unsigned long int count, spawnerInfo *i
 			// got lazy
 			p->ID = ID;
 		} else {
-			*p = Particle(info->center, info->particle_radius, info->accel, &(info->color_feed[ID * 4]));
+			*p = Particle(center, info->particle_radius, accel, &(info->color_feed[ID * 4]));
 			// got lazy
 			p->ID = ID;
 		}

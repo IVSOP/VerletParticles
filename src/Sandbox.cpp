@@ -304,15 +304,15 @@ GLfloat * Sandbox::getParticleColorsFromImage(const char *filename) {
 		exit(1);
 	}
 
-	if (width != height) {
-		fprintf(stderr, "Non-squared images not supported for now\n");
-		exit(1);
-	}
+	// if (width != height) {
+	// 	fprintf(stderr, "Non-squared images not supported for now\n");
+	// 	exit(1);
+	// }
 
-	if (BPP != 4) {
-		fprintf(stderr, "PNG is not RGBA\n");
-		exit(1);
-	}
+	// if (BPP != 4) {
+	// 	fprintf(stderr, "PNG is not RGBA\n");
+	// 	exit(1);
+	// }
 
 	GLfloat *colors = (GLfloat *)calloc(len_particles * 4, sizeof(GLfloat));
 
