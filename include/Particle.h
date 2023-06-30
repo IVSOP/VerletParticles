@@ -5,7 +5,9 @@
 #include <glm/vec2.hpp>
 #include <cstring>
 
-typedef glm::dvec2 pVec2;
+// typedef glm::dvec2 pVec2;
+#include "Vec2.h"
+typedef Vec2 pVec2;
 
 struct Particle {
 	public:

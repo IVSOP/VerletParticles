@@ -49,11 +49,11 @@ Particle::Particle(const Particle &particle) {
 }
 
 void Particle::updatePosition(double dt) {
-	glm::dvec2  velocity = current_pos - old_pos;
+	const pVec2 velocity = current_pos - old_pos;
 
 	this->old_pos = current_pos;
 	
-	this->current_pos = current_pos + velocity + (accel * dt * dt);
+	this->current_pos += velocity + (accel * dt * dt);
 
 	this->accel = {0, 0};
 }

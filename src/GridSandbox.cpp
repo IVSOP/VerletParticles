@@ -44,7 +44,7 @@ void GridSandbox::applyCircleConstraint() {
 	for (i = 0; i < len_particles; i++) {
 		particle = &(particles[i]);
 		to_center = particle->current_pos - center;
-		dist_to_center = glm::length(to_center);
+		dist_to_center = to_center.length();
 		// check if particle is clipping constraint bounds
 		if (dist_to_center > radius - particle->radius) {
 			n = to_center / dist_to_center;
