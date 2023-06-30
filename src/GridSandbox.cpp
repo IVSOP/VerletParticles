@@ -484,9 +484,12 @@ GLfloat *GridSandbox::convert_png(const char *path) {
 void GridSandbox::clear() {
 	Sandbox::len_particles = 0;
 	Sandbox::current_tick = 0;
-	size_t i;
-	for (i = 0; i < grid.size; i++) {
-		grid.cells[i].len_particles = 0;
+	grid.clear();
+
+	int i, size = Sandbox::spawners.size();
+
+	for (i = 0; i < size; i++) {
+		(&spawners[i])->reset();
 	}
 }
 

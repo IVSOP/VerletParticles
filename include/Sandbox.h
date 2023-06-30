@@ -29,12 +29,12 @@ class Sandbox {
 		size_t pixelsX, pixelsY;
 		size_t current_tick;
 
+		std::vector<Spawner> spawners; // should be private
 	private:
 		GLuint VAO;
 		GLuint VBO;
 		GLuint IBO;
 
-		std::vector<Spawner> spawners;
 
 		void makeVAO();
 		void makeVBO();
@@ -50,7 +50,7 @@ class Sandbox {
 
 		virtual void addParticle(Particle &particle) = 0;
 
-		virtual void clear() = 0; // allways needs to set len_particles = 0 and current_tick = 0, maybe wrap this with something and dont make the entire thing virtual
+		virtual void clear() = 0; // allways needs to set len_particles = 0, current_tick = 0 and reset spawners, maybe wrap this with something and dont make the entire thing virtual
 
 		size_t getNumberOfVertices() const;
 		size_t getNumberOfParticles() const;

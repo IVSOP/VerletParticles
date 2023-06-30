@@ -268,6 +268,9 @@ void Sandbox::onUpdate(double sub_dt) {
 		// applyCircleConstraint();
 		applyRectangleConstraint();
 		updatePositions(sub_dt);
+		// if (i == 0 && len_particles > 117) {
+		// 	printf("Particle %d is in %lf, %lf\n", particles[117].ID, particles[117].current_pos.x, particles[117].current_pos.y);
+		// }
 	}
 	// std::this_thread::sleep_for(std::chrono::milliseconds(75));
 
@@ -340,10 +343,10 @@ GLfloat * Sandbox::getParticleColorsFromImage(const char *filename) {
 
 
 
-	colors[117 * 4 + 0] = 1.0f;
-	colors[117 * 4 +1] = 0.0f;
-	colors[117 * 4 +2] = 0.0f;
-	colors[117 * 4+3] = 1.0f;
+	// colors[117 * 4 + 0] = 1.0f;
+	// colors[117 * 4 +1] = 0.0f;
+	// colors[117 * 4 +2] = 0.0f;
+	// colors[117 * 4+3] = 1.0f;
 
 
 
@@ -427,15 +430,14 @@ void Sandbox::getAverageColor(unsigned char *image, int width, int height, GLflo
 	// for (unsigned int i = 0; i < len_particles; i++) {
 	// 	if ((&particles[i])->ID == 117) count++;
 	// }
-
-	if (p->ID == 117) {
-		printf("I am particle ID %d. My position is %lf %lf and radius is %ld.\n", p->ID, p->current_pos.x, p->current_pos.y, p->radius);
-		p = &(particles[117]);
-		printf("confirmation: I am particle ID %d. My position is %lf %lf and radius is %ld.\n", p->ID, p->current_pos.x, p->current_pos.y, p->radius);
-		printf("Initial offset is %d (%d + %d)\n", offset, offsetx, offsety);
-		printf("centerX %d centerY %d\n", centerX, centerY);
-		printf("my color is %f %f %f %f\n", R, G, B, A);
-		// printf("Number of particles with ID 117 is %d\n", count);
-		// exit(1);
-	}
+	// if (p->ID == 117) {
+	// 	printf("I am particle ID %d. My position is %lf %lf and radius is %ld.\n", p->ID, p->current_pos.x, p->current_pos.y, p->radius);
+	// 	p = &(particles[117]);
+	// 	printf("confirmation: I am particle ID %d. My position is %lf %lf and radius is %ld.\n", p->ID, p->current_pos.x, p->current_pos.y, p->radius);
+	// 	printf("Initial offset is %d (%d + %d)\n", offset, offsetx, offsety);
+	// 	printf("centerX %d centerY %d\n", centerX, centerY);
+	// 	printf("my color is %f %f %f %f\n", R, G, B, A);
+	// 	// printf("Number of particles with ID 117 is %d\n", count);
+	// 	// exit(1);
+	// }
 }

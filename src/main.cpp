@@ -124,13 +124,29 @@ int main() {
 
 
 		// run simulation once
-		for (int i = 0; i < 2100; i++) {
+		int i;
+		for (i = 0; i < 2100; i++) {
 			renderer.tick();
+			renderer.renderSandboxWithoutTick();
 			printf("%d\n", i);
 		}
 
 		// get colors according to particle position
 		GLfloat * color_feed = sandbox.getParticleColorsFromImage("res/radiation_symbol.png");
+
+		// GLfloat *color_feed = (GLfloat *)malloc(5000 * 4 * sizeof(GLfloat));
+		// int j;
+		// for (j = 0; j < 5000; j++) {
+		// 	color_feed[j * 4 + 0] = 1.0f;
+		// 	color_feed[j * 4 + 1] = 1.0f;
+		// 	color_feed[j * 4 + 2] = 1.0f;
+		// 	color_feed[j * 4 + 3] = 1.0f;
+		// }
+
+		// color_feed[117 * 4 + 0] = 1.0f;
+		// color_feed[117 * 4 +1] = 0.0f;
+		// color_feed[117 * 4 +2] = 0.0f;
+		// color_feed[117 * 4+3] = 1.0f;
 
 		sandbox.clear();
 

@@ -54,6 +54,7 @@ class Renderer {
 		// void renderAllSandboxes(double dt);
 		void renderSandbox(double frameDeltaTime);
 		void renderSandboxWithoutTick(double frameDeltaTime);
+		void renderSandboxWithoutTick();
 
 		void onKeyPress(int key, int scancode, int action, int mods);
 		void onMouseMove(double xpos, double ypos);

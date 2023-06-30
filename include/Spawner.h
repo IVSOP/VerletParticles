@@ -50,6 +50,10 @@ class Spawner {
 
 		Spawner(const Spawner &spawner);
 
+		void reset() {
+			this->count = 0;
+		}
+
 		Spawner& operator = (const Spawner& spawner) {
 			this->count = spawner.count;
 			this->func = spawner.func;
