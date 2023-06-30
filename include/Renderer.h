@@ -5,6 +5,9 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
 #include "Sandbox.h"
 #include "GridSandbox.h"
 // #include "RegularSandbox.h"
@@ -20,7 +23,7 @@ class Renderer {
 	private:
 		GLFWwindow *window;
 		Sandbox * sandbox;
-		ImGuiIO& io = ImGui::GetIO();
+		ImGuiIO io;
 
 		void setCallbacks(GLFWwindow* window);
 		static void onKeyPress(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -31,24 +34,37 @@ class Renderer {
 		double timestep;
 		double substep;
 
+		GLuint VAO;
+		GLuint VBO;
+		GLuint IBO;
+		GLuint program;
+
+		void makeVAO();
+		void makeVBO();
+		void makeLayouts() const;
+		void makeIBO();
+		void loadSandboxData();
+
+		size_t getNumberOfVertices() const;
+		size_t getMaxIndexCount() const;
+		size_t getMaxVertexCount() const;
+		size_t getNumberOfIndices() const;
+
+
 	public:
+
+		void mainLoop();
 
 		void tick() {
 			this->sandbox->onUpdate(substep);
 		}
 
-		Renderer(GLFWwindow* window) { 
-			this->timestep_acc = 0;
-			this->window = window;
-			setCallbacks(window);
-			timestep = 1.0f / FPS;
-			substep = timestep / SUBSTEPS;
-		}
+		Renderer(int pixel_width, int pixel_height, Sandbox *sandbox);
 
-		~Renderer() = default;
+		~Renderer();
 
 		// pointer to a sandbox, so that changing it changes the render
-		void addSandbox(Sandbox *sandbox);
+		// void addSandbox(Sandbox *sandbox);
 
 		void renderSandbox(double frameDeltaTime);
 		void renderSandboxWithoutTick(double frameDeltaTime);

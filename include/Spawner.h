@@ -3,7 +3,6 @@
 
 #include "Particle.h"
 
-
 struct spawnerInfo {
 	pVec2 center;
 	double particle_radius;

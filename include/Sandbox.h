@@ -18,11 +18,9 @@ typedef struct {
 class Sandbox {
 	protected:
 		Particle *particles;
-		size_t len_particles;
 		
 		Vertex *vertices;
 		// size_t len_vertices; not needed, it is always len_particles * 4
-		size_t max_particles;
 
 		void addColorToParticle(size_t index, GLfloat *color);
 
@@ -34,36 +32,26 @@ class Sandbox {
 		GLuint VAO;
 		GLuint VBO;
 		GLuint IBO;
-
-
-		void makeVAO();
-		void makeVBO();
-		void makeLayouts() const;
-		void makeIBO();
 	
-		void calculateVertices();
 
 	public:
 		Sandbox() = delete;
 		Sandbox(size_t n_particles, size_t pixelsX, size_t pixelsY);
 		~Sandbox();
 
+		size_t len_particles;
+		size_t max_particles;
+
 		virtual void addParticle(Particle &particle) = 0;
 
 		virtual void clear() = 0; // allways needs to set len_particles = 0, current_tick = 0 and reset spawners, maybe wrap this with something and dont make the entire thing virtual
 
-		size_t getNumberOfVertices() const;
 		size_t getNumberOfParticles() const;
-		size_t getNumberOfIndices() const;
 		size_t getMaxNumberParticles() const;
 
 		Vertex * getVertices() const;
 
-		size_t getMaxIndexCount() const;
-		size_t getMaxVertexCount() const;
-
-		// loads VAO and sets all data it needs to
-		void loadData();
+		void calculateVertices();
 
 		void getMouseClickRelativePos(size_t *row, size_t *col, double xpos, double ypos) const;
 		void handleMouseClickAt(int button, int action, int mods, double xpos, double ypos);

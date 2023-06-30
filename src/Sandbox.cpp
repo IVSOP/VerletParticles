@@ -6,61 +6,6 @@
 #include <string.h>
 #include <glm/geometric.hpp>
 
-void Sandbox::makeVAO() {
-	GLuint VAO;
-	GLCall(glGenVertexArrays(1, &VAO));
-	GLCall(glBindVertexArray(VAO));
-	this->VAO = VAO;
-}
-
-void Sandbox::makeVBO() {
-	GLuint VBO;
-	GLCall(glGenBuffers(1, &VBO));
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, VBO));
-	GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * getMaxVertexCount(), nullptr, GL_DYNAMIC_DRAW));
-	this->VBO = VBO;
-}
-
-void Sandbox::makeLayouts() const {
-	GLuint pos_layout = 0;
-	GLCall(glEnableVertexAttribArray(pos_layout));
-	GLCall(glVertexAttribPointer(pos_layout, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void *)offsetof(Vertex, position)));
-
-	GLuint color_layout = 1;
-	GLCall(glEnableVertexAttribArray(color_layout));
-	GLCall(glVertexAttribPointer(color_layout, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void *)offsetof(Vertex, color)));
-
-	GLuint texture_layout = 2;
-	GLCall(glEnableVertexAttribArray(texture_layout));
-	GLCall(glVertexAttribPointer(texture_layout, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void *)offsetof(Vertex, texCoords)));
-}
-
-void Sandbox::makeIBO() {
-	GLuint *indices = new GLuint[this->max_particles * 6];
-	size_t offset = 0;
-
-	for (size_t i = 0; i < this->max_particles * 6; i += 6) {
-		indices[i + 0] = 0 + offset;
-		indices[i + 1] = 1 + offset;
-		indices[i + 2] = 2 + offset;
-
-		indices[i + 3] = 2 + offset;
-		indices[i + 4] = 3 + offset;
-		indices[i + 5] = 0 + offset;
-
-		offset += 4;
-	}
-
-	GLuint IBO;
-	GLCall(glGenBuffers(1, &IBO));
-	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO));
-	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * getMaxIndexCount(), indices, GL_STATIC_DRAW));
-
-	this->IBO = IBO;
-
-	delete[] indices;
-}
-
 Sandbox::Sandbox(size_t max_particles, size_t pixelsX, size_t pixelsY)
 	: pixelsX(pixelsX), pixelsY(pixelsY)
 	{
@@ -70,32 +15,15 @@ Sandbox::Sandbox(size_t max_particles, size_t pixelsX, size_t pixelsY)
 	this->vertices = new Vertex[max_particles * 4];
 	this->max_particles = max_particles;
 	this->current_tick = 0;
-
-	makeVAO();
-	makeVBO();
-	makeLayouts();
-	makeIBO();
 }
 
 Sandbox::~Sandbox() {
 	delete[] this->particles;
 	delete[] this->vertices;
-
-	GLCall(glDeleteVertexArrays(1, &this->VAO));
-	GLCall(glDeleteBuffers(1, &this->VBO));
-	GLCall(glDeleteBuffers(1, &this->IBO));
-}
-
-size_t Sandbox::getNumberOfVertices() const {
-	return this->len_particles * 4;
 }
 
 size_t Sandbox::getNumberOfParticles() const {
 	return this->len_particles;
-}
-
-size_t Sandbox::getNumberOfIndices() const {
-	return this->len_particles * 6;
 }
 
 size_t Sandbox::getMaxNumberParticles() const {
@@ -104,14 +32,6 @@ size_t Sandbox::getMaxNumberParticles() const {
 
 Vertex * Sandbox::getVertices() const {
 	return this->vertices;
-}
-
-size_t Sandbox::getMaxIndexCount() const {
-	return this->max_particles * 6;
-}
-
-size_t Sandbox::getMaxVertexCount() const {
-	return this->max_particles * 4; 
 }
 
 void Sandbox::calculateVertices() {
@@ -191,17 +111,6 @@ void Sandbox::calculateVertices() {
 		texCoords[1] = 1.0f;
 		// std::cout << "x:" << position[0] << " y:" << position[1] << std::endl;
 	}
-}
-
-void Sandbox::loadData() {
-	calculateVertices();
-
-	// VAO
-	GLCall(glBindVertexArray(this->VAO));
-
-	// VBO and load its data
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, this->VBO));
-	GLCall(glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * getNumberOfVertices(), getVertices()));
 }
 
 // returns the position in the particle matrix using the mouse pointer coordinates
