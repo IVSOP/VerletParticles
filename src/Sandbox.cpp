@@ -246,6 +246,12 @@ void Sandbox::onUpdate(double sub_dt) {
 	int i, size = this->spawners.size();
 	Particle p; // is there a better way to do this?????
 	// double sub_dt = dt / SUBSTEPS;
+
+	// unsigned int j;
+	// for (j = 0; j < len_particles; j++) {
+	// 	p = particles[j];
+	// 	printf("particle in %lf %lf\n", p.current_pos.x, p.current_pos.y);
+	// }
 	
 	// spawn particles from all spawners
 	for (i = 0; i < size; i++) {							// messy workaround
@@ -288,5 +294,148 @@ void Sandbox::addColorToParticle(size_t index, GLfloat *color) {
 	for (i = 0; i < 4; i++) {
 		vertex = this->vertices + (index * 4) + i;
 		memcpy(vertex->color, color, 4 * sizeof(GLfloat));
+	}
+}
+
+// #define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+// #define STB_IMAGE_WRITE_IMPLEMENTATION
+// #include "stb_image_write.h"
+
+// brite force method, but works in any sandbox
+GLfloat * Sandbox::getParticleColorsFromImage(const char *filename) {
+	stbi_set_flip_vertically_on_load(1);
+	int width, height, BPP;
+	// load png
+	unsigned char *image =	stbi_load(filename, &width, &height, &BPP, 4); // 4 -> RGBA
+
+	if (!image) {
+		fprintf(stderr, "Error loading image\n");
+		exit(1);
+	}
+
+	if (width != height) {
+		fprintf(stderr, "Non-squared images not supported for now\n");
+		exit(1);
+	}
+
+	if (BPP != 4) {
+		fprintf(stderr, "PNG is not RGBA\n");
+		exit(1);
+	}
+
+	GLfloat *colors = (GLfloat *)calloc(len_particles * 4, sizeof(GLfloat));
+
+	// the color of each particle results from an average of a square around it
+	// inefficient but simple
+	Particle *p; size_t i;
+	for (i = 0; i < len_particles; i++) {
+		p = &(particles[i]);
+		getAverageColor(image, width, height, colors, p);
+	}
+
+	stbi_image_free(image);
+
+
+
+
+
+	colors[117 * 4 + 0] = 1.0f;
+	colors[117 * 4 +1] = 0.0f;
+	colors[117 * 4 +2] = 0.0f;
+	colors[117 * 4+3] = 1.0f;
+
+
+
+
+	return colors;
+}
+
+// given a particle, will fill out its position in colors (relative to ID)
+// according to average of RGBA values around it in the image
+void Sandbox::getAverageColor(unsigned char *image, int width, int height, GLfloat *colors, Particle *p) {
+	// for now I assume size of 1000x1000 to be easier (same as window size and sandbox size)
+
+	pVec2 &center = p->current_pos;
+	const int radius = static_cast<int>(p->radius),
+	diameter = 2 * radius;
+
+	GLfloat *target_colors = colors + (p->ID * 4);
+
+	// for loops start at 0, need to apply this offset to be in the bottom left corner of square
+	// each X value is worth 1 pixel
+	// each Y value is worth <width> pixels
+	// is in pixels
+	const int centerX = static_cast<int>(center.x) - radius;
+	const int centerY = static_cast<int>(center.y) - radius;
+	
+	int offsetx;
+	int offsety;
+
+	if (centerX < 0) {
+		offsetx = 0;
+	} else if (centerX > width - radius) {
+		offsetx = width - radius;
+	} else {
+		offsetx = centerX;
+	}
+
+	if (centerY < 0) {
+		offsety = 0;
+	} else if (centerY > height - radius) {
+		offsety = height - radius;
+	} else {
+		offsety = centerY;
+	}
+
+	const int offset = offsetx + offsety * width;
+
+	GLfloat R = 0.0f, G = 0.0f, B = 0.0f, A = 0.0f;
+	int count = 0;
+	int final_offset;
+
+	int pixel_row, pixel_col;
+	for (pixel_row = 0; pixel_row < diameter; pixel_row ++) {
+		for (pixel_col = 0; pixel_col < diameter; pixel_col ++) {
+			final_offset = (offset + pixel_col + (pixel_row * width)) * 4;
+			// printf("final offset is %d\n", final_offset);
+
+			R += static_cast<GLfloat>(image[final_offset + 0]) / 255.0f;
+			G += static_cast<GLfloat>(image[final_offset + 1]) / 255.0f;
+			B += static_cast<GLfloat>(image[final_offset + 2]) / 255.0f;
+			// A...
+
+			count ++; // needed??????
+		}
+	}
+
+	// printf("count is %d\n", count);
+	// exit(1);
+	R /= static_cast<float>(count);
+	G /= static_cast<float>(count);
+	B /= static_cast<float>(count);
+	A = 1.0f;
+
+	// printf("Particle with ID %d has colors %f %f %f %f\n", p->ID, R, G, B, A);
+
+	target_colors[0] = R;
+	target_colors[1] = G;
+	target_colors[2] = B;
+	target_colors[3] = A;
+
+	// count = 0;
+	// for (unsigned int i = 0; i < len_particles; i++) {
+	// 	if ((&particles[i])->ID == 117) count++;
+	// }
+
+	if (p->ID == 117) {
+		printf("I am particle ID %d. My position is %lf %lf and radius is %ld.\n", p->ID, p->current_pos.x, p->current_pos.y, p->radius);
+		p = &(particles[117]);
+		printf("confirmation: I am particle ID %d. My position is %lf %lf and radius is %ld.\n", p->ID, p->current_pos.x, p->current_pos.y, p->radius);
+		printf("Initial offset is %d (%d + %d)\n", offset, offsetx, offsety);
+		printf("centerX %d centerY %d\n", centerX, centerY);
+		printf("my color is %f %f %f %f\n", R, G, B, A);
+		// printf("Number of particles with ID 117 is %d\n", count);
+		// exit(1);
 	}
 }

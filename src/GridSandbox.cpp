@@ -376,8 +376,8 @@ void GridSandbox::dumpGridToFile() {
 
 // #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
+// #define STB_IMAGE_WRITE_IMPLEMENTATION
+// #include "stb_image_write.h"
 
 // for now I assume it is squared
 GLfloat *GridSandbox::convert_png(const char *path) {
@@ -474,10 +474,8 @@ GLfloat *GridSandbox::convert_png(const char *path) {
 
 	// exit(1);
 
-	char filename[] = "img.png";
-	stbi_write_png(filename, grid.cols, grid.rows, 4, buff, grid.cols * 4);
-
-	exit(1);
+	// char filename[] = "img.png";
+	// stbi_write_png(filename, grid.cols, grid.rows, 4, buff, grid.cols * 4);
 
 	stbi_image_free(image);
 	return buff;

@@ -91,18 +91,18 @@ int main() {
 
 		int width, height;
 		glfwGetWindowSize(window, &width, &height);
-		GridSandbox sandbox(5000, 500, 500); // why tf can I change this and not window pixels and it just works???????? i dont even know anymore, it works too well its just inconsistent
+		GridSandbox sandbox(5000, 1000, 1000); // why tf can I change this and not window pixels and it just works???????? i dont even know anymore, it works too well its just inconsistent
 
 		Renderer renderer(window);
 		renderer.addSandbox(&sandbox);
 
 		// center point and particle radius, if they decide to use it
-		spawnerInfo info1(pVec2(250, 250), GRID_PARTICLE_SIZE, nullptr);
-		spawnerInfo info2(pVec2(250, 465), GRID_PARTICLE_SIZE, nullptr);
-		spawnerInfo info3(pVec2(GRID_PARTICLE_SIZE, 500 - GRID_PARTICLE_SIZE), GRID_PARTICLE_SIZE, nullptr, pVec2(250000.0, 0));
-		spawnerInfo info4(pVec2(GRID_PARTICLE_SIZE, 500 - (GRID_PARTICLE_SIZE * 3)), GRID_PARTICLE_SIZE, nullptr, pVec2(240000.0, 0));
-		spawnerInfo info5(pVec2(GRID_PARTICLE_SIZE, 500 - (GRID_PARTICLE_SIZE * 5)), GRID_PARTICLE_SIZE, nullptr, pVec2(230000.0, 0));
-		spawnerInfo info6(pVec2(500 - GRID_PARTICLE_SIZE, 500 - GRID_PARTICLE_SIZE), GRID_PARTICLE_SIZE, nullptr, pVec2(- 250000.0, 0));
+		// spawnerInfo info1(pVec2(500, 500), GRID_PARTICLE_SIZE, nullptr);
+		// spawnerInfo info2(pVec2(5000, 930), GRID_PARTICLE_SIZE, nullptr);
+		spawnerInfo info3(pVec2(GRID_PARTICLE_SIZE, 1000 - GRID_PARTICLE_SIZE), GRID_PARTICLE_SIZE, nullptr, pVec2(325000.0, 0));
+		spawnerInfo info4(pVec2(GRID_PARTICLE_SIZE, 1000 - (GRID_PARTICLE_SIZE * 3)), GRID_PARTICLE_SIZE, nullptr, pVec2(320000.0, 0));
+		spawnerInfo info5(pVec2(GRID_PARTICLE_SIZE, 1000 - (GRID_PARTICLE_SIZE * 5)), GRID_PARTICLE_SIZE, nullptr, pVec2(315000.0, 0));
+		spawnerInfo info6(pVec2(1000 - GRID_PARTICLE_SIZE, 1000 - GRID_PARTICLE_SIZE), GRID_PARTICLE_SIZE, nullptr, pVec2(- 325000.0, 0));
 
 		// Spawner spawner1(0, 2500, centerSpawnerFixedSize, &info1);
 		// sandbox.addSpawner(spawner1);
@@ -122,20 +122,15 @@ int main() {
 		Spawner spawner7(1750, 2100, fixedSpawner, &info6);
 		sandbox.addSpawner(spawner7);
 
-		// get averages of pixel values of the grid
-		GLfloat * colors = sandbox.convert_png("res/radiation_symbol.png");
 
 		// run simulation once
-		for (int i = 0; i < 2200; i++) {
+		for (int i = 0; i < 2100; i++) {
 			renderer.tick();
 			printf("%d\n", i);
 		}
 
-		// sort colors according to ID of particle in that square of the grid
-		// didnt feel like sorting, made new array
-
-		GLfloat *color_feed = sandbox.parseColorsByGrid(colors);
-		free(colors); 
+		// get colors according to particle position
+		GLfloat * color_feed = sandbox.getParticleColorsFromImage("res/radiation_symbol.png");
 
 		sandbox.clear();
 

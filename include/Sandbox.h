@@ -77,6 +77,9 @@ class Sandbox {
 		virtual void solveCollisions() = 0;
 
 		void addSpawner(Spawner &sp);
+
+		GLfloat * getParticleColorsFromImage(const char *filename);
+		void getAverageColor(unsigned char *image, int width, int height, GLfloat *colors, Particle *p);
 };
 
 #endif

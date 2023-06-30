@@ -239,12 +239,16 @@ bool fixedSpawner(Particle *p, unsigned long int count, spawnerInfo *info, unsig
 		// RGBA[3] = 1.0f;
 		// HSV_to_RGB(HSV, RGBA);
 		if (info->color_feed == nullptr) {
-			GLfloat RGBA[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+			GLfloat RGBA[4] = {1.0f, 1.0f, 1.0f, 1.0f}; // is this needed? wont even get drawn
 			*p = Particle(info->center, info->particle_radius, info->accel, RGBA);
+			// got lazy
+			p->ID = ID;
 		} else {
-			printf("getting color from color feed: ID %d %f %f %f %f\n", ID,
-				info->color_feed[(ID * 4) + 0], info->color_feed[(ID * 4) + 1], info->color_feed[(ID * 4) + 2], info->color_feed[(ID * 4) + 3]);
+			// printf("getting color from color feed: ID %d %f %f %f %f\n", ID,
+				// info->color_feed[(ID * 4) + 0], info->color_feed[(ID * 4) + 1], info->color_feed[(ID * 4) + 2], info->color_feed[(ID * 4) + 3]);
 			*p = Particle(info->center, info->particle_radius, info->accel, &(info->color_feed[ID * 4]));
+			// got lazy
+			p->ID = ID;
 		}
 		return true;
 	}

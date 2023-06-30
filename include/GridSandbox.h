@@ -4,7 +4,7 @@
 #include "Grid.h"
 #include "Sandbox.h"
 
-#define GRID_PARTICLE_SIZE 5
+#define GRID_PARTICLE_SIZE 10
 
 class GridSandbox : public Sandbox {
 
