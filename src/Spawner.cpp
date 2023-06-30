@@ -101,8 +101,6 @@ bool inCircle(Particle *p, unsigned long int count, spawnerInfo *info, unsigned 
 
 		pos += offset;
 
-		// std::cout << pos.x << "," << pos.y << std::endl;
-
 		// color depends on count and cycles around
 		// this corresponds to looping HSV, but I then have to turn it into RGB
 
@@ -114,9 +112,6 @@ bool inCircle(Particle *p, unsigned long int count, spawnerInfo *info, unsigned 
 		RGBA[4];
 		RGBA[3] = 1.0f;
 		HSV_to_RGB(HSV, RGBA);
-
-		// std::cout << static_cast<float>(count % 360) << std::endl;
-		// std::cout << RGBA[0] << " " << RGBA[1] << " " << RGBA[2] << std::endl;
 
 		*p = Particle(pos, info->particle_radius, accel, RGBA);
 		return true;		
@@ -209,16 +204,26 @@ bool centerSpawnerFixedSize(Particle *p, unsigned long int count, spawnerInfo *i
 
 		accel *= 1000000.0;
 
-		GLfloat HSV[3] = {
-			static_cast<GLfloat>(1 + (count % 359)),
-			1.0f,
-			1.0f
-		},
-		RGBA[4];
-		RGBA[3] = 1.0f;
-		HSV_to_RGB(HSV, RGBA);
+		if (info->color_feed == nullptr) {
+			// GLfloat HSV[3] = {
+			// 	static_cast<GLfloat>(1 + (count % 359)),
+			// 	1.0f,
+			// 	1.0f
+			// },
+			// RGBA[4];
+			// RGBA[3] = 1.0f;
+			// HSV_to_RGB(HSV, RGBA);
 
-		*p = Particle(center, info->particle_radius, accel, RGBA);
+			GLfloat RGBA[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+
+			*p = Particle(center, info->particle_radius, accel, RGBA);
+			// got lazy
+			p->ID = ID;
+		} else {
+			*p = Particle(info->center, info->particle_radius, info->accel, &(info->color_feed[ID * 4]));
+			// got lazy
+			p->ID = ID;
+		}
 		return true;
 	}
 
@@ -244,8 +249,6 @@ bool fixedSpawner(Particle *p, unsigned long int count, spawnerInfo *info, unsig
 			// got lazy
 			p->ID = ID;
 		} else {
-			// printf("getting color from color feed: ID %d %f %f %f %f\n", ID,
-				// info->color_feed[(ID * 4) + 0], info->color_feed[(ID * 4) + 1], info->color_feed[(ID * 4) + 2], info->color_feed[(ID * 4) + 3]);
 			*p = Particle(info->center, info->particle_radius, info->accel, &(info->color_feed[ID * 4]));
 			// got lazy
 			p->ID = ID;

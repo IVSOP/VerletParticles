@@ -50,8 +50,6 @@ class Renderer {
 		// pointer to a sandbox, so that changing it changes the render
 		void addSandbox(Sandbox *sandbox);
 
-		// void renderSandbox(Sandbox * sandbox) const;
-		// void renderAllSandboxes(double dt);
 		void renderSandbox(double frameDeltaTime);
 		void renderSandboxWithoutTick(double frameDeltaTime);
 		void renderSandboxWithoutTick();

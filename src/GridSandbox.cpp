@@ -120,22 +120,37 @@ void GridSandbox::solveCollisions() {
 	// there were glitches due to the order the particles were being processed
 	// decided to simplify and just put an if into collideParticlesBetweenCells to check for out of bounds
 
+	/*
+	
+	
+						VERY IMPORTANT!!!!!!!!!!!!!!!!!!
+
+	
+	I changed this no not check all collisions from a cell, for example allways ignoring cells below
+	this is faster but not as clean
+	*/
+
 	for (row = 0; row < grid.rows; row++) {
 		for (col = 0; col < grid.cols; col++) {
 			centerCell = grid.get(row, col);
 			// compare with all surrounding cells
 
-			collideParticlesBetweenCellsV2(centerCell, row + 1, col - 1);
+			collideParticlesBetweenCellsV2(centerCell, row + 1, col - 1); // without this one, becomes unstable
 			collideParticlesBetweenCellsV2(centerCell, row + 1, col);
 			collideParticlesBetweenCellsV2(centerCell, row + 1, col + 1);
 
+#ifdef CHECK_ALL_CELL_COLLISIONS
 			collideParticlesBetweenCellsV2(centerCell, row, col - 1);
+#endif
 			collideParticlesSameCell(centerCell);
 			collideParticlesBetweenCellsV2(centerCell, row, col + 1);
+
+#ifdef CHECK_ALL_CELL_COLLISIONS
 
 			collideParticlesBetweenCellsV2(centerCell, row - 1, col - 1);
 			collideParticlesBetweenCellsV2(centerCell, row - 1, col);
 			collideParticlesBetweenCellsV2(centerCell, row - 1, col + 1);
+#endif
 		}
 	}
 
@@ -423,7 +438,7 @@ GLfloat *GridSandbox::convert_png(const char *path) {
 	// then, counter restarts
 
 	// offsets are to avoid repeating calculations
-	unsigned int pixel_col, pixel_row, offset, offset2;
+	unsigned int pixel_col, pixel_row, offset2;
 	unsigned int row, col, cell_offset, cell_offset2; // these offsets expand to row * cols + col, turning (row, col) into position in buff
 
 

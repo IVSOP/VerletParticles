@@ -134,14 +134,10 @@ void Sandbox::calculateVertices() {
 		// particle has the coordinates of its center
 		// need to calculate other ones from it, rotation does not matter
 
-		// std::cout << "Before: " << particle->current_pos.x << " " << particle->current_pos.y << " " << particle->radius << std::endl;
-
 		// offset by (-1, -1)
 		x = ((static_cast<GLfloat>(particle->current_pos.x) * 2) / static_cast<GLfloat>(this->pixelsX)) - 1.0f;
 		y = ((static_cast<GLfloat>(particle->current_pos.y) * 2) / static_cast<GLfloat>(this->pixelsY)) - 1.0f;
 		radius = (static_cast<GLfloat>(particle->radius) * 2) / static_cast<GLfloat>(this->pixelsX); // ??????????????????????????????????????????????????????????????????
-
-		// std::cout << "After: " << x << " " << y << " " << radius << std::endl;
 
 		/*
 		3(-radius, +radius)				2(+radius, +radius)
@@ -210,8 +206,7 @@ void Sandbox::loadData() {
 
 // returns the position in the particle matrix using the mouse pointer coordinates
 void Sandbox::getMouseClickRelativePos(size_t *row, size_t *col, double xpos, double ypos) const {
-	// *row = ypos / this->height_constant;
-	// *col = xpos / this->width_constant;
+
 }
 
 void Sandbox::handleMouseClickAt(int button, int action, int mods, double xpos, double ypos) {
@@ -246,12 +241,6 @@ void Sandbox::onUpdate(double sub_dt) {
 	int i, size = this->spawners.size();
 	Particle p; // is there a better way to do this?????
 	// double sub_dt = dt / SUBSTEPS;
-
-	// unsigned int j;
-	// for (j = 0; j < len_particles; j++) {
-	// 	p = particles[j];
-	// 	printf("particle in %lf %lf\n", p.current_pos.x, p.current_pos.y);
-	// }
 	
 	// spawn particles from all spawners
 	for (i = 0; i < size; i++) {							// messy workaround
@@ -268,9 +257,7 @@ void Sandbox::onUpdate(double sub_dt) {
 		// applyCircleConstraint();
 		applyRectangleConstraint();
 		updatePositions(sub_dt);
-		// if (i == 0 && len_particles > 117) {
-		// 	printf("Particle %d is in %lf, %lf\n", particles[117].ID, particles[117].current_pos.x, particles[117].current_pos.y);
-		// }
+
 	}
 	// std::this_thread::sleep_for(std::chrono::milliseconds(75));
 
@@ -305,7 +292,7 @@ void Sandbox::addColorToParticle(size_t index, GLfloat *color) {
 // #define STB_IMAGE_WRITE_IMPLEMENTATION
 // #include "stb_image_write.h"
 
-// brite force method, but works in any sandbox
+// brute force method, but works in any sandbox
 GLfloat * Sandbox::getParticleColorsFromImage(const char *filename) {
 	stbi_set_flip_vertically_on_load(1);
 	int width, height, BPP;
@@ -338,19 +325,6 @@ GLfloat * Sandbox::getParticleColorsFromImage(const char *filename) {
 	}
 
 	stbi_image_free(image);
-
-
-
-
-
-	// colors[117 * 4 + 0] = 1.0f;
-	// colors[117 * 4 +1] = 0.0f;
-	// colors[117 * 4 +2] = 0.0f;
-	// colors[117 * 4+3] = 1.0f;
-
-
-
-
 	return colors;
 }
 
@@ -412,32 +386,13 @@ void Sandbox::getAverageColor(unsigned char *image, int width, int height, GLflo
 		}
 	}
 
-	// printf("count is %d\n", count);
-	// exit(1);
 	R /= static_cast<float>(count);
 	G /= static_cast<float>(count);
 	B /= static_cast<float>(count);
 	A = 1.0f;
 
-	// printf("Particle with ID %d has colors %f %f %f %f\n", p->ID, R, G, B, A);
-
 	target_colors[0] = R;
 	target_colors[1] = G;
 	target_colors[2] = B;
 	target_colors[3] = A;
-
-	// count = 0;
-	// for (unsigned int i = 0; i < len_particles; i++) {
-	// 	if ((&particles[i])->ID == 117) count++;
-	// }
-	// if (p->ID == 117) {
-	// 	printf("I am particle ID %d. My position is %lf %lf and radius is %ld.\n", p->ID, p->current_pos.x, p->current_pos.y, p->radius);
-	// 	p = &(particles[117]);
-	// 	printf("confirmation: I am particle ID %d. My position is %lf %lf and radius is %ld.\n", p->ID, p->current_pos.x, p->current_pos.y, p->radius);
-	// 	printf("Initial offset is %d (%d + %d)\n", offset, offsetx, offsety);
-	// 	printf("centerX %d centerY %d\n", centerX, centerY);
-	// 	printf("my color is %f %f %f %f\n", R, G, B, A);
-	// 	// printf("Number of particles with ID 117 is %d\n", count);
-	// 	// exit(1);
-	// }
 }

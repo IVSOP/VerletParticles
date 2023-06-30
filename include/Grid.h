@@ -45,8 +45,6 @@ struct Grid {
 			}
 		}
 
-		// !!!!!! all the inserts assume the partile is not in that cell, if you mess this up there will be repetitions
-
 		void insertIntoGrid(size_t particleIndex, size_t row, size_t col);
 		void insertIntoGrid(size_t particleIndex, size_t pos);
 		void insertIntoGrid(size_t particleIndex, GridCell *cell);

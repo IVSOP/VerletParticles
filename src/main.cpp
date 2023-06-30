@@ -91,6 +91,7 @@ int main() {
 
 		int width, height;
 		glfwGetWindowSize(window, &width, &height);
+#define CHECK_ALL_CELL_COLLISIONS // if you desable this, it is much faster but at a risk on jankyness
 		GridSandbox sandbox(5000, 1000, 1000); // why tf can I change this and not window pixels and it just works???????? i dont even know anymore, it works too well its just inconsistent
 
 		Renderer renderer(window);
@@ -98,7 +99,7 @@ int main() {
 
 		// center point and particle radius, if they decide to use it
 		// spawnerInfo info1(pVec2(500, 500), GRID_PARTICLE_SIZE, nullptr);
-		// spawnerInfo info2(pVec2(5000, 930), GRID_PARTICLE_SIZE, nullptr);
+		// spawnerInfo info2(pVec2(500, 500), GRID_PARTICLE_SIZE, nullptr);
 		spawnerInfo info3(pVec2(GRID_PARTICLE_SIZE, 1000 - GRID_PARTICLE_SIZE), GRID_PARTICLE_SIZE, nullptr, pVec2(325000.0, 0));
 		spawnerInfo info4(pVec2(GRID_PARTICLE_SIZE, 1000 - (GRID_PARTICLE_SIZE * 3)), GRID_PARTICLE_SIZE, nullptr, pVec2(320000.0, 0));
 		spawnerInfo info5(pVec2(GRID_PARTICLE_SIZE, 1000 - (GRID_PARTICLE_SIZE * 5)), GRID_PARTICLE_SIZE, nullptr, pVec2(315000.0, 0));
@@ -134,30 +135,13 @@ int main() {
 		// get colors according to particle position
 		GLfloat * color_feed = sandbox.getParticleColorsFromImage("res/radiation_symbol.png");
 
-		// GLfloat *color_feed = (GLfloat *)malloc(5000 * 4 * sizeof(GLfloat));
-		// int j;
-		// for (j = 0; j < 5000; j++) {
-		// 	color_feed[j * 4 + 0] = 1.0f;
-		// 	color_feed[j * 4 + 1] = 1.0f;
-		// 	color_feed[j * 4 + 2] = 1.0f;
-		// 	color_feed[j * 4 + 3] = 1.0f;
-		// }
-
-		// color_feed[117 * 4 + 0] = 1.0f;
-		// color_feed[117 * 4 +1] = 0.0f;
-		// color_feed[117 * 4 +2] = 0.0f;
-		// color_feed[117 * 4+3] = 1.0f;
-
 		sandbox.clear();
 
+		// info2.color_feed = color_feed;
 		info3.color_feed = color_feed;
 		info4.color_feed = color_feed;
 		info5.color_feed = color_feed;
 		info6.color_feed = color_feed;
-
-		// for (int i = 0; i < 1500; i++) {
-		// 	renderer.tick();
-		// }
 
 	//////////////////////////////////////////// Creating shaders and making program out of the shaders
 	GLCall(const GLuint program = glCreateProgram());

@@ -37,8 +37,6 @@ struct Particle {
 		Particle() = default;
 		~Particle() = default;
 
-		// wtf is going on here
-		// Particle& operator = (Particle&& p) { type=p.type; p.type=None; return *this; }	// transfer ownership
 		Particle& operator = (const Particle& particle) {
 			this->current_pos = particle.current_pos;
 			this->old_pos = particle.old_pos;
