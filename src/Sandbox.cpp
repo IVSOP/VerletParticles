@@ -242,7 +242,7 @@ GLfloat * Sandbox::getParticleColorsFromImage(const char *filename) {
 void Sandbox::getAverageColor(unsigned char *image, int width, int height, GLfloat *colors, Particle *p) {
 	// for now I assume size of 1000x1000 to be easier (same as window size and sandbox size)
 
-	pVec2 &center = p->current_pos;
+	const pVec2 &center = p->current_pos;
 	const int radius = static_cast<int>(p->radius),
 	diameter = 2 * radius;
 

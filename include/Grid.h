@@ -60,21 +60,21 @@ struct Grid {
 
 		bool particleChangedCells(Particle *p, size_t *old_pos, size_t *new_pos);
 
-		inline size_t getGridIndexFromParticlePos(pVec2 pos) {
-			pVec2 new_pos = pos * inverse_square_diameter; // contains row and col
+		size_t getGridIndexFromParticlePos(const pVec2& pos) {
+			const pVec2 new_pos = pos * inverse_square_diameter; // contains row and col
 			// std::cout << "inserting into grid, turning " << pos.x << "," << pos.y << " into " << static_cast<size_t>(new_pos.x) << "," << static_cast<size_t>(new_pos.y) << std::endl;
 			return getGridIndexFromRowCol(static_cast<size_t>(new_pos.y), static_cast<size_t>(new_pos.x));
 		}
 
-		inline size_t getGridIndexFromRowCol(size_t row, size_t col) {
+		size_t getGridIndexFromRowCol(size_t row, size_t col) {
 			return (row * cols) + col;
 		}
 
-		inline GridCell *get(size_t row, size_t col) {
+		GridCell *get(size_t row, size_t col) {
 			return &(this->cells[getGridIndexFromRowCol(row, col)]);
 		}
 
-		inline GridCell *get(size_t pos) {
+		GridCell *get(size_t pos) {
 			return &(this->cells[pos]);
 		}
 };

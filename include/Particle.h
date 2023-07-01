@@ -29,10 +29,10 @@ struct Particle {
 		// GLuint textID;
 
 		// measures are in pixels
-		Particle(pVec2 current_pos, size_t radius, pVec2 accel);
-		Particle(pVec2 current_pos, size_t radius, pVec2 accel, GLfloat color[4]);
-		Particle(pVec2 current_pos, size_t radius);
-		Particle(pVec2 current_pos, size_t radius, GLfloat color[4]);
+		Particle(const pVec2& current_pos, size_t radius, const pVec2& accel);
+		Particle(const pVec2& current_pos, size_t radius, const pVec2& accel, GLfloat color[4]);
+		Particle(const pVec2& current_pos, size_t radius);
+		Particle(const pVec2& current_pos, size_t radius, GLfloat color[4]);
 
 		Particle(const Particle &particle);
 
@@ -49,7 +49,7 @@ struct Particle {
 		}
 
 		void updatePosition(double dt);
-		void accelerate(pVec2 accel);
+		void accelerate(const pVec2& accel);
 };
 
 #endif

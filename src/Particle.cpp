@@ -1,6 +1,6 @@
 #include "Particle.h"
 
-Particle::Particle(pVec2 current_pos, size_t radius, pVec2 accel)
+Particle::Particle(const pVec2& current_pos, size_t radius, const pVec2& accel)
 {
 	this->current_pos = current_pos;
 	this->old_pos = current_pos;
@@ -10,7 +10,7 @@ Particle::Particle(pVec2 current_pos, size_t radius, pVec2 accel)
 	std::memcpy(this->color, new_color, 4 * sizeof(GLfloat));
 }
 
-Particle::Particle(pVec2 current_pos, size_t radius, pVec2 accel, GLfloat new_color[4])
+Particle::Particle(const pVec2& current_pos, size_t radius, const pVec2& accel, GLfloat new_color[4])
 {
 	this->current_pos = current_pos;
 	this->old_pos = current_pos;
@@ -19,7 +19,7 @@ Particle::Particle(pVec2 current_pos, size_t radius, pVec2 accel, GLfloat new_co
 	std::memcpy(this->color, new_color, 4 * sizeof(GLfloat));
 }
 
-Particle::Particle(pVec2 current_pos, size_t radius)
+Particle::Particle(const pVec2& current_pos, size_t radius)
 {
 	this->current_pos = current_pos;
 	this->old_pos = current_pos;
@@ -29,7 +29,7 @@ Particle::Particle(pVec2 current_pos, size_t radius)
 	std::memcpy(this->color, new_color, 4 * sizeof(GLfloat));
 }
 
-Particle::Particle(pVec2 current_pos, size_t radius, GLfloat new_color[4])
+Particle::Particle(const pVec2& current_pos, size_t radius, GLfloat new_color[4])
 {
 	this->current_pos = current_pos;
 	this->old_pos = current_pos;
@@ -58,6 +58,6 @@ void Particle::updatePosition(double dt) {
 	this->accel = {0, 0};
 }
 
-void Particle::accelerate(pVec2 accel) {
+void Particle::accelerate(const pVec2& accel) {
 	this->accel += accel;
 }

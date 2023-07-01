@@ -277,7 +277,7 @@ void GridSandbox::collideParticlesBetweenCellsV2(GridCell *centerCell, size_t ro
 
 // assumes radiuses are the same
 void GridSandbox::collideParticles(Particle *p1, Particle *p2) {
-	pVec2 collisionAxis, n;
+	pVec2 collisionAxis;
 	double dist;
 	constexpr double response_coef = 0.75f;
 	double delta;
@@ -290,12 +290,15 @@ void GridSandbox::collideParticles(Particle *p1, Particle *p2) {
 	if (dist < min_dist * min_dist) {
 
 		dist = sqrt(dist);
-		n = collisionAxis / dist;
+		// n = collisionAxis / dist;
+		collisionAxis /= dist;
 
 		delta = 0.5f * response_coef * (dist - min_dist);
 
-		p1->current_pos -= n * (0.5 * delta);
-		p2->current_pos += n * (0.5 * delta);
+		// p1->current_pos -= n * (0.5 * delta);
+		// p2->current_pos += n * (0.5 * delta);
+		p1->current_pos -= collisionAxis * (0.5 * delta);
+		p2->current_pos += collisionAxis * (0.5 * delta);
 	}
 }
 

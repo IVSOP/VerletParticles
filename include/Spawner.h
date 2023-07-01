@@ -9,11 +9,11 @@ struct spawnerInfo {
 	GLfloat *color_feed; // color lookup for each particle ID
 	pVec2 accel;
 
-	spawnerInfo(pVec2 _center, double _particle_radius, GLfloat *_color_feed)
+	spawnerInfo(const pVec2& _center, double _particle_radius, GLfloat *_color_feed)
 		: center(_center), particle_radius(_particle_radius), color_feed(_color_feed)
 	{}
 
-	spawnerInfo(pVec2 _center, double _particle_radius, GLfloat *_color_feed, pVec2 _accel)
+	spawnerInfo(const pVec2& _center, double _particle_radius, GLfloat *_color_feed, const pVec2& _accel)
 		: center(_center), particle_radius(_particle_radius), color_feed(_color_feed), accel(_accel)
 	{}
 };
