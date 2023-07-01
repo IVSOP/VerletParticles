@@ -22,15 +22,15 @@ Sandbox::~Sandbox() {
 	delete[] this->vertices;
 }
 
-size_t Sandbox::getNumberOfParticles() const {
+constexpr size_t Sandbox::getNumberOfParticles() const {
 	return this->len_particles;
 }
 
-size_t Sandbox::getMaxNumberParticles() const {
+constexpr size_t Sandbox::getMaxNumberParticles() const {
 	return this->max_particles;
 }
 
-Vertex * Sandbox::getVertices() const {
+constexpr Vertex * Sandbox::getVertices() const {
 	return this->vertices;
 }
 

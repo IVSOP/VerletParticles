@@ -27,7 +27,8 @@ class Sandbox {
 		size_t pixelsX, pixelsY;
 		size_t current_tick;
 
-		std::vector<Spawner> spawners; // should be private
+		std::vector<Spawner> spawners; // should be private, this is temporary
+
 	private:
 		GLuint VAO;
 		GLuint VBO;
@@ -69,7 +70,7 @@ class Sandbox {
 		GLfloat * getParticleColorsFromImage(const char *filename);
 		void getAverageColor(unsigned char *image, int width, int height, GLfloat *colors, Particle *p);
 
-		unsigned int getParticleID(Particle *p) const {
+		constexpr unsigned int getParticleID(Particle *p) const {
 			return p - particles;
 		}
 };

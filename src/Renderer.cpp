@@ -316,19 +316,19 @@ void Renderer::makeIBO() {
 	delete[] indices;
 }
 
-size_t Renderer::getNumberOfVertices() const {
+constexpr size_t Renderer::getNumberOfVertices() const {
 	return sandbox->len_particles * 4;
 }
 
-size_t Renderer::getMaxIndexCount() const {
+constexpr size_t Renderer::getMaxIndexCount() const {
 	return sandbox->max_particles * 6;
 }
 
-size_t Renderer::getMaxVertexCount() const {
+constexpr size_t Renderer::getMaxVertexCount() const {
 	return sandbox->max_particles * 4; 
 }
 
-size_t Renderer::getNumberOfIndices() const {
+constexpr size_t Renderer::getNumberOfIndices() const {
 	return sandbox->len_particles * 6;
 }
 
