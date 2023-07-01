@@ -47,10 +47,17 @@ class Sandbox {
 
 		virtual void clear() = 0; // allways needs to set len_particles = 0, current_tick = 0 and reset spawners, maybe wrap this with something and dont make the entire thing virtual
 
-		size_t getNumberOfParticles() const;
-		size_t getMaxNumberParticles() const;
+		constexpr size_t getNumberOfParticles() {
+			return this->len_particles;
+		}
 
-		Vertex * getVertices() const;
+		constexpr size_t getMaxNumberParticles() {
+			return this->max_particles;
+		}
+
+		constexpr Vertex * getVertices() {
+			return this->vertices;
+		}
 
 		void calculateVertices();
 

@@ -316,22 +316,6 @@ void Renderer::makeIBO() {
 	delete[] indices;
 }
 
-constexpr size_t Renderer::getNumberOfVertices() const {
-	return sandbox->len_particles * 4;
-}
-
-constexpr size_t Renderer::getMaxIndexCount() const {
-	return sandbox->max_particles * 6;
-}
-
-constexpr size_t Renderer::getMaxVertexCount() const {
-	return sandbox->max_particles * 4; 
-}
-
-constexpr size_t Renderer::getNumberOfIndices() const {
-	return sandbox->len_particles * 6;
-}
-
 // void Renderer::addSandbox(Sandbox *sandbox) {
 // 	this->sandbox = sandbox;
 // }

@@ -45,11 +45,21 @@ class Renderer {
 		void makeIBO();
 		void loadSandboxData();
 
-		size_t getNumberOfVertices() const;
-		size_t getMaxIndexCount() const;
-		size_t getMaxVertexCount() const;
-		size_t getNumberOfIndices() const;
+		constexpr size_t getNumberOfVertices() {
+			return sandbox->len_particles * 4;
+		}
 
+		constexpr size_t getMaxIndexCount() {
+			return sandbox->max_particles * 6;
+		}
+
+		constexpr size_t getMaxVertexCount() {
+			return sandbox->max_particles * 4; 
+		}
+
+		constexpr size_t getNumberOfIndices() {
+			return sandbox->len_particles * 6;
+		}
 
 	public:
 

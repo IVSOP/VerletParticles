@@ -22,18 +22,6 @@ Sandbox::~Sandbox() {
 	delete[] this->vertices;
 }
 
-constexpr size_t Sandbox::getNumberOfParticles() const {
-	return this->len_particles;
-}
-
-constexpr size_t Sandbox::getMaxNumberParticles() const {
-	return this->max_particles;
-}
-
-constexpr Vertex * Sandbox::getVertices() const {
-	return this->vertices;
-}
-
 void Sandbox::calculateVertices() {
 	size_t i;
 	GLfloat x, y, z = 1.0f;
