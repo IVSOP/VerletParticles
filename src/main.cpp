@@ -52,7 +52,7 @@ int main() {
 	sandbox.addSpawner(spawner7);
 
 
-	// run simulation once
+	// // run simulation once
 	int i;
 	std::cout << "Running simulation for 2100 ticks" << std::endl;
 	for (i = 0; i < 2100; i++) {
@@ -63,9 +63,10 @@ int main() {
 		}
 	}
 
-	// get colors according to particle position
+	// // get colors according to particle position
 	std::cout << "Calculating colors from this position" << std::endl;
 	GLfloat * color_feed = sandbox.getParticleColorsFromImage("res/radiation_symbol.png");
+	// GLfloat * color_feed = nullptr;
 
 	std::cout << "Finished, clearing and starting visual simulation" << std::endl;
 

@@ -6,15 +6,18 @@
 
 #define GRID_PARTICLE_SIZE 10
 
+#include <pthread.h>
+#define MAX_THREADS 5
+
 class GridSandbox : public Sandbox {
 
 	private:
 		// Particle *particles; ???????????
 		// size_t len_particles;
 
-		Grid grid;
 
 	public:
+		Grid grid; // temporary
 		GridSandbox() = delete;
 		GridSandbox(size_t n_particles, size_t pixelsX, size_t pixelsY);
 		~GridSandbox() = default;
@@ -40,5 +43,11 @@ class GridSandbox : public Sandbox {
 
 		GLfloat *parseColorsByGrid(GLfloat *colors);
 };
+
+struct Args {
+	size_t row_start, row_end;
+	GridSandbox *sandbox;
+};
+void *collideParticlesFromTo(void *args);
 
 #endif

@@ -104,12 +104,6 @@ void GridSandbox::applyRectangleConstraint() {
 // change this so that instead of colliding between cells
 // I take one particle at a time from center and compare to all other particles???
 void GridSandbox::solveCollisions() {
-
-	// make cols and rows into variables??
-
-	size_t row, col;
-	GridCell *centerCell;
-
 	// rebuild entire grid
 	grid.clear();
 	size_t i;
@@ -117,124 +111,84 @@ void GridSandbox::solveCollisions() {
 		grid.insertIntoGrid(i, particles[i].current_pos);
 	}
 
+	pthread_t threads[MAX_THREADS];
+	
+	if (grid.rows % (MAX_THREADS * 2) != 0) {
+		fprintf(stderr, "Cant divide rows into threads\n");
+		exit(1);
+	}
+	const size_t rows_per_thread = grid.rows / MAX_THREADS;
+	const size_t half_rows_per_thread = rows_per_thread / 2;
+
+	size_t start, end;
+
+	Args args[MAX_THREADS];
+
+	start = 0; end = half_rows_per_thread;
+	for (i = 0; i < MAX_THREADS; i++) {
+		args[i].row_start = start;
+		args[i].row_end = end;
+		args[i].sandbox = this;
+		pthread_create(threads + i, NULL, collideParticlesFromTo, args + i);
+
+		start += rows_per_thread;
+		end += rows_per_thread;
+	}
+
+	for (i = 0; i < MAX_THREADS; i++) {
+		pthread_join(threads[i], NULL);
+	}
+
+	start = half_rows_per_thread;
+	end = rows_per_thread;
+	for (i = 0; i < MAX_THREADS; i++) {
+		args[i].row_start = start;
+		args[i].row_end = end;
+		args[i].sandbox = this;
+		pthread_create(threads + i, NULL, collideParticlesFromTo, args + i);
+
+		start += rows_per_thread;
+		end += rows_per_thread;
+	}
+
+	for (i = 0; i < MAX_THREADS; i++) {
+		pthread_join(threads[i], NULL);
+	}
+
+
+
+}
+void *collideParticlesFromTo(void *args) {
 	// there were glitches due to the order the particles were being processed
 	// decided to simplify and just put an if into collideParticlesBetweenCells to check for out of bounds
 
-	/*
-	
-	
-						VERY IMPORTANT!!!!!!!!!!!!!!!!!!
+	size_t row, col;
+	GridCell *centerCell;
+	const Args *info = (Args *)args;
 
-	
-	I changed this no not check all collisions from a cell, for example allways ignoring cells below
-	this is faster but not as clean
-	*/
-
-	for (row = 0; row < grid.rows; row++) {
-		for (col = 0; col < grid.cols; col++) {
-			centerCell = grid.get(row, col);
+	for (row = info->row_start; row < info->row_end; row++) {
+		for (col = 0; col < info->sandbox->grid.cols; col++) {
+			centerCell = info->sandbox->grid.get(row, col);
 			// compare with all surrounding cells
 
-			collideParticlesBetweenCellsV2(centerCell, row + 1, col - 1); // without this one, becomes unstable
-			collideParticlesBetweenCellsV2(centerCell, row + 1, col);
-			collideParticlesBetweenCellsV2(centerCell, row + 1, col + 1);
+			info->sandbox->collideParticlesBetweenCellsV2(centerCell, row + 1, col - 1); // without this one, becomes unstable
+			info->sandbox->collideParticlesBetweenCellsV2(centerCell, row + 1, col);
+			info->sandbox->collideParticlesBetweenCellsV2(centerCell, row + 1, col + 1);
 
 #ifdef CHECK_ALL_CELL_COLLISIONS
-			collideParticlesBetweenCellsV2(centerCell, row, col - 1);
+			info->sandbox->collideParticlesBetweenCellsV2(centerCell, row, col - 1);
 #endif
-			collideParticlesSameCell(centerCell);
-			collideParticlesBetweenCellsV2(centerCell, row, col + 1);
+			info->sandbox->collideParticlesSameCell(centerCell);
+			info->sandbox->collideParticlesBetweenCellsV2(centerCell, row, col + 1);
 
 #ifdef CHECK_ALL_CELL_COLLISIONS
 
-			collideParticlesBetweenCellsV2(centerCell, row - 1, col - 1);
-			collideParticlesBetweenCellsV2(centerCell, row - 1, col);
-			collideParticlesBetweenCellsV2(centerCell, row - 1, col + 1);
+			info->sandbox->collideParticlesBetweenCellsV2(centerCell, row - 1, col - 1);
+			info->sandbox->collideParticlesBetweenCellsV2(centerCell, row - 1, col);
+			info->sandbox->collideParticlesBetweenCellsV2(centerCell, row - 1, col + 1);
 #endif
 		}
 	}
-
-	// if (len_particles > 0)
-	// 	printf("particle 1 is in (%f,%f)\n", particles[1].current_pos.x, particles[1].current_pos.y);
-
-	// for (row = 1; row < grid.rows - 1; row++) {
-	// 	for (col = 1; col < grid.cols - 1; col++) {
-			
-	// 		centerCell = grid.get(row, col);
-	// 		// compare with all surrounding cells
-
-	// 		// decided to unroll loop for simplicity, idk
-	// 		collideParticlesBetweenCells(centerCell, grid.get(row + 1, col - 1));
-	// 		collideParticlesBetweenCells(centerCell, grid.get(row + 1, col));
-	// 		collideParticlesBetweenCells(centerCell, grid.get(row + 1, col + 1));
-
-	// 		collideParticlesBetweenCells(centerCell, grid.get(row, col - 1));
-	// 		collideParticlesSameCell(centerCell);
-	// 		collideParticlesBetweenCells(centerCell, grid.get(row, col + 1));
-
-	// 		collideParticlesBetweenCells(centerCell, grid.get(row - 1, col - 1));
-	// 		collideParticlesBetweenCells(centerCell, grid.get(row - 1, col));
-	// 		collideParticlesBetweenCells(centerCell, grid.get(row - 1, col + 1));
-	// 	}
-	// }
-
-	// // floor and ceiling
-	// row = grid.rows - 1; // last row
-	// for (col = 1; col < grid.cols - 1; col ++) {
-
-	// 	// ceiling
-	// 	centerCell = grid.get(row, col);
-	// 	collideParticlesBetweenCells(centerCell, grid.get(row, col - 1));
-	// 	collideParticlesSameCell(centerCell);
-	// 	collideParticlesBetweenCells(centerCell, grid.get(row, col + 1));
-		
-	// 	// floor
-	// 	centerCell = grid.get(0, col);
-	// 	collideParticlesBetweenCells(centerCell, grid.get(0, col - 1));
-	// 	collideParticlesSameCell(centerCell);
-	// 	collideParticlesBetweenCells(centerCell, grid.get(0, col + 1));
-	// }
-
-	// // walls
-	// col = grid.cols - 1;
-	// for (row = 1; row < grid.rows - 1; row ++) {
-
-	// 	// right
-	// 	centerCell = grid.get(row, col);
-	// 	collideParticlesBetweenCells(centerCell, grid.get(row - 1, col));
-	// 	collideParticlesSameCell(centerCell);
-	// 	collideParticlesBetweenCells(centerCell, grid.get(row + 1, col));
-
-	// 	// left
-	// 	centerCell = grid.get(row, 0);
-	// 	collideParticlesBetweenCells(centerCell, grid.get(row - 1, 0));
-	// 	collideParticlesSameCell(centerCell);
-	// 	collideParticlesBetweenCells(centerCell, grid.get(row + 1, 0));
-		
-	// }
-
-	// // corners
-	// // this in theory shoulnt be needed but without it there are explosions and segfaults
-	// // bottom left
-	// centerCell = grid.get(0, 0);
-	// collideParticlesSameCell(centerCell);
-	// // collideParticlesBetweenCells(centerCell, grid.get(1, 0));
-	// // collideParticlesBetweenCells(centerCell, grid.get(0, 1));
-	// // bottom right
-	// centerCell = grid.get(0, grid.cols - 1);
-	// collideParticlesSameCell(centerCell);
-	// // collideParticlesBetweenCells(centerCell, grid.get(0, grid.cols - 2));
-	// // collideParticlesBetweenCells(centerCell, grid.get(1, grid.cols - 1));
-	// // top left
-	// centerCell = grid.get(grid.rows - 1, grid.cols - 1);
-	// collideParticlesSameCell(centerCell);
-	// // collideParticlesBetweenCells(centerCell, grid.get(grid.rows - 2, grid.cols - 1));
-	// // collideParticlesBetweenCells(centerCell, grid.get(grid.rows - 1, grid.cols - 2));
-	// // top right
-	// centerCell = grid.get(grid.rows - 1, 0);
-	// collideParticlesSameCell(centerCell);
-	// // collideParticlesBetweenCells(centerCell, grid.get(grid.rows - 1, 1));
-	// // collideParticlesBetweenCells(centerCell, grid.get(grid.rows - 2, 0));
 }
 
 // checks all particles from centerCell vs all particles from secondCell, as long as particles do not have the same index
