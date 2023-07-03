@@ -30,6 +30,8 @@ add_executable(${PROJECT_NAME}
 	external/imgui/src/imgui_tables.cpp
 	external/imgui/src/imgui_impl_glfw.cpp
 	external/imgui/src/imgui_impl_opengl3.cpp
+
+	external/C-Thread-Pool/thpool.c
 )
 
 find_package(GLEW REQUIRED)
@@ -39,6 +41,7 @@ include_directories(
 	include
 	external/imgui/include
 	external/stb
+	external/C-Thread-Pool
 )
 
 # wtf??

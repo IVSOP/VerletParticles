@@ -6,8 +6,9 @@
 
 #define GRID_PARTICLE_SIZE 10
 
-#include <pthread.h>
+#include "thpool.h"
 #define MAX_THREADS 5
+
 
 class GridSandbox : public Sandbox {
 
@@ -15,12 +16,13 @@ class GridSandbox : public Sandbox {
 		// Particle *particles; ???????????
 		// size_t len_particles;
 
+		threadpool thpool;
 
 	public:
 		Grid grid; // temporary
 		GridSandbox() = delete;
 		GridSandbox(size_t n_particles, size_t pixelsX, size_t pixelsY);
-		~GridSandbox() = default;
+		~GridSandbox();
 
 		void addParticle(Particle &particle);
 
@@ -48,6 +50,7 @@ struct Args {
 	size_t row_start, row_end;
 	GridSandbox *sandbox;
 };
-void *collideParticlesFromTo(void *args);
+
+void collideParticlesFromTo(void *args);
 
 #endif

@@ -8,6 +8,12 @@ GridSandbox::GridSandbox(size_t max_particles, size_t pixelsX, size_t pixelsY)
 	: Sandbox(max_particles, pixelsX, pixelsY),
 	  grid(pixelsX, pixelsY, GRID_PARTICLE_SIZE) // !!!!!!!!!!!!!!!!!! for now grid does not take into account max particles
 	{
+
+	thpool = thpool_init(MAX_THREADS);
+}
+
+GridSandbox::~GridSandbox() {
+	thpool_destroy(thpool);
 }
 
 void GridSandbox::addParticle(Particle &particle) {
@@ -111,7 +117,7 @@ void GridSandbox::solveCollisions() {
 		grid.insertIntoGrid(i, particles[i].current_pos);
 	}
 
-	pthread_t threads[MAX_THREADS];
+	// pthread_t threads[MAX_THREADS];
 	
 	if (grid.rows % (MAX_THREADS * 2) != 0) {
 		fprintf(stderr, "Cant divide rows into threads\n");
@@ -129,15 +135,12 @@ void GridSandbox::solveCollisions() {
 		args[i].row_start = start;
 		args[i].row_end = end;
 		args[i].sandbox = this;
-		pthread_create(threads + i, NULL, collideParticlesFromTo, args + i);
-
+		thpool_add_work(thpool, collideParticlesFromTo, args + i);
 		start += rows_per_thread;
 		end += rows_per_thread;
 	}
 
-	for (i = 0; i < MAX_THREADS; i++) {
-		pthread_join(threads[i], NULL);
-	}
+	thpool_wait(thpool);
 
 	start = half_rows_per_thread;
 	end = rows_per_thread;
@@ -145,20 +148,16 @@ void GridSandbox::solveCollisions() {
 		args[i].row_start = start;
 		args[i].row_end = end;
 		args[i].sandbox = this;
-		pthread_create(threads + i, NULL, collideParticlesFromTo, args + i);
+		thpool_add_work(thpool, collideParticlesFromTo, args + i);
 
 		start += rows_per_thread;
 		end += rows_per_thread;
 	}
 
-	for (i = 0; i < MAX_THREADS; i++) {
-		pthread_join(threads[i], NULL);
-	}
-
-
-
+	thpool_wait(thpool);
 }
-void *collideParticlesFromTo(void *args) {
+
+void collideParticlesFromTo(void *args) {
 	// there were glitches due to the order the particles were being processed
 	// decided to simplify and just put an if into collideParticlesBetweenCells to check for out of bounds
 
