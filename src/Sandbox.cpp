@@ -152,7 +152,7 @@ void Sandbox::onUpdate(double sub_dt) {
 		applyGravity();
 		solveCollisions();
 		// applyCircleConstraint();
-		applyRectangleConstraint();
+		// applyRectangleConstraint(); removed, for better performance it is now perfomed in updatePositions
 		updatePositions(sub_dt);
 
 	}

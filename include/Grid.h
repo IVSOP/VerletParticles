@@ -5,7 +5,7 @@
 
 // #include <iostream>
 
-#define GRID_CELL_CAPACITY 3
+#define GRID_CELL_CAPACITY 4
 
 typedef struct {
 	size_t particle_idx[GRID_CELL_CAPACITY];
@@ -66,15 +66,15 @@ struct Grid {
 			return getGridIndexFromRowCol(static_cast<size_t>(new_pos.y), static_cast<size_t>(new_pos.x));
 		}
 
-		size_t getGridIndexFromRowCol(size_t row, size_t col) {
+		constexpr size_t getGridIndexFromRowCol(size_t row, size_t col) {
 			return (row * cols) + col;
 		}
 
-		GridCell *get(size_t row, size_t col) {
+		constexpr GridCell *get(size_t row, size_t col) {
 			return &(this->cells[getGridIndexFromRowCol(row, col)]);
 		}
 
-		GridCell *get(size_t pos) {
+		constexpr GridCell *get(size_t pos) {
 			return &(this->cells[pos]);
 		}
 };

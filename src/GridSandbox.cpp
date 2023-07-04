@@ -24,88 +24,83 @@ void GridSandbox::addParticle(Particle &particle) {
 	this->len_particles ++;
 }
 
+/////////////////////// !!!!!!!!!!!!!!!!!!!!!!!! can be optimized by only passing particlesPerThread, and particles offset by start 
 void GridSandbox::updatePositions(double dt) {
-	size_t i; // , new_pos, old_pos;
-	Particle *p;
+	int i, start, end;
 
-	for (i = 0; i < this->len_particles; i++) {
-		p = &(this->particles[i]);
-		p->updatePosition(dt);
-		// if (grid.particleChangedCells(p, &old_pos, &new_pos)) {
-		// 	grid.removeFromGrid(i, p->old_pos);
-		// 	grid.insertIntoGrid(i, p->current_pos);
-		// }
+	const size_t particlesPerThread = this->len_particles / MAX_THREADS;
+	// printf("%ld\n", particlesPerThread);
+	
+	UpdateArgs *args = (UpdateArgs *)alloca(sizeof(UpdateArgs) * (MAX_THREADS + 1));
+
+	start = 0;
+	end = particlesPerThread;
+	// printf("There are %ld particles\n", len_particles);
+	for (i = 0; i < MAX_THREADS; i++) {
+		args[i] = UpdateArgs(start, end, this->particles, dt, this->pixelsX, this->pixelsY);
+		thpool_add_work(this->thpool, updatePositionsThread, args + i);
+		// updatePositionsThread(args + i);
+
+		start += particlesPerThread;
+		end += particlesPerThread;
 	}
+
+	args[MAX_THREADS] = UpdateArgs(end - particlesPerThread, this->len_particles, this->particles, dt, this->pixelsX, this->pixelsY);
+	// updatePositionsThread(args + MAX_THREADS);
+	thpool_add_work(this->thpool, updatePositionsThread, args + MAX_THREADS); // should I use args + i???
+
+	thpool_wait(this->thpool);
 }
 
-void GridSandbox::applyCircleConstraint() {
-	const pVec2 center = {500.0f, 500.0f};
-	const double radius = 500.0f;
-
-	pVec2 to_center, n;
-	Particle *particle;
-	double dist_to_center;
+void updatePositionsThread(void *args) {
+	const UpdateArgs *info = (UpdateArgs *)args;
+	
 	size_t i;
-
-	for (i = 0; i < len_particles; i++) {
-		particle = &(particles[i]);
-		to_center = particle->current_pos - center;
-		dist_to_center = to_center.length();
-		// check if particle is clipping constraint bounds
-		if (dist_to_center > radius - particle->radius) {
-			n = to_center / dist_to_center;
-			particle->current_pos = center + (n * (radius - particle->radius));
-		}
-	}
-}
-
-void GridSandbox::applyRectangleConstraint() {
-	Particle *p; size_t i;
-	// const double margin = 2.0f;
+	Particle *p;
 	double radius;
-	const double size_x = pixelsX;
-	const double size_y = pixelsY;
 
-	// this is worse than the circle one
-	for (i = 0; i < len_particles; i++) {
-		p = &(particles[i]);
+	// printf("Parsing from %ld to %ld\n", info->start, info->end);
+
+	for (i = info->start; i < info->end; i++) {
+		p = &(info->particles[i]);
+		p->updatePosition(info->dt);
+
 		radius = p->radius;
-
-		// kept this here as comment so I could explain the ugliness of final solution
-
-		// const double half_size_x = pixelsX / 2.0f; // divide by 2 here to save time
-		// const double half_size_y = pixelsY / 2.0f;
-		// const pVec2 center = {250.0f, 250.0f}; is just the same as (half_size_x, half_size_y). by substituting then simplifying, I got final form
-
-		// if (p->current_pos.x + radius > center.x + half_size_x) {
-		// 	p->current_pos.x = center.x + half_size_x - radius;
-		// } else if (p->current_pos.x - radius < center.x - half_size_x) {
-		// 	p->current_pos.x = center.x - half_size_x + radius;
-		// }
-
-		// if (p->current_pos.y + radius > center.y + half_size_y) {
-		// 	p->current_pos.y = center.y + half_size_y - radius;
-		// } else if (p->current_pos.y - radius < center.y - half_size_y) {
-		// 	p->current_pos.y = center.y - half_size_y + radius;
-		// }
-
-		// NOTE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
-		// Maybe I was dumb, this is no longer a rectangle but a square, can't tell
-		// anyway will use for now since it is faster
-
-		if (p->current_pos.x + radius > pixelsX) {
-			p->current_pos.x = size_x - radius;
+		// applying constraint
+		if (p->current_pos.x + radius > info->pixelsX) {
+			p->current_pos.x = info->pixelsX - radius;
 		} else if (p->current_pos.x - radius < 0) {
 			p->current_pos.x = 0 + radius;
 		}
 
-		if (p->current_pos.y + radius > size_y) {
-			p->current_pos.y = size_y - radius;
+		if (p->current_pos.y + radius > info->pixelsY) {
+			p->current_pos.y = info->pixelsY - radius;
 		} else if (p->current_pos.y - radius < 0) {
 			p->current_pos.y = 0 + radius;
 		}
 	}
 }
+
+// void GridSandbox::applyCircleConstraint() {
+// 	const pVec2 center = {500.0f, 500.0f};
+// 	const double radius = 500.0f;
+
+// 	pVec2 to_center, n;
+// 	Particle *particle;
+// 	double dist_to_center;
+// 	size_t i;
+
+// 	for (i = 0; i < len_particles; i++) {
+// 		particle = &(particles[i]);
+// 		to_center = particle->current_pos - center;
+// 		dist_to_center = to_center.length();
+// 		// check if particle is clipping constraint bounds
+// 		if (dist_to_center > radius - particle->radius) {
+// 			n = to_center / dist_to_center;
+// 			particle->current_pos = center + (n * (radius - particle->radius));
+// 		}
+// 	}
+// }
 
 // change this so that instead of colliding between cells
 // I take one particle at a time from center and compare to all other particles???
@@ -167,7 +162,7 @@ void collideParticlesFromTo(void *args) {
 
 	for (row = info->row_start; row < info->row_end; row++) {
 		for (col = 0; col < info->sandbox->grid.cols; col++) {
-			centerCell = info->sandbox->grid.get(row, col);
+			centerCell = info->sandbox->grid.get(row, col); // unecessary????????????????????????????????
 			// compare with all surrounding cells
 
 			info->sandbox->collideParticlesBetweenCellsV2(centerCell, row + 1, col - 1); // without this one, becomes unstable

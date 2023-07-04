@@ -46,6 +46,7 @@ bool removeFromArr(size_t particleIndex, size_t arr[GRID_CELL_CAPACITY]) {
 void Grid::insertIntoGrid(size_t particleIndex, size_t row, size_t col) {
 	GridCell *cell = get(row, col);
 	if (cell->len_particles == GRID_CELL_CAPACITY) {
+		fprintf(stderr, "Too many particles in %ld, %ld", row, col);
 		exit(5);
 	}
 	cell->particle_idx[cell->len_particles ++] = particleIndex;
@@ -54,6 +55,7 @@ void Grid::insertIntoGrid(size_t particleIndex, size_t row, size_t col) {
 void Grid::insertIntoGrid(size_t particleIndex, size_t pos) {
 	GridCell *cell = get(pos);
 	if (cell->len_particles == GRID_CELL_CAPACITY) {
+		fprintf(stderr, "Too many particles in %ld", pos);
 		exit(5);
 	}
 	cell->particle_idx[cell->len_particles ++] = particleIndex;
@@ -61,6 +63,7 @@ void Grid::insertIntoGrid(size_t particleIndex, size_t pos) {
 
 void Grid::insertIntoGrid(size_t particleIndex, GridCell *cell) {
 	if (cell->len_particles == GRID_CELL_CAPACITY) {
+		// fprintf(stderr, "Too many particles in %ld, %ld", row, col);
 		exit(5);
 	}
 	cell->particle_idx[cell->len_particles ++] = particleIndex;
@@ -70,6 +73,7 @@ void Grid::insertIntoGrid(size_t particleIndex, const pVec2& particlePos) {
 	size_t i = getGridIndexFromParticlePos(particlePos);
 	GridCell *cell = &(cells[i]);
 	if (cell->len_particles == GRID_CELL_CAPACITY) {
+		fprintf(stderr, "Too many particles when adding particle in %f %f", particlePos.x, particlePos.y);
 		exit(5);
 	}
 	// printf("Inserting into grid at %ld, from (%f, %f) which corresponds to (%ld,%ld)\n", i, particlePos.x, particlePos.y, i / cols, i % cols);

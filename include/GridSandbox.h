@@ -4,7 +4,7 @@
 #include "Grid.h"
 #include "Sandbox.h"
 
-#define GRID_PARTICLE_SIZE 10
+#define GRID_PARTICLE_SIZE 5
 
 #include "thpool.h"
 #define MAX_THREADS 5
@@ -28,8 +28,8 @@ class GridSandbox : public Sandbox {
 
 		void updatePositions(double dt);
 		// void applyGravity();
-		void applyCircleConstraint();
-		void applyRectangleConstraint();
+		// void applyCircleConstraint();
+		// void applyRectangleConstraint();
 		void solveCollisions();
 
 		void collideParticlesBetweenCells(GridCell *centerCell, GridCell *secondCell);
@@ -51,6 +51,18 @@ struct Args {
 	GridSandbox *sandbox;
 };
 
+struct UpdateArgs {
+	size_t start, end;
+	Particle *particles;
+	double dt;
+	size_t pixelsX, pixelsY;
+
+	UpdateArgs(size_t _start, size_t _end, Particle *_particles, double _dt, size_t _pixelsX, size_t _pixelsY)
+	: start(_start), end(_end), particles(_particles), dt(_dt), pixelsX(_pixelsX), pixelsY(_pixelsY)
+	{}
+};
+
 void collideParticlesFromTo(void *args);
+void updatePositionsThread(void *args);
 
 #endif

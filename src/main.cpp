@@ -19,7 +19,7 @@ int main() {
 	// int width, height;
 	// glfwGetWindowSize(window, &width, &height);
 #define CHECK_ALL_CELL_COLLISIONS // if you desable this, it is much faster but at a risk on jankyness
-	GridSandbox sandbox(5000, 1000, 1000); // why tf can I change this and not window pixels and it just works???????? i dont even know anymore, it works too well its just inconsistent
+	GridSandbox sandbox(20000, 1000, 1000); // why tf can I change this and not window pixels and it just works???????? i dont even know anymore, it works too well its just inconsistent
 
 	Renderer renderer(1000, 1000, &sandbox);
 	// renderer.addSandbox(&sandbox);
@@ -31,6 +31,10 @@ int main() {
 	spawnerInfo info4(pVec2(GRID_PARTICLE_SIZE, 1000 - (GRID_PARTICLE_SIZE * 3)), GRID_PARTICLE_SIZE, nullptr, pVec2(320000.0, 0));
 	spawnerInfo info5(pVec2(GRID_PARTICLE_SIZE, 1000 - (GRID_PARTICLE_SIZE * 5)), GRID_PARTICLE_SIZE, nullptr, pVec2(315000.0, 0));
 	spawnerInfo info6(pVec2(1000 - GRID_PARTICLE_SIZE, 1000 - GRID_PARTICLE_SIZE), GRID_PARTICLE_SIZE, nullptr, pVec2(- 325000.0, 0));
+	spawnerInfo info7(pVec2(GRID_PARTICLE_SIZE, 1000 - (GRID_PARTICLE_SIZE * 7)), GRID_PARTICLE_SIZE, nullptr, pVec2(305000.0, 0));
+	spawnerInfo info8(pVec2(GRID_PARTICLE_SIZE, 1000 - (GRID_PARTICLE_SIZE * 9)), GRID_PARTICLE_SIZE, nullptr, pVec2(295000.0, 0));
+	spawnerInfo info9(pVec2(GRID_PARTICLE_SIZE, 1000 - (GRID_PARTICLE_SIZE * 11)), GRID_PARTICLE_SIZE, nullptr, pVec2(285000.0, 0));
+	spawnerInfo info10(pVec2(GRID_PARTICLE_SIZE, 1000 - (GRID_PARTICLE_SIZE * 13)), GRID_PARTICLE_SIZE, nullptr, pVec2(275000.0, 0));
 
 	// Spawner spawner1(0, 2200, centerSpawnerFixedSize, &info2);
 	// sandbox.addSpawner(spawner1);
@@ -42,41 +46,53 @@ int main() {
 	// sandbox.addSpawner(spawner3);
 
 
-	Spawner spawner4(0, 2100, fixedSpawner, &info3);
+	Spawner spawner4(0, 3700, fixedSpawner, &info3);
 	sandbox.addSpawner(spawner4);
-	Spawner spawner5(50, 1750, fixedSpawner, &info4);
+	Spawner spawner5(50, 3700, fixedSpawner, &info4);
 	sandbox.addSpawner(spawner5);
-	Spawner spawner6(100, 1750, fixedSpawner, &info5);
+	Spawner spawner6(100, 3600, fixedSpawner, &info5);
 	sandbox.addSpawner(spawner6);
-	Spawner spawner7(1750, 2100, fixedSpawner, &info6);
+	Spawner spawner7(150, 3700, fixedSpawner, &info6);
 	sandbox.addSpawner(spawner7);
+	Spawner spawner8(200, 3300, fixedSpawner, &info7);
+	sandbox.addSpawner(spawner8);
+	Spawner spawner9(250, 3200, fixedSpawner, &info8);
+	sandbox.addSpawner(spawner9);
+	Spawner spawner10(300, 3100, fixedSpawner, &info9);
+	sandbox.addSpawner(spawner10);
+	Spawner spawner11(350, 3000, fixedSpawner, &info10);
+	sandbox.addSpawner(spawner11);
 
 
-	// // run simulation once
-	int i;
-	std::cout << "Running simulation for 2100 ticks" << std::endl;
-	for (i = 0; i < 2100; i++) {
-		renderer.tick();
-		renderer.renderSandboxWithoutTick();
-		if (i % 100 == 0) {
-			printf("tick #%d\n", i);
+		// run simulation once
+		int i;
+		// std::cout << "Running simulation for 3000 ticks" << std::endl;
+		for (i = 0; i < 3700; i++) {
+			renderer.tick();
+			// renderer.renderSandboxWithoutTick();
+			if (i % 100 == 0) {
+				printf("tick #%d\n", i);
+			}
 		}
-	}
 
-	// // get colors according to particle position
-	std::cout << "Calculating colors from this position" << std::endl;
-	GLfloat * color_feed = sandbox.getParticleColorsFromImage("res/radiation_symbol.png");
-	// GLfloat * color_feed = nullptr;
+		// // get colors according to particle position
+		std::cout << "Calculating colors from this position" << std::endl;
+		GLfloat * color_feed = sandbox.getParticleColorsFromImage("res/radiation_symbol.png");
+		// GLfloat * color_feed = nullptr;
 
-	std::cout << "Finished, clearing and starting visual simulation" << std::endl;
+		std::cout << "Finished, clearing and starting visual simulation" << std::endl;
 
-	sandbox.clear();
+		sandbox.clear();
 
-	// info2.color_feed = color_feed;
-	info3.color_feed = color_feed;
-	info4.color_feed = color_feed;
-	info5.color_feed = color_feed;
-	info6.color_feed = color_feed;
+		// info2.color_feed = color_feed;
+		info3.color_feed = color_feed;
+		info4.color_feed = color_feed;
+		info5.color_feed = color_feed;
+		info6.color_feed = color_feed;
+		info7.color_feed = color_feed;
+		info8.color_feed = color_feed;
+		info9.color_feed = color_feed;
+		info10.color_feed = color_feed;
 
 
 
@@ -84,7 +100,7 @@ int main() {
 
 
 
-	free(color_feed);
+	// free(color_feed);
 
 	return 0;
 }
