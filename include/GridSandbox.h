@@ -7,7 +7,7 @@
 #define GRID_PARTICLE_SIZE 5
 
 #include "thpool.h"
-#define MAX_THREADS 5
+#define MAX_THREADS 8
 
 
 class GridSandbox : public Sandbox {

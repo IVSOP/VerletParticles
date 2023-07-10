@@ -179,14 +179,16 @@ void GridSandbox::solveCollisions() {
 	args[0].row_start = start;
 	args[0].row_end = end;
 	args[0].sandbox = this;
-	end += remainder * 2;
+	// printf("A\n[0] %ld %ld\n", start, end);
 	start += remainder * 2;
+	end += remainder;
 	thpool_add_work(thpool, collideParticlesFromTo, args + 0);
 
 
 	for (i = 1; i < MAX_THREADS; i++) {
 		start += rows_per_thread;
 		end += rows_per_thread;
+		// printf("[%ld] %ld %ld\n", i, start, end);
 		args[i].row_start = start;
 		args[i].row_end = end;
 		args[i].sandbox = this;
@@ -194,6 +196,7 @@ void GridSandbox::solveCollisions() {
 	}
 
 	thpool_wait(thpool);
+	// printf("\n\n\n");
 
 	start = half_rows_per_thread + ((grid.rows - rows_per_thread * MAX_THREADS) / 2);
 	end = start * 2;
@@ -201,13 +204,15 @@ void GridSandbox::solveCollisions() {
 	args[0].row_start = start;
 	args[0].row_end = end;
 	args[0].sandbox = this;
+	// printf("A\n[0] %ld %ld\n", start, end);
 	start += remainder;
-	end += remainder;
+	// end += remainder;
 	thpool_add_work(thpool, collideParticlesFromTo, args + 0);
 
 	for (i = 1; i < MAX_THREADS; i++) {
 		start += rows_per_thread;
 		end += rows_per_thread;
+		// printf("[%ld] %ld %ld\n", i, start, end);
 		args[i].row_start = start;
 		args[i].row_end = end;
 		args[i].sandbox = this;
@@ -216,6 +221,7 @@ void GridSandbox::solveCollisions() {
 
 
 	thpool_wait(thpool);
+	// printf("\n\n\n");
 }
 
 void collideParticlesFromTo(void *args) {
