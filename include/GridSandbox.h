@@ -44,6 +44,8 @@ class GridSandbox : public Sandbox {
 		void clear();
 
 		GLfloat *parseColorsByGrid(GLfloat *colors);
+
+		void insertIntoGridThreaded();
 };
 
 struct Args {

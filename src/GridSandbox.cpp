@@ -31,23 +31,24 @@ void GridSandbox::updatePositions(double dt) {
 	const size_t particlesPerThread = this->len_particles / MAX_THREADS;
 	// printf("%ld\n", particlesPerThread);
 	
-	UpdateArgs *args = (UpdateArgs *)alloca(sizeof(UpdateArgs) * (MAX_THREADS + 1));
+	UpdateArgs *args = (UpdateArgs *)alloca(sizeof(UpdateArgs) * MAX_THREADS);
 
 	start = 0;
-	end = particlesPerThread;
+	// thread 0 is used to fix the bad division, the math to the right is the remainder
+	end = particlesPerThread + (this->len_particles - MAX_THREADS * particlesPerThread);
 	// printf("There are %ld particles\n", len_particles);
 	for (i = 0; i < MAX_THREADS; i++) {
+		// printf("[%d] start %d end %d\n", i, start, end);
 		args[i] = UpdateArgs(start, end, this->particles, dt, this->pixelsX, this->pixelsY);
 		thpool_add_work(this->thpool, updatePositionsThread, args + i);
 		// updatePositionsThread(args + i);
 
-		start += particlesPerThread;
+		// start += particlesPerThread;
+		start = end; // easy fix to the fact that first iteration is a bit different to compensate for remainder
 		end += particlesPerThread;
 	}
 
-	args[MAX_THREADS] = UpdateArgs(end - particlesPerThread, this->len_particles, this->particles, dt, this->pixelsX, this->pixelsY);
-	// updatePositionsThread(args + MAX_THREADS);
-	thpool_add_work(this->thpool, updatePositionsThread, args + MAX_THREADS); // should I use args + i???
+	// printf("\n\n\n");
 
 	thpool_wait(this->thpool);
 }
@@ -102,22 +103,67 @@ void updatePositionsThread(void *args) {
 // 	}
 // }
 
-// change this so that instead of colliding between cells
-// I take one particle at a time from center and compare to all other particles???
-void GridSandbox::solveCollisions() {
-	// rebuild entire grid
-	grid.clear();
+struct GridArgs {
+	int start, end;
+	Particle *particles;
+	Grid *grid;
+
+	GridArgs(int _start, int _end, Particle *_particles, Grid *_grid)
+	: start(_start), end(_end), particles(_particles), grid(_grid)
+	{}
+};
+
+void insertIntoGrid(void *args) {
+	GridArgs *info = (GridArgs *)args;
+	info->grid->insertIntoGrid(info->start, info->end, info->particles);
+}
+
+// cannot just be multithreaded blindly
+// if more than one particle is in a cell,
+// the order of insertion matters
+void GridSandbox::insertIntoGridThreaded() {
+	// int i, start, end;
+
+	// const size_t particlesPerThread = this->len_particles / MAX_THREADS;
+	// // printf("%ld\n", particlesPerThread);
+	
+	// GridArgs *args = (GridArgs *)alloca(sizeof(GridArgs) * MAX_THREADS);
+
+	// start = 0;
+	// // thread 0 is used to fix the bad division, the math to the right is the remainder
+	// end = particlesPerThread + (this->len_particles - MAX_THREADS * particlesPerThread);
+	// // printf("There are %ld particles\n", len_particles);
+	// for (i = 0; i < MAX_THREADS; i++) {
+	// 	// printf("[%d] start %d end %d\n", i, start, end);
+	// 	args[i] = GridArgs(start, end, this->particles, &this->grid);
+	// 	// thpool_add_work(this->thpool, insertIntoGrid, args + i);
+	// 	insertIntoGrid(args + i);
+
+	// 	start = end; // easy fix to the fact that first iteration is a bit different to compensate for remainder
+	// 	end += particlesPerThread;
+	// }
+
+	// // printf("\n\n\n");
+
+	// thpool_wait(this->thpool);
+
 	size_t i;
 	for (i = 0; i < len_particles; i++) {
 		grid.insertIntoGrid(i, particles[i].current_pos);
 	}
+}
 
-	// pthread_t threads[MAX_THREADS];
-	
-	if (grid.rows % (MAX_THREADS * 2) != 0) {
-		fprintf(stderr, "Cant divide rows into threads\n");
-		exit(1);
-	}
+// NOTE: I assume the math here checks out
+// in the future might fix
+// for 50x50 and 100x100 grids it works, else grid might not be correctly spread between threads
+// this is a temporary solution, did not have the brainpower to come up with a better way
+void GridSandbox::solveCollisions() {
+	// rebuild entire grid
+	grid.clear();
+	size_t i;
+
+		insertIntoGridThreaded();
+
 	const size_t rows_per_thread = grid.rows / MAX_THREADS;
 	const size_t half_rows_per_thread = rows_per_thread / 2;
 
@@ -125,29 +171,49 @@ void GridSandbox::solveCollisions() {
 
 	Args args[MAX_THREADS];
 
-	start = 0; end = half_rows_per_thread;
-	for (i = 0; i < MAX_THREADS; i++) {
+	start = 0;
+	// first thread makes up for bad division
+	// unrolled first iteration since it is simpler
+	const size_t remainder = (grid.rows - rows_per_thread * MAX_THREADS) / 2;
+	end = half_rows_per_thread + remainder;
+	args[0].row_start = start;
+	args[0].row_end = end;
+	args[0].sandbox = this;
+	end += remainder * 2;
+	start += remainder * 2;
+	thpool_add_work(thpool, collideParticlesFromTo, args + 0);
+
+
+	for (i = 1; i < MAX_THREADS; i++) {
+		start += rows_per_thread;
+		end += rows_per_thread;
 		args[i].row_start = start;
 		args[i].row_end = end;
 		args[i].sandbox = this;
 		thpool_add_work(thpool, collideParticlesFromTo, args + i);
-		start += rows_per_thread;
-		end += rows_per_thread;
 	}
 
 	thpool_wait(thpool);
 
-	start = half_rows_per_thread;
-	end = rows_per_thread;
-	for (i = 0; i < MAX_THREADS; i++) {
+	start = half_rows_per_thread + ((grid.rows - rows_per_thread * MAX_THREADS) / 2);
+	end = start * 2;
+
+	args[0].row_start = start;
+	args[0].row_end = end;
+	args[0].sandbox = this;
+	start += remainder;
+	end += remainder;
+	thpool_add_work(thpool, collideParticlesFromTo, args + 0);
+
+	for (i = 1; i < MAX_THREADS; i++) {
+		start += rows_per_thread;
+		end += rows_per_thread;
 		args[i].row_start = start;
 		args[i].row_end = end;
 		args[i].sandbox = this;
 		thpool_add_work(thpool, collideParticlesFromTo, args + i);
-
-		start += rows_per_thread;
-		end += rows_per_thread;
 	}
+
 
 	thpool_wait(thpool);
 }
@@ -238,13 +304,10 @@ void GridSandbox::collideParticles(Particle *p1, Particle *p2) {
 	if (dist < min_dist * min_dist) {
 
 		dist = sqrt(dist);
-		// n = collisionAxis / dist;
 		collisionAxis /= dist;
 
 		delta = 0.5f * response_coef * (dist - min_dist);
 
-		// p1->current_pos -= n * (0.5 * delta);
-		// p2->current_pos += n * (0.5 * delta);
 		p1->current_pos -= collisionAxis * (0.5 * delta);
 		p2->current_pos += collisionAxis * (0.5 * delta);
 	}

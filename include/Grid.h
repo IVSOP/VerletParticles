@@ -49,6 +49,7 @@ struct Grid {
 		void insertIntoGrid(size_t particleIndex, size_t pos);
 		void insertIntoGrid(size_t particleIndex, GridCell *cell);
 		void insertIntoGrid(size_t particleIndex, const pVec2& particlePos);
+		void insertIntoGrid(size_t start, size_t end, const Particle *particles);
 
 		void removeFromGrid(size_t particleIndex, size_t row, size_t col);
 		void removeFromGrid(size_t particleIndex, size_t pos);
