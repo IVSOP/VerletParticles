@@ -45,7 +45,7 @@ class GridSandbox : public Sandbox {
 
 		GLfloat *parseColorsByGrid(GLfloat *colors);
 
-		void insertIntoGridThreaded();
+		void insertIntoGrid();
 };
 
 struct Args {
@@ -58,9 +58,10 @@ struct UpdateArgs {
 	Particle *particles;
 	double dt;
 	size_t pixelsX, pixelsY;
+	Grid *grid;
 
-	UpdateArgs(size_t _start, size_t _end, Particle *_particles, double _dt, size_t _pixelsX, size_t _pixelsY)
-	: start(_start), end(_end), particles(_particles), dt(_dt), pixelsX(_pixelsX), pixelsY(_pixelsY)
+	UpdateArgs(size_t _start, size_t _end, Particle *_particles, double _dt, size_t _pixelsX, size_t _pixelsY, Grid *_grid)
+	: start(_start), end(_end), particles(_particles), dt(_dt), pixelsX(_pixelsX), pixelsY(_pixelsY), grid(_grid)
 	{}
 };
 
