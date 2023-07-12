@@ -82,13 +82,13 @@ void Grid::insertIntoGrid(size_t particleIndex, GridCell *cell) {
 	cell->particle_idx[cell->len_particles ++] = particleIndex;
 }
 
-void Grid::insertIntoGrid(size_t particleIndex, const pVec2& particlePos) {
-	size_t i = getGridIndexFromParticlePos(particlePos);
+void Grid::insertIntoGrid(size_t particleIndex, double pos_x, double pos_y) {
+	size_t i = getGridIndexFromParticlePos(pos_x, pos_y);
 	GridCell *cell = &(cells[i]);
 
 #ifdef GRID_DEBUG
 	if (cell->len_particles == GRID_CELL_CAPACITY) {
-		fprintf(stderr, "Too many particles when adding particle in %f %f\n", particlePos.x, particlePos.y);
+		fprintf(stderr, "Too many particles when adding particle in %f %f\n", pos_x, pos_y);
 		exit(5);
 	}
 	
@@ -98,11 +98,14 @@ void Grid::insertIntoGrid(size_t particleIndex, const pVec2& particlePos) {
 }
 
 // to avoid overhead, insert many at once from an array
-void Grid::insertIntoGrid(size_t start, size_t end, const Particle *particles) {
+void Grid::insertIntoGrid(size_t start, size_t end, ParticleArray *particles) {
 	GridCell *cell;
+	double x, y;
 
-	for (; start < end; start ++) {								// janky that grid knows particle implementation but idc
-		cell = &(cells[ getGridIndexFromParticlePos((&particles[start])->current_pos) ]);
+	for (; start < end; start ++) {			
+		x = particles->current_x[start];
+		y = particles->current_y[start];
+		cell = &(cells[ getGridIndexFromParticlePos(x, y) ]);
 
 #ifdef GRID_DEBUG
 		if (cell->len_particles == GRID_CELL_CAPACITY) {
@@ -135,8 +138,8 @@ void Grid::removeFromGrid(size_t particleIndex, GridCell *cell) {
 	}
 }
 
-void Grid::removeFromGrid(size_t particleIndex, const pVec2& particlePos) {
-	size_t i = getGridIndexFromParticlePos(particlePos);
+void Grid::removeFromGrid(size_t particleIndex, double pos_x, double pos_y) {
+	size_t i = getGridIndexFromParticlePos(pos_x, pos_y);
 	GridCell *cell = &(cells[i]);
 	if (removeFromArr(particleIndex, cell->particle_idx)) {
 		cell->len_particles --;
@@ -152,16 +155,16 @@ void Grid::move(size_t particleIndex, size_t old_pos, size_t new_pos) {
 }
 
 // checks if difference from old_pos to current_pos is enought to change to another cell and returns index of the new cell if found
-bool Grid::particleChangedCells(Particle *p, size_t *old_pos, size_t *new_pos) {
-	size_t pos1, pos2;
+// bool Grid::particleChangedCells(Particle *p, size_t *old_pos, size_t *new_pos) {
+// 	size_t pos1, pos2;
 
-	pos1 = getGridIndexFromParticlePos(p->old_pos);
-	pos2 = getGridIndexFromParticlePos(p->current_pos);
+// 	pos1 = getGridIndexFromParticlePos(p->old_pos);
+// 	pos2 = getGridIndexFromParticlePos(p->current_pos);
 
-	if (pos1 != pos2) {
-		*old_pos = pos1;
-		*new_pos = pos1;
-		return true;
-	}
-	return false;
-}
+// 	if (pos1 != pos2) {
+// 		*old_pos = pos1;
+// 		*new_pos = pos1;
+// 		return true;
+// 	}
+// 	return false;
+// }

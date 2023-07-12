@@ -191,8 +191,6 @@ void Renderer::mainLoop() {
 	double lastFrameTime = glfwGetTime(),
 	currentFrameTime;
 
-	Particle p;
-
 	while (!glfwWindowShouldClose(window))
 	{
 		currentFrameTime = glfwGetTime();
@@ -222,8 +220,8 @@ void Renderer::mainLoop() {
 
 		if (ImGui::Button("Add")) {
 			// std::cout << "Adding particle " << posX << " " << posY << " " << radius << " R " << color[0] << " G " << color[1] << " B " << color[2] << std::endl;
-			p = Particle(pVec2(posX, posY), radius, color);
-			sandbox->addParticle(p);
+			// p = Particle(pVec2(posX, posY), radius, color);
+			// sandbox->addParticle(p);
 		}
 
 		if (ImGui::Button("Tick")) {

@@ -7,10 +7,9 @@
 #include <glm/geometric.hpp>
 
 Sandbox::Sandbox(size_t max_particles, size_t pixelsX, size_t pixelsY)
-	: pixelsX(pixelsX), pixelsY(pixelsY)
+	: particles(max_particles), pixelsX(pixelsX), pixelsY(pixelsY)
 	{
 
-	this->particles = new Particle[max_particles];
 	this->len_particles = 0;
 	this->vertices = new Vertex[max_particles * 4];
 	this->max_particles = max_particles;
@@ -18,7 +17,6 @@ Sandbox::Sandbox(size_t max_particles, size_t pixelsX, size_t pixelsY)
 }
 
 Sandbox::~Sandbox() {
-	delete[] this->particles;
 	delete[] this->vertices;
 }
 
@@ -26,7 +24,6 @@ void Sandbox::calculateVertices() {
 	size_t i;
 	GLfloat x, y, z = 1.0f;
 	GLfloat *position, *texCoords;
-	Particle *particle;
 	Vertex *_vertices;
 	GLfloat radius;
 
@@ -35,17 +32,18 @@ void Sandbox::calculateVertices() {
 		|   |
 		0---1
 	*/
+
+	// i is particle ID
 	for (i = 0; i < this->len_particles; i++)
 	{
-		particle = &(this->particles[i]);
 
 		// particle has the coordinates of its center
 		// need to calculate other ones from it, rotation does not matter
 
 		// offset by (-1, -1)
-		x = ((static_cast<GLfloat>(particle->current_pos.x) * 2) / static_cast<GLfloat>(this->pixelsX)) - 1.0f;
-		y = ((static_cast<GLfloat>(particle->current_pos.y) * 2) / static_cast<GLfloat>(this->pixelsY)) - 1.0f;
-		radius = (static_cast<GLfloat>(particle->radius) * 2) / static_cast<GLfloat>(this->pixelsX); // ??????????????????????????????????????????????????????????????????
+		x = ((static_cast<GLfloat>(particles.current_x[i]) * 2) / static_cast<GLfloat>(this->pixelsX)) - 1.0f;
+		y = ((static_cast<GLfloat>(particles.current_y[i]) * 2) / static_cast<GLfloat>(this->pixelsY)) - 1.0f;
+		radius = (static_cast<GLfloat>(GRID_PARTICLE_SIZE) * 2) / static_cast<GLfloat>(this->pixelsX); // ??????????????????????????????????????????????????????????????????
 
 		/*
 		3(-radius, +radius)				2(+radius, +radius)
@@ -136,13 +134,15 @@ void Sandbox::handleKeyPress(int key, int scancode, int action, int mods) {
 // got lazy, assumes it went through a tick when this is called
 void Sandbox::onUpdate(double sub_dt) {
 	int i, size = this->spawners.size();
-	Particle p; // is there a better way to do this?????
 	// double sub_dt = dt / SUBSTEPS;
+	double cx, cy, ax, ay, radius;
+	GLfloat color[4];
 	
 	// spawn particles from all spawners
-	for (i = 0; i < size; i++) {							// messy workaround
-		if (this->spawners[i].nextParticle(current_tick, &p, len_particles) == true) {
-			addParticle(p);
+	for (i = 0; i < size; i++) {							// messy workaround, even messier now, need to improve in the future
+		// will pass radius to it just so I don't break it, but will not be used for now
+		if (this->spawners[i].nextParticle(current_tick, len_particles, &cx, &cy, &ax, &ay, &radius, color) == true) {
+			addParticle(cx, cy, ax, ay, color);
 		}
 	}
 	
@@ -163,11 +163,12 @@ void Sandbox::onUpdate(double sub_dt) {
 
 void Sandbox::applyGravity() {
 	// TEMPORARY!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	constexpr pVec2 gravity = {0.0f, -1000.0f};
-	size_t i;
+	constexpr double gravity_x = 0.0;
+	constexpr double gravity_y = -1000.0;
 
+	size_t i;
 	for (i = 0; i < this->len_particles; i++) {
-		this->particles[i].accelerate(gravity);
+		this->particles.accelerate(i, gravity_x, gravity_y);
 	}
 }
 
@@ -215,10 +216,9 @@ GLfloat * Sandbox::getParticleColorsFromImage(const char *filename) {
 
 	// the color of each particle results from an average of a square around it
 	// inefficient but simple
-	Particle *p; size_t i;
+	size_t i;
 	for (i = 0; i < len_particles; i++) {
-		p = &(particles[i]);
-		getAverageColor(image, width, height, colors, p);
+		getAverageColor(image, width, height, colors, i);
 	}
 
 	stbi_image_free(image);
@@ -227,21 +227,23 @@ GLfloat * Sandbox::getParticleColorsFromImage(const char *filename) {
 
 // given a particle, will fill out its position in colors (relative to ID)
 // according to average of RGBA values around it in the image
-void Sandbox::getAverageColor(unsigned char *image, int width, int height, GLfloat *colors, Particle *p) {
+void Sandbox::getAverageColor(unsigned char *image, int width, int height, GLfloat *colors, size_t particleID) {
 	// for now I assume size of 1000x1000 to be easier (same as window size and sandbox size)
 
-	const pVec2 &center = p->current_pos;
-	const int radius = static_cast<int>(p->radius),
+	const double center_x = particles.current_x[particleID];
+	const double center_y = particles.current_y[particleID];
+
+	const int radius = static_cast<int>(GRID_PARTICLE_SIZE),
 	diameter = 2 * radius;
 
-	GLfloat *target_colors = colors + (getParticleID(p) * 4);
+	GLfloat *target_colors = colors + (particleID * 4);
 
 	// for loops start at 0, need to apply this offset to be in the bottom left corner of square
 	// each X value is worth 1 pixel
 	// each Y value is worth <width> pixels
 	// is in pixels
-	const int centerX = static_cast<int>(center.x) - radius;
-	const int centerY = static_cast<int>(center.y) - radius;
+	const int centerX = static_cast<int>(center_x) - radius;
+	const int centerY = static_cast<int>(center_y) - radius;
 	
 	int offsetx;
 	int offsety;

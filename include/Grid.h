@@ -1,8 +1,7 @@
 #ifndef GRID_H
 #define GRID_H
 
-#include "Particle.h"
-
+#include "ParticleArray.h"
 // #include <iostream>
 
 #define GRID_CELL_CAPACITY 4
@@ -48,23 +47,23 @@ struct Grid {
 		void insertIntoGrid(size_t particleIndex, size_t row, size_t col);
 		void insertIntoGrid(size_t particleIndex, size_t pos);
 		void insertIntoGrid(size_t particleIndex, GridCell *cell);
-		void insertIntoGrid(size_t particleIndex, const pVec2& particlePos);
-		void insertIntoGrid(size_t start, size_t end, const Particle *particles);
+		void insertIntoGrid(size_t particleIndex, double pos_x, double pos_y);
+		void insertIntoGrid(size_t start, size_t end, ParticleArray *particles);
 
 		void removeFromGrid(size_t particleIndex, size_t row, size_t col);
 		void removeFromGrid(size_t particleIndex, size_t pos);
 		void removeFromGrid(size_t particleIndex, GridCell *cell);
-		void removeFromGrid(size_t particleIndex, const pVec2& particlePos);
+		void removeFromGrid(size_t particleIndex, double pos_x, double pos_y);
 
 		void move(size_t particleIndex, size_t old_row, size_t old_col, size_t new_row, size_t new_col);
 		void move(size_t particleIndex, size_t old_pos, size_t new_pos);
 
-		bool particleChangedCells(Particle *p, size_t *old_pos, size_t *new_pos);
+		// bool particleChangedCells(Particle *p, size_t *old_pos, size_t *new_pos);
 
-		size_t getGridIndexFromParticlePos(const pVec2& pos) {
-			const pVec2 new_pos = pos * inverse_square_diameter; // contains row and col
-			// std::cout << "inserting into grid, turning " << pos.x << "," << pos.y << " into " << static_cast<size_t>(new_pos.x) << "," << static_cast<size_t>(new_pos.y) << std::endl;
-			return getGridIndexFromRowCol(static_cast<size_t>(new_pos.y), static_cast<size_t>(new_pos.x));
+		size_t getGridIndexFromParticlePos(double pos_x, double pos_y) {
+			const double new_pos_x = pos_x * inverse_square_diameter;
+			const double new_pos_y = pos_y * inverse_square_diameter;
+			return getGridIndexFromRowCol(static_cast<size_t>(new_pos_y), static_cast<size_t>(new_pos_x));
 		}
 
 		constexpr size_t getGridIndexFromRowCol(size_t row, size_t col) {

@@ -3,6 +3,9 @@
 
 #include "Spawner.h"
 #include <vector>
+#include "ParticleArray.h"
+
+#define GRID_PARTICLE_SIZE 5 // VERY bad workaround, in the future change mentions to this
 
 #define SUBSTEPS 8
 
@@ -17,8 +20,8 @@ typedef struct {
 
 class Sandbox {
 	protected:
-		Particle *particles;
-		
+		ParticleArray particles;
+
 		Vertex *vertices;
 		// size_t len_vertices; not needed, it is always len_particles * 4
 
@@ -43,7 +46,8 @@ class Sandbox {
 		size_t len_particles;
 		size_t max_particles;
 
-		virtual void addParticle(Particle &particle) = 0;
+		// ineficient, temporary
+		virtual void addParticle(double cx, double cy, double ax, double ay, GLfloat color[4]) = 0;
 
 		virtual void clear() = 0; // allways needs to set len_particles = 0, current_tick = 0 and reset spawners, maybe wrap this with something and dont make the entire thing virtual
 
@@ -75,11 +79,7 @@ class Sandbox {
 		void addSpawner(Spawner &sp);
 
 		GLfloat * getParticleColorsFromImage(const char *filename);
-		void getAverageColor(unsigned char *image, int width, int height, GLfloat *colors, Particle *p);
-
-		constexpr unsigned int getParticleID(Particle *p) const {
-			return p - particles;
-		}
+		void getAverageColor(unsigned char *image, int width, int height, GLfloat *colors, size_t particleID);
 };
 
 #endif

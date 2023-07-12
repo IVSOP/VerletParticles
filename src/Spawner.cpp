@@ -5,6 +5,8 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
+#include <GL/glew.h>
+
 // Spawner::Spawner(spawnerFunc *func) {
 // 	this->count = 0;
 // 	this->func = func;
@@ -27,12 +29,10 @@ Spawner::Spawner(const Spawner &spawner) {
 	this->end_tick = spawner.end_tick;
 }
 
-// calls function with count and userData. function can choose to use it or not, and by default data is nullptr
-// p is a pointer that will be filled with the particle data
 // returns true if particle was created (I didn't feel like using std::optional)
-bool Spawner::nextParticle(size_t current_tick, Particle *p, unsigned int ID) {
+bool Spawner::nextParticle(size_t current_tick, unsigned int ID, double *cx, double *cy, double *ax, double *ay, double *radius, GLfloat color[4]) {
 	if (current_tick >= start_tick && current_tick <= end_tick) {
-		bool ret = func(p, count, info, ID);
+		bool ret = func(count, info, ID, cx, cy, ax, ay, radius, color);
 		this->count++;
 		return ret;
 	}
@@ -81,25 +81,43 @@ void HSV_to_RGB(const GLfloat HSV[3], GLfloat RGB[3]) {
 	}  
 }
 
-bool inCircle(Particle *p, unsigned long int count, spawnerInfo *info, unsigned int ID) {
+bool inCircle(unsigned long int count, spawnerInfo *info, unsigned int ID, double *cx, double *cy, double *ax, double *ay, double *_radius, GLfloat color[4]) {
 	if (count % 5 == 0) { // once every 5 ticks
 		double radius = 500.0f;
-		constexpr pVec2 center = {500.0f, 500.0f};
+		constexpr double center_x = 500.0f;
+		constexpr double center_y = 500.0f;
 
-		// counter will act as degrees
+		// counter will act as degrees in radians
 		double rad = (static_cast<double>(count) / 180) * M_PI;
 		// needs to be offset for center to match and then resized
-		pVec2 pos = {cos(rad), sin(rad)};
-		pos *= radius;
-		pos += center;
+		double pos_x = cos(rad);
+		double pos_y = sin(rad);
+
+		pos_x *= radius;
+		pos_y *= radius;
+
+		pos_x += center_x;
+		pos_y += center_y;
+
 		// move them to middle so they don't clip into wall and get launched
-		pVec2 offset = center - pos;
+		double offset_x = center_x - pos_x;
+		double offset_y = center_y - pos_y;
 
-		const pVec2 accel = offset * 3500.0; // since this is already calculated might as well do some acceleration in the direction of the center
+		// since this is already calculated might as well do some acceleration in the direction of the center
+		const double accel_x = offset_x * 3500.0;
+		const double accel_y = offset_y * 3500.0;
 
-		offset /= 20; // 20 = radius
+		offset_x /= 20; // 20 = radius
+		offset_y /= 20;
 
-		pos += offset;
+		pos_x += offset_x;
+		pos_y += offset_y;
+
+		*cx = pos_x;
+		*cy = pos_y;
+		*ax = accel_x;
+		*ay = accel_y;
+		*_radius = info->particle_radius;
 
 		if (info->color_feed == nullptr) {
 			// GLfloat HSV[3] = {
@@ -111,11 +129,16 @@ bool inCircle(Particle *p, unsigned long int count, spawnerInfo *info, unsigned 
 			// RGBA[3] = 1.0f;
 			// HSV_to_RGB(HSV, RGBA);
 
-			GLfloat RGBA[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+			color[0] = 1.0f;
+			color[1] = 1.0f;
+			color[2] = 1.0f;
+			color[3] = 1.0f;
 
-			*p = Particle(pos, info->particle_radius, accel, RGBA);
 		} else {
-			*p = Particle(pos, info->particle_radius, accel, &(info->color_feed[ID * 4]));
+			color[0] = info->color_feed[(ID * 4) + 0];
+			color[1] = info->color_feed[(ID * 4) + 1];
+			color[2] = info->color_feed[(ID * 4) + 2];
+			color[3] = info->color_feed[(ID * 4) + 3];
 		}
 		// color depends on count and cycles around
 		// this corresponds to looping HSV, but I then have to turn it into RGB
@@ -126,27 +149,43 @@ bool inCircle(Particle *p, unsigned long int count, spawnerInfo *info, unsigned 
 	return false;
 }
 
-bool inCircleReverse(Particle *p, unsigned long int count, spawnerInfo *info, unsigned int ID) {
+bool inCircleReverse(unsigned long int count, spawnerInfo *info, unsigned int ID, double *cx, double *cy, double *ax, double *ay, double *_radius, GLfloat color[4]) {
 	if (count % 5 == 0) { // once every 5 ticks
 		double radius = 500.0f;
-		constexpr pVec2 center = {500.0f, 500.0f};
+		constexpr double center_x = 500.0f;
+		constexpr double center_y = 500.0f;
 
 		// counter will act as degrees
 		double rad = (static_cast<double>(count) / 180) * M_PI;
 		// needs to be offset for center to match and then resized
-		pVec2 pos = {sin(rad), cos(rad),};
-		pos *= radius;
-		pos += center;
+		double pos_x = sin(rad);
+		double pos_y = cos(rad);
+
+		pos_x *= radius;
+		pos_y *= radius;
+
+		pos_x += center_x;
+		pos_y += center_y;
+
 		// move them to middle so they don't clip into wall and get launched
-		pVec2 offset = center - pos;
+		double offset_x = center_x - pos_x;
+		double offset_y = center_y - pos_y;
 
-		const pVec2 accel = offset * 3500.0; // since this is already calculated might as well do some acceleration in the direction of the center
+		// since this is already calculated might as well do some acceleration in the direction of the center
+		const double accel_x = offset_x * 3500.0;
+		const double accel_y = offset_y * 3500.0;
 
-		offset /= 20; // 20 = radius
+		offset_x /= 20; // 20 = radius
+		offset_y /= 20;
 
-		pos += offset;
+		pos_x += offset_x;
+		pos_y += offset_y;
 
-		// std::cout << pos.x << "," << pos.y << std::endl;
+		*cx = pos_x;
+		*cy = pos_y;
+		*ax = accel_x;
+		*ay = accel_y;
+		*_radius = info->particle_radius;
 
 		// color depends on count and cycles around
 		// this corresponds to looping HSV, but I then have to turn it into RGB
@@ -161,11 +200,15 @@ bool inCircleReverse(Particle *p, unsigned long int count, spawnerInfo *info, un
 			// RGBA[3] = 1.0f;
 			// HSV_to_RGB(HSV, RGBA);
 
-			GLfloat RGBA[4] = {1.0f, 1.0f, 1.0f, 1.0f};
-
-			*p = Particle(pos, info->particle_radius, accel, RGBA);
+			color[0] = 1.0f;
+			color[1] = 1.0f;
+			color[2] = 1.0f;
+			color[3] = 1.0f;
 		} else {
-			*p = Particle(pos, info->particle_radius, accel, &(info->color_feed[ID * 4]));
+			color[0] = info->color_feed[(ID * 4) + 0];
+			color[1] = info->color_feed[(ID * 4) + 1];
+			color[2] = info->color_feed[(ID * 4) + 2];
+			color[3] = info->color_feed[(ID * 4) + 3];
 		}
 		return true;		
 	}
@@ -173,14 +216,18 @@ bool inCircleReverse(Particle *p, unsigned long int count, spawnerInfo *info, un
 	return false;
 }
 
-bool centerSpawner(Particle *p, unsigned long int count, spawnerInfo *info, unsigned int ID) {
+bool centerSpawner(unsigned long int count, spawnerInfo *info, unsigned int ID, double *cx, double *cy, double *ax, double *ay, double *_radius, GLfloat color[4]) {
 	if (count % 2 == 0) { // once every 2 ticks
-		const pVec2 center = info->center;
+		// not needed aparently
+		const double center_x = info->cx;
+		const double center_y = info->cy;
+
 
 		// counter will act as degrees
 		double rad = (static_cast<double>(count) / 180) * M_PI;
 		// needs to be offset for center to match and then resized
-		const pVec2 accel = pVec2{cos(rad), sin(rad)} * 1000000.0;
+		const double accel_x = cos(rad) * 1000000.0;
+		const double accel_y = sin(rad) * 1000000.0;
 
 		GLfloat HSV[3] = {
 			static_cast<GLfloat>(1 + (count % 359)),
@@ -191,21 +238,40 @@ bool centerSpawner(Particle *p, unsigned long int count, spawnerInfo *info, unsi
 		RGBA[3] = 1.0f;
 		HSV_to_RGB(HSV, RGBA);
 
-		*p = Particle(center, (count % 20) + 5, accel, RGBA);
+		*cx = center_x;
+		*cy = center_y;
+		*ax = accel_x;
+		*ay = accel_y;
+		*_radius = (count % 20) + 5;
+
+		color[0] = RGBA[0];
+		color[1] = RGBA[1];
+		color[2] = RGBA[2];
+		color[3] = RGBA[3];
+
 		return true;
 	}
 
 	return false;
 }
 
-bool centerSpawnerFixedSize(Particle *p, unsigned long int count, spawnerInfo *info, unsigned int ID) {
+bool centerSpawnerFixedSize(unsigned long int count, spawnerInfo *info, unsigned int ID, double *cx, double *cy, double *ax, double *ay, double *_radius, GLfloat color[4]) {
 	if (count % 2 == 0) { // once every 2 ticks
-		const pVec2 center = info->center;
+		// not needed aparently
+		const double center_x = info->cx;
+		const double center_y = info->cy;
 
 		// counter will act as degrees
 		double rad = (static_cast<double>(count) / 180) * M_PI;
 		// needs to be offset for center to match and then resized
-		const pVec2 accel = pVec2{cos(rad), sin(rad)} * 1000000.0;
+		const double accel_x = cos(rad) * 1000000.0;
+		const double accel_y = sin(rad) * 1000000.0;
+
+		*cx = center_x;
+		*cy = center_y;
+		*ax = accel_x;
+		*ay = accel_y;
+		*_radius = info->particle_radius;
 
 		if (info->color_feed == nullptr) {
 			// GLfloat HSV[3] = {
@@ -217,11 +283,15 @@ bool centerSpawnerFixedSize(Particle *p, unsigned long int count, spawnerInfo *i
 			// RGBA[3] = 1.0f;
 			// HSV_to_RGB(HSV, RGBA);
 
-			GLfloat RGBA[4] = {1.0f, 1.0f, 1.0f, 1.0f};
-
-			*p = Particle(center, info->particle_radius, accel, RGBA);
+			color[0] = 1.0f;
+			color[1] = 1.0f;
+			color[2] = 1.0f;
+			color[3] = 1.0f;
 		} else {
-			*p = Particle(center, info->particle_radius, accel, &(info->color_feed[ID * 4]));
+			color[0] = info->color_feed[(ID * 4) + 0];
+			color[1] = info->color_feed[(ID * 4) + 1];
+			color[2] = info->color_feed[(ID * 4) + 2];
+			color[3] = info->color_feed[(ID * 4) + 3];
 		}
 		return true;
 	}
@@ -229,10 +299,8 @@ bool centerSpawnerFixedSize(Particle *p, unsigned long int count, spawnerInfo *i
 	return false;
 }
 
-#include <stdio.h>
-
 // spawns particles in place and applies acceleration present in info
-bool fixedSpawner(Particle *p, unsigned long int count, spawnerInfo *info, unsigned int ID) {
+bool fixedSpawner(unsigned long int count, spawnerInfo *info, unsigned int ID, double *cx, double *cy, double *ax, double *ay, double *_radius, GLfloat color[4]) {
 	if (count % 2 == 0) {
 		// GLfloat HSV[3] = {
 		// 	static_cast<GLfloat>(1 + (count % 359)),
@@ -242,12 +310,25 @@ bool fixedSpawner(Particle *p, unsigned long int count, spawnerInfo *info, unsig
 		// RGBA[4];
 		// RGBA[3] = 1.0f;
 		// HSV_to_RGB(HSV, RGBA);
+
+		*cx = info->cx;
+		*cy = info->cy;
+		*ax = info->ax;
+		*ay = info->ay;
+		*_radius = info->particle_radius;
+
 		if (info->color_feed == nullptr) {
-			GLfloat RGBA[4] = {1.0f, 1.0f, 1.0f, 1.0f}; // is this needed? wont even get drawn
-			*p = Particle(info->center, info->particle_radius, info->accel, RGBA);
+			// is this needed? wont even get drawn
+			color[0] = 1.0f;
+			color[1] = 1.0f;
+			color[2] = 1.0f;
+			color[3] = 1.0f;
 
 		} else {
-			*p = Particle(info->center, info->particle_radius, info->accel, &(info->color_feed[ID * 4]));
+			color[0] = info->color_feed[(ID * 4) + 0];
+			color[1] = info->color_feed[(ID * 4) + 1];
+			color[2] = info->color_feed[(ID * 4) + 2];
+			color[3] = info->color_feed[(ID * 4) + 3];
 		}
 		return true;
 	}

@@ -16,11 +16,23 @@ GridSandbox::~GridSandbox() {
 	thpool_destroy(thpool);
 }
 
-void GridSandbox::addParticle(Particle &particle) {
-	this->particles[this->len_particles] = particle; // will this copy the struct??? yes
-	addColorToParticle(len_particles, particle.color);
+void GridSandbox::addParticle(double cx, double cy, double ax, double ay, GLfloat color[4]) {
+	particles.current_x[len_particles] = cx;
+	particles.current_y[len_particles] = cy;
+	particles.old_x[len_particles] = cx;
+	particles.old_y[len_particles] = cy;
+	particles.accel_x[len_particles] = ax;
+	particles.accel_y[len_particles] = ay;
 
-	grid.insertIntoGrid(this->len_particles, particle.current_pos);
+	// is this needed??????????????????????????????????/ I don't think it's ever used
+	particles.color[len_particles] = color[0];
+	particles.color[len_particles + 1] = color[1];
+	particles.color[len_particles + 2] = color[2];
+	particles.color[len_particles + 3] = color[3];
+	
+	addColorToParticle(len_particles, color);
+
+	grid.insertIntoGrid(this->len_particles, cx, cy);
 	this->len_particles ++;
 }
 
@@ -28,7 +40,7 @@ void GridSandbox::addParticle(Particle &particle) {
 // However this makes it non deterministic
 // Making update + grid insertions at the same time but all in one core was actually slower as well
 void GridSandbox::updatePositions(double dt) {
-	int i, start, end;
+	size_t i, start, end;
 
 	const size_t particlesPerThread = this->len_particles / MAX_THREADS;
 	// printf("%ld\n", particlesPerThread);
@@ -41,7 +53,7 @@ void GridSandbox::updatePositions(double dt) {
 	// printf("There are %ld particles\n", len_particles);
 	for (i = 0; i < MAX_THREADS; i++) {
 		// printf("[%d] start %d end %d\n", i, start, end);
-		args[i] = UpdateArgs(start, end, this->particles, dt, this->pixelsX, this->pixelsY, &this->grid);
+		args[i] = UpdateArgs(start, end, &this->particles, dt, this->pixelsX, this->pixelsY, &this->grid);
 		thpool_add_work(this->thpool, updatePositionsThread, args + i);
 		// updatePositionsThread(args + i);
 
@@ -63,27 +75,25 @@ void updatePositionsThread(void *args) {
 	const UpdateArgs *info = (UpdateArgs *)args;
 	
 	size_t i;
-	Particle *p;
-	double radius;
+	constexpr double radius = GRID_PARTICLE_SIZE;
+	ParticleArray *p = info->particles;
 
 	// printf("Parsing from %ld to %ld\n", info->start, info->end);
 
 	for (i = info->start; i < info->end; i++) {
-		p = &(info->particles[i]);
-		p->updatePosition(info->dt);
+		p->updateParticlePosition(i, info->dt);
 
-		radius = p->radius;
 		// applying constraint
-		if (p->current_pos.x + radius > info->pixelsX) {
-			p->current_pos.x = info->pixelsX - radius;
-		} else if (p->current_pos.x - radius < 0) {
-			p->current_pos.x = 0 + radius;
+		if (p->current_x[i] + radius > info->pixelsX) {
+			p->current_x[i] = info->pixelsX - radius;
+		} else if (p->current_x[i] - radius < 0) {
+			p->current_x[i] = 0 + radius;
 		}
 
-		if (p->current_pos.y + radius > info->pixelsY) {
-			p->current_pos.y = info->pixelsY - radius;
-		} else if (p->current_pos.y - radius < 0) {
-			p->current_pos.y = 0 + radius;
+		if (p->current_y[i] + radius > info->pixelsY) {
+			p->current_y[i] = info->pixelsY - radius;
+		} else if (p->current_y[i] - radius < 0) {
+			p->current_y[i] = 0 + radius;
 		}
 
 	}
@@ -113,10 +123,10 @@ void updatePositionsThread(void *args) {
 
 struct GridArgs {
 	int start, end;
-	Particle *particles;
+	ParticleArray *particles;
 	Grid *grid;
 
-	GridArgs(int _start, int _end, Particle *_particles, Grid *_grid)
+	GridArgs(int _start, int _end, ParticleArray *_particles, Grid *_grid)
 	: start(_start), end(_end), particles(_particles), grid(_grid)
 	{}
 };
@@ -130,10 +140,7 @@ void insertIntoGrid(void *args) {
 // if more than one particle is in a cell,
 // the order of insertion matters
 void GridSandbox::insertIntoGrid() {
-	size_t i;
-	for (i = 0; i < len_particles; i++) {
-		grid.insertIntoGrid(i, particles[i].current_pos);
-	}
+	grid.insertIntoGrid(0, this->len_particles, &this->particles);
 }
 
 // NOTE: I assume the math here checks out
@@ -232,22 +239,22 @@ void collideParticlesFromTo(void *args) {
 // checks all particles from centerCell vs all particles from secondCell, as long as particles do not have the same index
 void GridSandbox::collideParticlesBetweenCells(GridCell *centerCell, GridCell *secondCell) {
 	size_t i, j;
-	Particle *p1, *p2;
+	size_t ID_A, ID_B;
 
 	for (i = 0; i < centerCell->len_particles; i++) {
-		p1 = &(particles[centerCell->particle_idx[i]]);
+		ID_A = centerCell->particle_idx[i];
 
 		for (j = i + 1; j < secondCell->len_particles; j++) {
-			p2 = &(particles[secondCell->particle_idx[j]]);
+			ID_B = secondCell->particle_idx[j];
 
-			collideParticles(p1, p2);
+			collideParticles(ID_A, ID_B);
 		}
 	}
 }
 
 void GridSandbox::collideParticlesBetweenCellsV2(GridCell *centerCell, size_t row, size_t col) {
 	size_t i, j;
-	Particle *p1, *p2;
+	size_t ID_A, ID_B;
 
 	// if it is 0 - 1 will overflow and end up bigger anyway, no need to check
 	if (row >= grid.rows || col >= grid.cols) {
@@ -257,128 +264,103 @@ void GridSandbox::collideParticlesBetweenCellsV2(GridCell *centerCell, size_t ro
 	GridCell *secondCell = grid.get(row, col);
 
 	for (i = 0; i < centerCell->len_particles; i++) {
-		p1 = &(particles[centerCell->particle_idx[i]]);
+		ID_A = centerCell->particle_idx[i];
 
 		for (j = 0; j < secondCell->len_particles; j++) {
-			p2 = &(particles[secondCell->particle_idx[j]]);
+			ID_B = secondCell->particle_idx[j];
 
-			collideParticles(p1, p2);
+			collideParticles(ID_A, ID_B);
 		}
 	}
 }
 
 // assumes radiuses are the same
-void GridSandbox::collideParticles(Particle *p1, Particle *p2) {
-	pVec2 collisionAxis;
+void GridSandbox::collideParticles(size_t ID_A, size_t ID_B) {
+	double collisionAxis_x, collisionAxis_y;
 	double dist;
 	constexpr double response_coef = 0.75f;
 	double delta;
 	const double min_dist = grid.square_diameter; // minimum distance between each other for there to be a collision
 
-	collisionAxis = p1->current_pos - p2->current_pos;
+	collisionAxis_x = particles.current_x[ID_A] - particles.current_x[ID_B];
+	collisionAxis_y = particles.current_y[ID_A] - particles.current_y[ID_B];;
+
 	// avoid srqt as long as possible
-	dist = (collisionAxis.x * collisionAxis.x) + (collisionAxis.y * collisionAxis.y);
+	dist = (collisionAxis_x * collisionAxis_x) + (collisionAxis_y * collisionAxis_y);
 	
 	if (dist < min_dist * min_dist) {
 
 		dist = sqrt(dist);
-		collisionAxis /= dist;
+		collisionAxis_x /= dist;
+		collisionAxis_y /= dist;
 
 		delta = 0.5f * response_coef * (dist - min_dist);
 
-		p1->current_pos -= collisionAxis * (0.5 * delta);
-		p2->current_pos += collisionAxis * (0.5 * delta);
+		particles.current_x[ID_A] -= collisionAxis_x * (0.5 * delta);
+		particles.current_y[ID_A] -= collisionAxis_y * (0.5 * delta);
+
+		particles.current_x[ID_B] += collisionAxis_x * (0.5 * delta);
+		particles.current_y[ID_B] += collisionAxis_y * (0.5 * delta);
 	}
 }
-
-// void GridSandbox::collideParticles(Particle *p1, Particle *p2) {
-// 	pVec2 collisionAxis, n;
-// 	double dist, min_dist;
-// 	const double response_coef = 0.75f;
-// 	double mass_ratio_1, mass_ratio_2, delta;
-// 	double p1_radius, p2_radius;
-
-// 	p1_radius = p1->radius;
-// 	p2_radius = p2->radius;
-
-// 	collisionAxis = p1->current_pos - p2->current_pos;
-// 	min_dist = p1_radius + p2_radius;
-// 	dist = (collisionAxis.x * collisionAxis.x) + (collisionAxis.y * collisionAxis.y);
-// 	// avoid srqt as long as possible
-
-	
-// 	if (dist < min_dist * min_dist) {
-// 		printf("colliding particles %ld and %ld\n", p1 - particles, p2 - particles);
-		
-// 		dist = sqrt(dist);
-// 		n = collisionAxis / dist;
-		
-// 		mass_ratio_1 = p1_radius / (p1_radius + p2_radius);
-// 		mass_ratio_2 = p2_radius / (p1_radius + p2_radius);
-
-// 		delta = 0.5f * response_coef * (dist - min_dist);
-
-// 		p1->current_pos -= n * (mass_ratio_2 * delta);
-// 		p2->current_pos += n * (mass_ratio_1 * delta);
-// 	}
-// }
 
 // separate funciton to avoid an extra if in the normal one
 void GridSandbox::collideParticlesSameCell(GridCell *cell) {
 	size_t i, j;
-	Particle *p1, *p2;
+	size_t ID_A, ID_B;
 	for (i = 0; i < cell->len_particles; i++) {
-		p1 = &(particles[cell->particle_idx[i]]);
+		ID_A = cell->particle_idx[i];
 		for (j = i + 1; j < cell->len_particles; j++) {
-			p2 = &(particles[cell->particle_idx[j]]);
-			collideParticles(p1, p2);
+			ID_B = cell->particle_idx[j];
+			collideParticles(ID_A, ID_B);
 		}
 	}
 }
 
 // dumps each row into a file with the ID of each particle
 void GridSandbox::dumpGridToFile() {
-	FILE *file = fopen("grid_dump.csv", "w");
-	GridCell *cell;
-	Particle *p;
-	int len;
+	exit(10);
+	// FILE *file = fopen("grid_dump.csv", "w");
+	// GridCell *cell;
+	// Particle *p;
+	// int len;
 
-	char buff[16];
+	// char buff[16];
 
-	size_t row, col;
-	for (row = 0; row < grid.rows; row++) {
-		for (col = 0; col < grid.cols - 1; col++) {
-			// for now I assume in the end 1 particle per grid
-			cell = grid.get(row, col);
-			if (cell->len_particles != 0) {
-				p = &(particles[cell->particle_idx[0]]);
-				// printf("printing %ld %ld, particle is in %f,%f\n", row, col, particles[cell->particle_idx[0]].current_pos.x, particles[cell->particle_idx[0]].current_pos.y);
-				len = snprintf(buff, 16, "%d,", getParticleID(p));
-				fwrite(buff, 1, len, file);
-			} else {
-				if (cell->len_particles > 1) { // used as a check to make sure
-					fprintf(stderr, "More than one particle in cell row %ld col %ld\n", row, col);
-					exit(10);
-				}
-				buff[0] = ',';
-				fwrite(buff + 0, 1, 1, file);
-			}
+	// size_t row, col;
+	// for (row = 0; row < grid.rows; row++) {
+	// 	for (col = 0; col < grid.cols - 1; col++) {
+	// 		// for now I assume in the end 1 particle per grid
+	// 		cell = grid.get(row, col);
+	// 		if (cell->len_particles != 0) {
+	// 			p = &(particles[cell->particle_idx[0]]);
+	// 			// printf("printing %ld %ld, particle is in %f,%f\n", row, col, particles[cell->particle_idx[0]].current_pos.x, particles[cell->particle_idx[0]].current_pos.y);
+	// 			len = snprintf(buff, 16, "%d,", getParticleID(p));
+	// 			fwrite(buff, 1, len, file);
+	// 		} else {
+	// 			if (cell->len_particles > 1) { // used as a check to make sure
+	// 				fprintf(stderr, "More than one particle in cell row %ld col %ld\n", row, col);
+	// 				exit(10);
+	// 			}
+	// 			buff[0] = ',';
+	// 			fwrite(buff + 0, 1, 1, file);
+	// 		}
 
-			// itoa()?? idc if it is slow
-		}
-		// final iteration is out of loop
-		cell = grid.get(row, col);
-		if (cell->len_particles != 0) {
-			p = &(particles[cell->particle_idx[0]]);
-			len = snprintf(buff, 16, "%d\n", getParticleID(p));
-			fwrite(buff, 1, len, file);
-		} else {
-			buff[0] = ','; buff[1] = '\n';
-			fwrite(buff + 0, 1, 2, file);
-		}
-	}
+	// 		// itoa()?? idc if it is slow
+	// 	}
+	// 	// final iteration is out of loop
+	// 	cell = grid.get(row, col);
+	// 	if (cell->len_particles != 0) {
+	// 		p = &(particles[cell->particle_idx[0]]);
+	// 		len = snprintf(buff, 16, "%d\n", getParticleID(p));
+	// 		fwrite(buff, 1, len, file);
+	// 	} else {
+	// 		buff[0] = ','; buff[1] = '\n';
+	// 		fwrite(buff + 0, 1, 2, file);
+	// 	}
+	// }
 
-	fclose(file);
+	// fclose(file);
 }
 
 // #define STB_IMAGE_IMPLEMENTATION
@@ -507,41 +489,43 @@ void GridSandbox::clear() {
 // due to erros like particle being .005 away from next cell, there might be more than one particle per cell
 // in those cases, remaining particles get black since color array was calloc'd
 GLfloat *GridSandbox::parseColorsByGrid(GLfloat *colors) {
-	GridCell *cell;
-	unsigned int ID;
+	exit(10);
+	return(nullptr);
+	// GridCell *cell;
+	// unsigned int ID;
 
-	GLfloat *final_colors = (GLfloat *)calloc(4 * grid.size, sizeof(GLfloat));
+	// GLfloat *final_colors = (GLfloat *)calloc(4 * grid.size, sizeof(GLfloat));
 
-	size_t row, col, offset, offset2;
-	for (row = 0; row < grid.rows; row++) {
-		offset = row * grid.cols;
-		for (col = 0; col < grid.cols; col++) {
-			offset2 = offset + col;
-			cell = grid.get(row, col);
+	// size_t row, col, offset, offset2;
+	// for (row = 0; row < grid.rows; row++) {
+	// 	offset = row * grid.cols;
+	// 	for (col = 0; col < grid.cols; col++) {
+	// 		offset2 = offset + col;
+	// 		cell = grid.get(row, col);
 			
-			if (cell->len_particles != 0) {
-				ID = getParticleID(&(particles[cell->particle_idx[0]]));
+	// 		if (cell->len_particles != 0) {
+	// 			ID = getParticleID(&(particles[cell->particle_idx[0]]));
 
-				final_colors[ID + 0] = colors[offset2 + 0];
-				final_colors[ID + 1] = colors[offset2 + 1];
-				final_colors[ID + 2] = colors[offset2 + 2];
-				final_colors[ID + 3] = colors[offset2 + 3];
+	// 			final_colors[ID + 0] = colors[offset2 + 0];
+	// 			final_colors[ID + 1] = colors[offset2 + 1];
+	// 			final_colors[ID + 2] = colors[offset2 + 2];
+	// 			final_colors[ID + 3] = colors[offset2 + 3];
 
 
-				// printf("setting colors for ID %d %f %f %f %f\n", ID, final_colors[ID + 0], final_colors[ID + 1], final_colors[ID + 2], final_colors[ID + 3]);
-			}
+	// 			// printf("setting colors for ID %d %f %f %f %f\n", ID, final_colors[ID + 0], final_colors[ID + 1], final_colors[ID + 2], final_colors[ID + 3]);
+	// 		}
 
-			// if (cell->len_particles > 1) { // used as a check to make sure 1 particle per cell
-				// fprintf(stderr, "More than one particle in cell row %ld col %ld\n", row, col);
-				// printf("particle locations are:\n");
-				// for (int i = 1; i < cell->len_particles; i++) {
-					// printf("%f %f\n", particles[cell->particle_idx[i]].current_pos.x, particles[cell->particle_idx[i]].current_pos.y);
-				// }
-				// exit(10);
-			// }
-		}
-	}
+	// 		// if (cell->len_particles > 1) { // used as a check to make sure 1 particle per cell
+	// 			// fprintf(stderr, "More than one particle in cell row %ld col %ld\n", row, col);
+	// 			// printf("particle locations are:\n");
+	// 			// for (int i = 1; i < cell->len_particles; i++) {
+	// 				// printf("%f %f\n", particles[cell->particle_idx[i]].current_pos.x, particles[cell->particle_idx[i]].current_pos.y);
+	// 			// }
+	// 			// exit(10);
+	// 		// }
+	// 	}
+	// }
 
-	return final_colors;
+	// return final_colors;
 }
 

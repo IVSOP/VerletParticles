@@ -1,35 +1,35 @@
 #ifndef SPAWNER_H
 #define SPAWNER_H
 
-#include "Particle.h"
+// for GLfloat, need to rework this
+#include <GL/glew.h>
 
 struct spawnerInfo {
-	pVec2 center;
+	double cx, cy, ax, ay;
 	double particle_radius;
 	GLfloat *color_feed; // color lookup for each particle ID
-	pVec2 accel;
 
-	spawnerInfo(const pVec2& _center, double _particle_radius, GLfloat *_color_feed)
-		: center(_center), particle_radius(_particle_radius), color_feed(_color_feed)
+	spawnerInfo(double _cx, double _cy, double _particle_radius, GLfloat *_color_feed)
+		: cx(_cx), cy(_cy), particle_radius(_particle_radius), color_feed(_color_feed)
 	{}
 
-	spawnerInfo(const pVec2& _center, double _particle_radius, GLfloat *_color_feed, const pVec2& _accel)
-		: center(_center), particle_radius(_particle_radius), color_feed(_color_feed), accel(_accel)
+	spawnerInfo(double _cx, double _cy, double _ax, double _ay, double _particle_radius, GLfloat *_color_feed)
+		: cx(_cx), cy(_cy), ax(_ax), ay(_ay), particle_radius(_particle_radius), color_feed(_color_feed)
 	{}
 };
 
-typedef bool spawnerFunc (Particle *p, unsigned long int count, spawnerInfo *info, unsigned int ID);
+typedef bool spawnerFunc (unsigned long int count, spawnerInfo *info, unsigned int ID, double *cx, double *cy, double *ax, double *ay, double *radius, GLfloat color[4]);
 
 // some examples of spawner funcs
 
 
-bool inCircle(Particle *p, unsigned long int count, spawnerInfo *info, unsigned int ID);
-bool inCircleReverse(Particle *p, unsigned long int count, spawnerInfo *info, unsigned int ID);
+bool inCircle(unsigned long int count, spawnerInfo *info, unsigned int ID, double *cx, double *cy, double *ax, double *ay, double *radius, GLfloat color[4]);
+bool inCircleReverse(unsigned long int count, spawnerInfo *info, unsigned int ID, double *cx, double *cy, double *ax, double *ay, double *radius, GLfloat color[4]);
 // from center rotates in a circle
-bool centerSpawner(Particle *p, unsigned long int count, spawnerInfo *info, unsigned int ID);
-bool centerSpawnerFixedSize(Particle *p, unsigned long int count, spawnerInfo *info, unsigned int ID);
+bool centerSpawner(unsigned long int count, spawnerInfo *info, unsigned int ID, double *cx, double *cy, double *ax, double *ay, double *radius, GLfloat color[4]);
+bool centerSpawnerFixedSize(unsigned long int count, spawnerInfo *info, unsigned int ID, double *cx, double *cy, double *ax, double *ay, double *radius, GLfloat color[4]);
 
-bool fixedSpawner(Particle *p, unsigned long int count, spawnerInfo *info, unsigned int ID);
+bool fixedSpawner(unsigned long int count, spawnerInfo *info, unsigned int ID, double *cx, double *cy, double *ax, double *ay, double *radius, GLfloat color[4]);
 
 class Spawner {
 	private:
@@ -65,7 +65,7 @@ class Spawner {
 		// if it chose to spawn particle, returns true
 		// else returns false
 		// it would be more efficient to delete spawner when ticks run out, but wont do it for now
-		bool nextParticle(size_t current_tick, Particle *p, unsigned int ID);
+		bool nextParticle(size_t current_tick, unsigned int ID, double *cx, double *cy, double *ax, double *ay, double *radius, GLfloat color[4]);
 };
 
 

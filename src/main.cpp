@@ -27,14 +27,14 @@ int main() {
 	// center point and particle radius, if they decide to use it
 	// spawnerInfo info1(pVec2(500, 500), GRID_PARTICLE_SIZE, nullptr);
 	// spawnerInfo info2(pVec2(500, 500), GRID_PARTICLE_SIZE, nullptr);
-	spawnerInfo info3(pVec2(GRID_PARTICLE_SIZE, 1000 - GRID_PARTICLE_SIZE), GRID_PARTICLE_SIZE, nullptr, pVec2(325000.0, 0));
-	spawnerInfo info4(pVec2(GRID_PARTICLE_SIZE, 1000 - (GRID_PARTICLE_SIZE * 3)), GRID_PARTICLE_SIZE, nullptr, pVec2(320000.0, 0));
-	spawnerInfo info5(pVec2(GRID_PARTICLE_SIZE, 1000 - (GRID_PARTICLE_SIZE * 5)), GRID_PARTICLE_SIZE, nullptr, pVec2(315000.0, 0));
-	spawnerInfo info6(pVec2(1000 - GRID_PARTICLE_SIZE, 1000 - GRID_PARTICLE_SIZE), GRID_PARTICLE_SIZE, nullptr, pVec2(- 325000.0, 0));
-	spawnerInfo info7(pVec2(GRID_PARTICLE_SIZE, 1000 - (GRID_PARTICLE_SIZE * 7)), GRID_PARTICLE_SIZE, nullptr, pVec2(305000.0, 0));
-	spawnerInfo info8(pVec2(GRID_PARTICLE_SIZE, 1000 - (GRID_PARTICLE_SIZE * 9)), GRID_PARTICLE_SIZE, nullptr, pVec2(295000.0, 0));
-	spawnerInfo info9(pVec2(GRID_PARTICLE_SIZE, 1000 - (GRID_PARTICLE_SIZE * 11)), GRID_PARTICLE_SIZE, nullptr, pVec2(285000.0, 0));
-	spawnerInfo info10(pVec2(GRID_PARTICLE_SIZE, 1000 - (GRID_PARTICLE_SIZE * 13)), GRID_PARTICLE_SIZE, nullptr, pVec2(275000.0, 0));
+	spawnerInfo info3(GRID_PARTICLE_SIZE, 1000 - GRID_PARTICLE_SIZE, 325000.0, 0, GRID_PARTICLE_SIZE, nullptr);
+	spawnerInfo info4(GRID_PARTICLE_SIZE, 1000 - (GRID_PARTICLE_SIZE * 3), 320000.0, 0, GRID_PARTICLE_SIZE, nullptr);
+	spawnerInfo info5(GRID_PARTICLE_SIZE, 1000 - (GRID_PARTICLE_SIZE * 5), 315000.0, 0, GRID_PARTICLE_SIZE, nullptr);
+	spawnerInfo info6(1000 - GRID_PARTICLE_SIZE, 1000 - GRID_PARTICLE_SIZE, - 325000.0, 0, GRID_PARTICLE_SIZE, nullptr);
+	spawnerInfo info7(GRID_PARTICLE_SIZE, 1000 - (GRID_PARTICLE_SIZE * 7), 305000.0, 0, GRID_PARTICLE_SIZE, nullptr);
+	spawnerInfo info8(GRID_PARTICLE_SIZE, 1000 - (GRID_PARTICLE_SIZE * 9), 295000.0, 0, GRID_PARTICLE_SIZE, nullptr);
+	spawnerInfo info9(GRID_PARTICLE_SIZE, 1000 - (GRID_PARTICLE_SIZE * 11), 285000.0, 0, GRID_PARTICLE_SIZE, nullptr);
+	spawnerInfo info10(GRID_PARTICLE_SIZE, 1000 - (GRID_PARTICLE_SIZE * 13), 275000.0, 0, GRID_PARTICLE_SIZE, nullptr);
 
 	// Spawner spawner1(0, 2200, centerSpawnerFixedSize, &info2);
 	// sandbox.addSpawner(spawner1);

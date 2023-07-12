@@ -4,8 +4,6 @@
 #include "Grid.h"
 #include "Sandbox.h"
 
-#define GRID_PARTICLE_SIZE 5
-
 #include "thpool.h"
 #define MAX_THREADS 8
 
@@ -24,7 +22,7 @@ class GridSandbox : public Sandbox {
 		GridSandbox(size_t n_particles, size_t pixelsX, size_t pixelsY);
 		~GridSandbox();
 
-		void addParticle(Particle &particle);
+		void addParticle(double cx, double cy, double ax, double ay, GLfloat color[4]);
 
 		void updatePositions(double dt);
 		// void applyGravity();
@@ -35,7 +33,7 @@ class GridSandbox : public Sandbox {
 		void collideParticlesBetweenCells(GridCell *centerCell, GridCell *secondCell);
 		void collideParticlesBetweenCellsV2(GridCell *centerCell, size_t row, size_t col);
 		void collideParticlesSameCell(GridCell *cell);
-		void collideParticles(Particle *p1, Particle *p2);
+		void collideParticles(size_t ID_A, size_t ID_B);
 
 		void dumpGridToFile();
 
@@ -55,12 +53,12 @@ struct Args {
 
 struct UpdateArgs {
 	size_t start, end;
-	Particle *particles;
+	ParticleArray *particles;
 	double dt;
 	size_t pixelsX, pixelsY;
 	Grid *grid;
 
-	UpdateArgs(size_t _start, size_t _end, Particle *_particles, double _dt, size_t _pixelsX, size_t _pixelsY, Grid *_grid)
+	UpdateArgs(size_t _start, size_t _end, ParticleArray *_particles, double _dt, size_t _pixelsX, size_t _pixelsY, Grid *_grid)
 	: start(_start), end(_end), particles(_particles), dt(_dt), pixelsX(_pixelsX), pixelsY(_pixelsY), grid(_grid)
 	{}
 };
