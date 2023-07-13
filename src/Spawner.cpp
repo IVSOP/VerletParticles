@@ -30,7 +30,7 @@ Spawner::Spawner(const Spawner &spawner) {
 }
 
 // returns true if particle was created (I didn't feel like using std::optional)
-bool Spawner::nextParticle(size_t current_tick, unsigned int ID, double *cx, double *cy, double *ax, double *ay, double *radius, GLfloat color[4]) {
+bool Spawner::nextParticle(size_t current_tick, unsigned int ID, pFloat *cx, pFloat *cy, pFloat *ax, pFloat *ay, pFloat *radius, GLfloat color[4]) {
 	if (current_tick >= start_tick && current_tick <= end_tick) {
 		bool ret = func(count, info, ID, cx, cy, ax, ay, radius, color);
 		this->count++;
@@ -81,17 +81,17 @@ void HSV_to_RGB(const GLfloat HSV[3], GLfloat RGB[3]) {
 	}  
 }
 
-bool inCircle(unsigned long int count, spawnerInfo *info, unsigned int ID, double *cx, double *cy, double *ax, double *ay, double *_radius, GLfloat color[4]) {
+bool inCircle(unsigned long int count, spawnerInfo *info, unsigned int ID, pFloat *cx, pFloat *cy, pFloat *ax, pFloat *ay, pFloat *_radius, GLfloat color[4]) {
 	if (count % 5 == 0) { // once every 5 ticks
-		double radius = 500.0f;
-		constexpr double center_x = 500.0f;
-		constexpr double center_y = 500.0f;
+		pFloat radius = 500.0f;
+		constexpr pFloat center_x = 500.0f;
+		constexpr pFloat center_y = 500.0f;
 
 		// counter will act as degrees in radians
-		double rad = (static_cast<double>(count) / 180) * M_PI;
+		pFloat rad = (static_cast<pFloat>(count) / 180) * M_PI;
 		// needs to be offset for center to match and then resized
-		double pos_x = cos(rad);
-		double pos_y = sin(rad);
+		pFloat pos_x = cos(rad);
+		pFloat pos_y = sin(rad);
 
 		pos_x *= radius;
 		pos_y *= radius;
@@ -100,12 +100,12 @@ bool inCircle(unsigned long int count, spawnerInfo *info, unsigned int ID, doubl
 		pos_y += center_y;
 
 		// move them to middle so they don't clip into wall and get launched
-		double offset_x = center_x - pos_x;
-		double offset_y = center_y - pos_y;
+		pFloat offset_x = center_x - pos_x;
+		pFloat offset_y = center_y - pos_y;
 
 		// since this is already calculated might as well do some acceleration in the direction of the center
-		const double accel_x = offset_x * 3500.0;
-		const double accel_y = offset_y * 3500.0;
+		const pFloat accel_x = offset_x * 3500.0;
+		const pFloat accel_y = offset_y * 3500.0;
 
 		offset_x /= 20; // 20 = radius
 		offset_y /= 20;
@@ -149,17 +149,17 @@ bool inCircle(unsigned long int count, spawnerInfo *info, unsigned int ID, doubl
 	return false;
 }
 
-bool inCircleReverse(unsigned long int count, spawnerInfo *info, unsigned int ID, double *cx, double *cy, double *ax, double *ay, double *_radius, GLfloat color[4]) {
+bool inCircleReverse(unsigned long int count, spawnerInfo *info, unsigned int ID, pFloat *cx, pFloat *cy, pFloat *ax, pFloat *ay, pFloat *_radius, GLfloat color[4]) {
 	if (count % 5 == 0) { // once every 5 ticks
-		double radius = 500.0f;
-		constexpr double center_x = 500.0f;
-		constexpr double center_y = 500.0f;
+		pFloat radius = 500.0f;
+		constexpr pFloat center_x = 500.0f;
+		constexpr pFloat center_y = 500.0f;
 
 		// counter will act as degrees
-		double rad = (static_cast<double>(count) / 180) * M_PI;
+		pFloat rad = (static_cast<pFloat>(count) / 180) * M_PI;
 		// needs to be offset for center to match and then resized
-		double pos_x = sin(rad);
-		double pos_y = cos(rad);
+		pFloat pos_x = sin(rad);
+		pFloat pos_y = cos(rad);
 
 		pos_x *= radius;
 		pos_y *= radius;
@@ -168,12 +168,12 @@ bool inCircleReverse(unsigned long int count, spawnerInfo *info, unsigned int ID
 		pos_y += center_y;
 
 		// move them to middle so they don't clip into wall and get launched
-		double offset_x = center_x - pos_x;
-		double offset_y = center_y - pos_y;
+		pFloat offset_x = center_x - pos_x;
+		pFloat offset_y = center_y - pos_y;
 
 		// since this is already calculated might as well do some acceleration in the direction of the center
-		const double accel_x = offset_x * 3500.0;
-		const double accel_y = offset_y * 3500.0;
+		const pFloat accel_x = offset_x * 3500.0;
+		const pFloat accel_y = offset_y * 3500.0;
 
 		offset_x /= 20; // 20 = radius
 		offset_y /= 20;
@@ -216,18 +216,18 @@ bool inCircleReverse(unsigned long int count, spawnerInfo *info, unsigned int ID
 	return false;
 }
 
-bool centerSpawner(unsigned long int count, spawnerInfo *info, unsigned int ID, double *cx, double *cy, double *ax, double *ay, double *_radius, GLfloat color[4]) {
+bool centerSpawner(unsigned long int count, spawnerInfo *info, unsigned int ID, pFloat *cx, pFloat *cy, pFloat *ax, pFloat *ay, pFloat *_radius, GLfloat color[4]) {
 	if (count % 2 == 0) { // once every 2 ticks
 		// not needed aparently
-		const double center_x = info->cx;
-		const double center_y = info->cy;
+		const pFloat center_x = info->cx;
+		const pFloat center_y = info->cy;
 
 
 		// counter will act as degrees
-		double rad = (static_cast<double>(count) / 180) * M_PI;
+		pFloat rad = (static_cast<pFloat>(count) / 180) * M_PI;
 		// needs to be offset for center to match and then resized
-		const double accel_x = cos(rad) * 1000000.0;
-		const double accel_y = sin(rad) * 1000000.0;
+		const pFloat accel_x = cos(rad) * 1000000.0;
+		const pFloat accel_y = sin(rad) * 1000000.0;
 
 		GLfloat HSV[3] = {
 			static_cast<GLfloat>(1 + (count % 359)),
@@ -255,17 +255,17 @@ bool centerSpawner(unsigned long int count, spawnerInfo *info, unsigned int ID, 
 	return false;
 }
 
-bool centerSpawnerFixedSize(unsigned long int count, spawnerInfo *info, unsigned int ID, double *cx, double *cy, double *ax, double *ay, double *_radius, GLfloat color[4]) {
+bool centerSpawnerFixedSize(unsigned long int count, spawnerInfo *info, unsigned int ID, pFloat *cx, pFloat *cy, pFloat *ax, pFloat *ay, pFloat *_radius, GLfloat color[4]) {
 	if (count % 2 == 0) { // once every 2 ticks
 		// not needed aparently
-		const double center_x = info->cx;
-		const double center_y = info->cy;
+		const pFloat center_x = info->cx;
+		const pFloat center_y = info->cy;
 
 		// counter will act as degrees
-		double rad = (static_cast<double>(count) / 180) * M_PI;
+		pFloat rad = (static_cast<pFloat>(count) / 180) * M_PI;
 		// needs to be offset for center to match and then resized
-		const double accel_x = cos(rad) * 1000000.0;
-		const double accel_y = sin(rad) * 1000000.0;
+		const pFloat accel_x = cos(rad) * 1000000.0;
+		const pFloat accel_y = sin(rad) * 1000000.0;
 
 		*cx = center_x;
 		*cy = center_y;
@@ -300,7 +300,7 @@ bool centerSpawnerFixedSize(unsigned long int count, spawnerInfo *info, unsigned
 }
 
 // spawns particles in place and applies acceleration present in info
-bool fixedSpawner(unsigned long int count, spawnerInfo *info, unsigned int ID, double *cx, double *cy, double *ax, double *ay, double *_radius, GLfloat color[4]) {
+bool fixedSpawner(unsigned long int count, spawnerInfo *info, unsigned int ID, pFloat *cx, pFloat *cy, pFloat *ax, pFloat *ay, pFloat *_radius, GLfloat color[4]) {
 	if (count % 2 == 0) {
 		// GLfloat HSV[3] = {
 		// 	static_cast<GLfloat>(1 + (count % 359)),

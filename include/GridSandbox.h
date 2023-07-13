@@ -22,9 +22,9 @@ class GridSandbox : public Sandbox {
 		GridSandbox(size_t n_particles, size_t pixelsX, size_t pixelsY);
 		~GridSandbox();
 
-		void addParticle(double cx, double cy, double ax, double ay, GLfloat color[4]);
+		void addParticle(pFloat cx, pFloat cy, pFloat ax, pFloat ay, GLfloat color[4]);
 
-		void updatePositions(double dt);
+		void updatePositions(pFloat dt);
 		// void applyGravity();
 		// void applyCircleConstraint();
 		// void applyRectangleConstraint();
@@ -54,11 +54,11 @@ struct Args {
 struct UpdateArgs {
 	size_t start, end;
 	ParticleArray *particles;
-	double dt;
+	pFloat dt;
 	size_t pixelsX, pixelsY;
 	Grid *grid;
 
-	UpdateArgs(size_t _start, size_t _end, ParticleArray *_particles, double _dt, size_t _pixelsX, size_t _pixelsY, Grid *_grid)
+	UpdateArgs(size_t _start, size_t _end, ParticleArray *_particles, pFloat _dt, size_t _pixelsX, size_t _pixelsY, Grid *_grid)
 	: start(_start), end(_end), particles(_particles), dt(_dt), pixelsX(_pixelsX), pixelsY(_pixelsY), grid(_grid)
 	{}
 };

@@ -100,11 +100,11 @@ void Sandbox::calculateVertices() {
 }
 
 // returns the position in the particle matrix using the mouse pointer coordinates
-void Sandbox::getMouseClickRelativePos(size_t *row, size_t *col, double xpos, double ypos) const {
+void Sandbox::getMouseClickRelativePos(size_t *row, size_t *col, pFloat xpos, pFloat ypos) const {
 
 }
 
-void Sandbox::handleMouseClickAt(int button, int action, int mods, double xpos, double ypos) {
+void Sandbox::handleMouseClickAt(int button, int action, int mods, pFloat xpos, pFloat ypos) {
 	size_t row, col;
 	getMouseClickRelativePos(&row, &col, xpos, ypos);
 
@@ -132,10 +132,10 @@ void Sandbox::handleKeyPress(int key, int scancode, int action, int mods) {
 // #include <thread>
 
 // got lazy, assumes it went through a tick when this is called
-void Sandbox::onUpdate(double sub_dt) {
+void Sandbox::onUpdate(pFloat sub_dt) {
 	int i, size = this->spawners.size();
 	// double sub_dt = dt / SUBSTEPS;
-	double cx, cy, ax, ay, radius;
+	pFloat cx, cy, ax, ay, radius;
 	GLfloat color[4];
 	
 	// spawn particles from all spawners
@@ -161,15 +161,41 @@ void Sandbox::onUpdate(double sub_dt) {
 	current_tick ++;
 }
 
+// not threaded !?!?!?!??!?!?!?!?
 void Sandbox::applyGravity() {
-	// TEMPORARY!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	constexpr double gravity_x = 0.0;
-	constexpr double gravity_y = -1000.0;
+	// const __m256 gravityVec_x = _mm256_set1_ps(0.0f); // no need to add 0
+	const __m256 gravityVec_y = _mm256_set1_ps(-1000.0f);
 
-	size_t i;
-	for (i = 0; i < this->len_particles; i++) {
-		this->particles.accelerate(i, gravity_x, gravity_y);
+	// distinction between the two was not even needed
+	// __m256 accelVec_x;
+	__m256 accelVec_y;
+
+	// is this even efficient? getting from memory then immediately writing to that same memory??
+	// prob quick since they are unsigned
+	const size_t simdSize = this->len_particles - (this->len_particles % 8);
+
+	size_t i = 0;
+	// use more than one loop so I take up more registers at the same time or ist it not worth it??
+	for (; i < simdSize; i += 8) {
+		// load data into registers
+
+		accelVec_y =_mm256_load_ps(this->particles.accel_y + i);
+		// sub 1000 or add -1000????
+		_mm256_store_ps(this->particles.accel_y + i, _mm256_add_ps(accelVec_y, gravityVec_y));
 	}
+
+	for (; i < this->len_particles; i++) {
+		// this->particles.accelerate(i, 0.0f, -1000.0f);
+		this->particles.accel_y[i] += -1000.0f;
+	}
+
+	// original version
+	// constexpr pFloat gravity_x = 0.0;
+	// constexpr pFloat gravity_y = -1000.0;
+	// size_t i;
+	// for (i = 0; i < this->len_particles; i++) {
+	// 	this->particles.accelerate(i, gravity_x, gravity_y);
+	// }
 }
 
 void Sandbox::addSpawner(Spawner &sp) {
@@ -230,8 +256,8 @@ GLfloat * Sandbox::getParticleColorsFromImage(const char *filename) {
 void Sandbox::getAverageColor(unsigned char *image, int width, int height, GLfloat *colors, size_t particleID) {
 	// for now I assume size of 1000x1000 to be easier (same as window size and sandbox size)
 
-	const double center_x = particles.current_x[particleID];
-	const double center_y = particles.current_y[particleID];
+	const pFloat center_x = particles.current_x[particleID];
+	const pFloat center_y = particles.current_y[particleID];
 
 	const int radius = static_cast<int>(GRID_PARTICLE_SIZE),
 	diameter = 2 * radius;

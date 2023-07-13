@@ -2,7 +2,6 @@
 #define GRID_H
 
 #include "ParticleArray.h"
-// #include <iostream>
 
 #define GRID_CELL_CAPACITY 4
 

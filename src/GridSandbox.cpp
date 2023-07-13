@@ -16,7 +16,7 @@ GridSandbox::~GridSandbox() {
 	thpool_destroy(thpool);
 }
 
-void GridSandbox::addParticle(double cx, double cy, double ax, double ay, GLfloat color[4]) {
+void GridSandbox::addParticle(pFloat cx, pFloat cy, pFloat ax, pFloat ay, GLfloat color[4]) {
 	particles.current_x[len_particles] = cx;
 	particles.current_y[len_particles] = cy;
 	particles.old_x[len_particles] = cx;
@@ -39,7 +39,7 @@ void GridSandbox::addParticle(double cx, double cy, double ax, double ay, GLfloa
 // I tried making it so when particle is updated it gets inserted into grid
 // However this makes it non deterministic
 // Making update + grid insertions at the same time but all in one core was actually slower as well
-void GridSandbox::updatePositions(double dt) {
+void GridSandbox::updatePositions(pFloat dt) {
 	size_t i, start, end;
 
 	const size_t particlesPerThread = this->len_particles / MAX_THREADS;
@@ -75,7 +75,7 @@ void updatePositionsThread(void *args) {
 	const UpdateArgs *info = (UpdateArgs *)args;
 	
 	size_t i;
-	constexpr double radius = GRID_PARTICLE_SIZE;
+	constexpr pFloat radius = GRID_PARTICLE_SIZE;
 	ParticleArray *p = info->particles;
 
 	// printf("Parsing from %ld to %ld\n", info->start, info->end);
@@ -102,11 +102,11 @@ void updatePositionsThread(void *args) {
 
 // void GridSandbox::applyCircleConstraint() {
 // 	const pVec2 center = {500.0f, 500.0f};
-// 	const double radius = 500.0f;
+// 	const pFloat radius = 500.0f;
 
 // 	pVec2 to_center, n;
 // 	Particle *particle;
-// 	double dist_to_center;
+// 	pFloat dist_to_center;
 // 	size_t i;
 
 // 	for (i = 0; i < len_particles; i++) {
@@ -276,11 +276,11 @@ void GridSandbox::collideParticlesBetweenCellsV2(GridCell *centerCell, size_t ro
 
 // assumes radiuses are the same
 void GridSandbox::collideParticles(size_t ID_A, size_t ID_B) {
-	double collisionAxis_x, collisionAxis_y;
-	double dist;
-	constexpr double response_coef = 0.75f;
-	double delta;
-	const double min_dist = grid.square_diameter; // minimum distance between each other for there to be a collision
+	pFloat collisionAxis_x, collisionAxis_y;
+	pFloat dist;
+	constexpr pFloat response_coef = 0.75f;
+	pFloat delta;
+	const pFloat min_dist = grid.square_diameter; // minimum distance between each other for there to be a collision
 
 	collisionAxis_x = particles.current_x[ID_A] - particles.current_x[ID_B];
 	collisionAxis_y = particles.current_y[ID_A] - particles.current_y[ID_B];;

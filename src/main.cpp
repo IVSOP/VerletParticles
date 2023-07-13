@@ -16,6 +16,22 @@
 // }
 
 int main() {
+
+	// because I'm pretty sure my cpu doesn't support them
+	puts("Will use 256 bit vector registers and not 128 or 512. Checking for AVX2 support");
+
+	// #if defined(__AVX2__)
+	//      this checks if it has been compiled with support for avx2
+	// #endif
+
+	if(__builtin_cpu_supports("avx2")){
+        puts("It is supported");
+    } else {
+		puts("Not supported, exiting");
+		exit(1);
+	}
+
+
 	// int width, height;
 	// glfwGetWindowSize(window, &width, &height);
 #define CHECK_ALL_CELL_COLLISIONS // if you desable this, it is much faster but at a risk on jankyness

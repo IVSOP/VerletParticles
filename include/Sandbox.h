@@ -47,7 +47,7 @@ class Sandbox {
 		size_t max_particles;
 
 		// ineficient, temporary
-		virtual void addParticle(double cx, double cy, double ax, double ay, GLfloat color[4]) = 0;
+		virtual void addParticle(pFloat cx, pFloat cy, pFloat ax, pFloat ay, GLfloat color[4]) = 0;
 
 		virtual void clear() = 0; // allways needs to set len_particles = 0, current_tick = 0 and reset spawners, maybe wrap this with something and dont make the entire thing virtual
 
@@ -65,12 +65,12 @@ class Sandbox {
 
 		void calculateVertices();
 
-		void getMouseClickRelativePos(size_t *row, size_t *col, double xpos, double ypos) const;
-		void handleMouseClickAt(int button, int action, int mods, double xpos, double ypos);
+		void getMouseClickRelativePos(size_t *row, size_t *col, pFloat xpos, pFloat ypos) const;
+		void handleMouseClickAt(int button, int action, int mods, pFloat xpos, pFloat ypos);
 		void handleKeyPress(int key, int scancode, int action, int mods);
 
-		void onUpdate(double sub_dt);
-		virtual void updatePositions(double dt) = 0;
+		void onUpdate(pFloat sub_dt);
+		virtual void updatePositions(pFloat dt) = 0;
 		void applyGravity();
 		// virtual void applyCircleConstraint() = 0;
 		// virtual void applyRectangleConstraint() = 0;
