@@ -24,7 +24,12 @@ Grid::Grid(size_t pixel_width, size_t pixel_height, size_t particle_radius) {
 	// extra division (1 /...) but allows for every insert to only have to multiply by this
 	inverse_square_diameter = 1.0 / square_diameter;
 
-	// printf("Creating grid. pixelsX:%ld pixelsY:%ld square_diameter:%f cols:%ld rows:%ld\n", pixel_width, pixel_height, square_diameter, rows, cols);	
+	if (pixel_width % (2 * particle_radius) != 0 || pixel_height % (2 * particle_radius) != 0) {
+		printf("Cannot correctly divide grid\n");
+		exit(5);
+	}
+
+	printf("Creating grid. pixelsX:%ld pixelsY:%ld square_diameter:%f cols:%ld rows:%ld\n", pixel_width, pixel_height, square_diameter, rows, cols);	
 }
 
 // removes a given index, shifting remaining array
@@ -109,7 +114,7 @@ void Grid::insertIntoGrid(size_t start, size_t end, ParticleArray *particles) {
 
 #ifdef GRID_DEBUG
 		if (cell->len_particles == GRID_CELL_CAPACITY) {
-			fprintf(stderr, "Too many particles\n");
+			fprintf(stderr, "Too many particles in %lf, %lf\n", x, y);
 			exit(5);
 		}
 #endif

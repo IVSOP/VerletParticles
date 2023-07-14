@@ -36,44 +36,14 @@ void GridSandbox::addParticle(pFloat cx, pFloat cy, pFloat ax, pFloat ay, GLfloa
 	this->len_particles ++;
 }
 
+
 // I tried making it so when particle is updated it gets inserted into grid
 // However this makes it non deterministic
 // Making update + grid insertions at the same time but all in one core was actually slower as well
-// void GridSandbox::updatePositions(pFloat dt) {
-// 	size_t i, start, end;
-
-// 	const size_t particlesPerThread = this->len_particles / MAX_THREADS;
-// 	// printf("%ld\n", particlesPerThread);
-	
-// 	UpdateArgs *args = (UpdateArgs *)alloca(sizeof(UpdateArgs) * MAX_THREADS);
-
-// 	start = 0;
-// 	// thread 0 is used to fix the bad division, the math to the right is the remainder
-// 	end = particlesPerThread + (this->len_particles - MAX_THREADS * particlesPerThread);
-// 	// printf("There are %ld particles\n", len_particles    );
-// 	const pFloat dtSquared = dt * dt;
-// 	for (i = 0; i < MAX_THREADS; i++) {
-// 		// printf("[%d] start %d end %d\n", i, start, end);
-// 		args[i] = UpdateArgs(start, end, &this->particles, dtSquared, this->pixelsX, this->pixelsY, &this->grid);
-// 		thpool_add_work(this->thpool, updatePositionsThreadVector, args + i);
-// 		// updatePositionsThread(args + i);
-
-// 		// start += particlesPerThread;
-// 		start = end; // easy fix to the fact that first iteration is a bit different to compensate for remainder
-// 		end += particlesPerThread;
-// 	}
-
-// 	// // printf("\n\n\n");
-
-// 	thpool_wait(this->thpool);
-
-// 	// rebuild entire grid, can be done anywhere apparently so I put it here
-// 	grid.clear();
-// 	insertIntoGrid();
-// }
 
 // max MAX_THREADS threads
 // each thread needs to start in a position divisible by 8 (align to 32 bits)
+
 void GridSandbox::updatePositions(pFloat dt) {
 	const pFloat dtSquared = dt * dt;
 
@@ -112,7 +82,6 @@ void GridSandbox::updatePositions(pFloat dt) {
 	// rebuild entire grid, can be done anywhere apparently so I put it here
 	grid.clear();
 	insertIntoGrid();
-
 }
 
 void updatePositionsThread(void *args) {
@@ -195,17 +164,17 @@ void updatePositionsThreadVector(void *args) {
 		// makes a mask of 0s and 1s, where 1 means the value was greater
 		// if (p->current_x[i] > info->pixelsX - radius)
 		mask = _mm256_cmp_ps(current_x, _mm256_sub_ps(pixelsXVec, radiusVec), _CMP_GT_OQ); // _CMP_GT_OS signals exception for NaN values
-		newx = _mm256_blendv_ps(pixelsXVec, _mm256_sub_ps(pixelsXVec, radiusVec), mask);
+		newx = _mm256_blendv_ps(current_x, _mm256_sub_ps(pixelsXVec, radiusVec), mask);
 		
 		mask = _mm256_cmp_ps(current_x, radiusVec, _CMP_LT_OQ);
 		// this works but it is not like an else if, it performs checks even if previous condition did not fail
 		newx = _mm256_blendv_ps(newx, radiusVec, mask);
 
-		_mm256_store_ps(p->current_x + i, current_x);
+		_mm256_store_ps(p->current_x + i, newx);
 
 
-		/*possible alternative that has more mah but not reduntant checks
-				__m256 xGreaterVec = _mm256_cmp_ps(currXVec, _mm256_sub_ps(pixelsXVec, radiusVec), _CMP_GT_OQ);
+		/*possible alternative that has more math but not reduntant checks
+		__m256 xGreaterVec = _mm256_cmp_ps(currXVec, _mm256_sub_ps(pixelsXVec, radiusVec), _CMP_GT_OQ);
 		__m256 xLessVec = _mm256_cmp_ps(currXVec, radiusVec, _CMP_LT_OQ);
 
 		__m256 newXVec = _mm256_blendv_ps(currXVec, _mm256_sub_ps(pixelsXVec, radiusVec), _mm256_and_ps(xGreaterVec, _mm256_cmp_ps(currXVec, radiusVec, _CMP_GT_OQ)));
@@ -228,11 +197,11 @@ void updatePositionsThreadVector(void *args) {
 		_mm256_store_ps(p->accel_y + i, _mm256_setzero_ps());
 
 		mask = _mm256_cmp_ps(current_y, _mm256_sub_ps(pixelsYVec, radiusVec), _CMP_GT_OQ); // _CMP_GT_OS signals exception for NaN values
-		newy = _mm256_blendv_ps(pixelsXVec, _mm256_sub_ps(pixelsYVec, radiusVec), mask);
+		newy = _mm256_blendv_ps(current_y, _mm256_sub_ps(pixelsYVec, radiusVec), mask);
 		mask = _mm256_cmp_ps(current_y, radiusVec, _CMP_LT_OQ);
 		newy = _mm256_blendv_ps(newy, radiusVec, mask);
 
-		_mm256_store_ps(p->current_y + i, current_y);
+		_mm256_store_ps(p->current_y + i, newy);
 
 		// printf("alignment: %ld\n", ((size_t)(p->accel_x + i)) % 32); // must be 0 allways, otherwise segfault
 	}
@@ -252,16 +221,16 @@ void updatePositionsThreadVector(void *args) {
 			p->accel_y[i] = 0;
 
 		// applying constraint
-		if (p->current_x[i] + radius > info->pixelsX) {
+		if (p->current_x[i] > info->pixelsX - radius) {
 			p->current_x[i] = info->pixelsX - radius;
-		} else if (p->current_x[i] - radius < 0) {
-			p->current_x[i] = 0 + radius;
+		} else if (p->current_x[i] < radius) {
+			p->current_x[i] = radius;
 		}
 
-		if (p->current_y[i] + radius > info->pixelsY) {
+		if (p->current_y[i] > info->pixelsY - radius) {
 			p->current_y[i] = info->pixelsY - radius;
-		} else if (p->current_y[i] - radius < 0) {
-			p->current_y[i] = 0 + radius;
+		} else if (p->current_y[i] < radius) {
+			p->current_y[i] = radius;
 		}
 	}
 }
