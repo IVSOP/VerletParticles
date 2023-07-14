@@ -2,16 +2,19 @@
 
 #include <stdlib.h>
 
-ParticleArray::ParticleArray(size_t max_len) {
-	current_x = (pFloat *)aligned_alloc(8 * sizeof(pFloat), max_len * sizeof(pFloat));
-	current_y = (pFloat *)aligned_alloc(8 * sizeof(pFloat), max_len * sizeof(pFloat));
+#include <stdio.h>
 
-	old_x = (pFloat *)aligned_alloc(8 * sizeof(pFloat), max_len * sizeof(pFloat)); // does this need to be memset to 0???
-	old_y = (pFloat *)aligned_alloc(8 * sizeof(pFloat), max_len * sizeof(pFloat)); // does this need to be memset to 0???
+ParticleArray::ParticleArray(size_t max_len) {
+	constexpr int alignment = 8 * sizeof(pFloat); // 32 bytes probably
+	current_x = (pFloat *)aligned_alloc(alignment, max_len * sizeof(pFloat));
+	current_y = (pFloat *)aligned_alloc(alignment, max_len * sizeof(pFloat));
+
+	old_x = (pFloat *)aligned_alloc(alignment, max_len * sizeof(pFloat)); // does this need to be memset to 0???
+	old_y = (pFloat *)aligned_alloc(alignment, max_len * sizeof(pFloat)); // does this need to be memset to 0???
 
 	// radius = (size_t *)malloc(max_len * sizeof(size_t));
-	accel_x = (pFloat *)aligned_alloc(8 * sizeof(pFloat), max_len * sizeof(pFloat));
-	accel_y = (pFloat *)aligned_alloc(8 * sizeof(pFloat), max_len * sizeof(pFloat));
+	accel_x = (pFloat *)aligned_alloc(alignment, max_len * sizeof(pFloat));
+	accel_y = (pFloat *)aligned_alloc(alignment, max_len * sizeof(pFloat));
 	// memset(accel_x, 0, max_len * sizeof(pFloat));
 	// memset(accel_y, 0, max_len * sizeof(pFloat));
 

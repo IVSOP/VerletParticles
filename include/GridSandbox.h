@@ -54,16 +54,18 @@ struct Args {
 struct UpdateArgs {
 	size_t start, end;
 	ParticleArray *particles;
-	pFloat dt;
+	pFloat dtsquared;
 	size_t pixelsX, pixelsY;
 	Grid *grid;
 
-	UpdateArgs(size_t _start, size_t _end, ParticleArray *_particles, pFloat _dt, size_t _pixelsX, size_t _pixelsY, Grid *_grid)
-	: start(_start), end(_end), particles(_particles), dt(_dt), pixelsX(_pixelsX), pixelsY(_pixelsY), grid(_grid)
+	UpdateArgs(size_t _start, size_t _end, ParticleArray *_particles, pFloat _dtsquared, size_t _pixelsX, size_t _pixelsY, Grid *_grid)
+	: start(_start), end(_end), particles(_particles), dtsquared(_dtsquared), pixelsX(_pixelsX), pixelsY(_pixelsY), grid(_grid)
 	{}
 };
 
 void collideParticlesFromTo(void *args);
 void updatePositionsThread(void *args);
+void updatePositionsThreadVector(void *args);
+void updatePositionsThreadVectorOnly(void *args);
 
 #endif

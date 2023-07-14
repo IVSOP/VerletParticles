@@ -39,36 +39,80 @@ void GridSandbox::addParticle(pFloat cx, pFloat cy, pFloat ax, pFloat ay, GLfloa
 // I tried making it so when particle is updated it gets inserted into grid
 // However this makes it non deterministic
 // Making update + grid insertions at the same time but all in one core was actually slower as well
-void GridSandbox::updatePositions(pFloat dt) {
-	size_t i, start, end;
+// void GridSandbox::updatePositions(pFloat dt) {
+// 	size_t i, start, end;
 
-	const size_t particlesPerThread = this->len_particles / MAX_THREADS;
-	// printf("%ld\n", particlesPerThread);
+// 	const size_t particlesPerThread = this->len_particles / MAX_THREADS;
+// 	// printf("%ld\n", particlesPerThread);
 	
-	UpdateArgs *args = (UpdateArgs *)alloca(sizeof(UpdateArgs) * MAX_THREADS);
+// 	UpdateArgs *args = (UpdateArgs *)alloca(sizeof(UpdateArgs) * MAX_THREADS);
 
-	start = 0;
-	// thread 0 is used to fix the bad division, the math to the right is the remainder
-	end = particlesPerThread + (this->len_particles - MAX_THREADS * particlesPerThread);
-	// printf("There are %ld particles\n", len_particles);
-	for (i = 0; i < MAX_THREADS; i++) {
-		// printf("[%d] start %d end %d\n", i, start, end);
-		args[i] = UpdateArgs(start, end, &this->particles, dt, this->pixelsX, this->pixelsY, &this->grid);
-		thpool_add_work(this->thpool, updatePositionsThread, args + i);
-		// updatePositionsThread(args + i);
+// 	start = 0;
+// 	// thread 0 is used to fix the bad division, the math to the right is the remainder
+// 	end = particlesPerThread + (this->len_particles - MAX_THREADS * particlesPerThread);
+// 	// printf("There are %ld particles\n", len_particles    );
+// 	const pFloat dtSquared = dt * dt;
+// 	for (i = 0; i < MAX_THREADS; i++) {
+// 		// printf("[%d] start %d end %d\n", i, start, end);
+// 		args[i] = UpdateArgs(start, end, &this->particles, dtSquared, this->pixelsX, this->pixelsY, &this->grid);
+// 		thpool_add_work(this->thpool, updatePositionsThreadVector, args + i);
+// 		// updatePositionsThread(args + i);
 
-		// start += particlesPerThread;
-		start = end; // easy fix to the fact that first iteration is a bit different to compensate for remainder
-		end += particlesPerThread;
+// 		// start += particlesPerThread;
+// 		start = end; // easy fix to the fact that first iteration is a bit different to compensate for remainder
+// 		end += particlesPerThread;
+// 	}
+
+// 	// // printf("\n\n\n");
+
+// 	thpool_wait(this->thpool);
+
+// 	// rebuild entire grid, can be done anywhere apparently so I put it here
+// 	grid.clear();
+// 	insertIntoGrid();
+// }
+
+// max MAX_THREADS threads
+// each thread needs to start in a position divisible by 8 (align to 32 bits)
+void GridSandbox::updatePositions(pFloat dt) {
+	const pFloat dtSquared = dt * dt;
+
+	if (len_particles > 8) {
+		const size_t requiredThreads = std::min(static_cast<size_t>(MAX_THREADS), len_particles / 8);
+
+		const size_t avgParticlesPerThread = len_particles / requiredThreads;
+		// const size_t chunksOf8 = avgParticlesPerThread / 8; // this would require me to keep multiplying by 8, will just round it
+		const size_t particlesPerThread = avgParticlesPerThread & (~7u); // round down to nearest multiple of 8
+
+		UpdateArgs *args = (UpdateArgs *)alloca(sizeof(UpdateArgs) * requiredThreads);
+
+		// the last thread can do (requiredThreads - 1) * 8 more work than the others, will fix in the future, insignificant for now
+		// will need to distribute remainder through other threads in chunks of 8
+
+		size_t start = 0, end = particlesPerThread, i;
+
+		for (i = 0; i < requiredThreads - 1; i++) {
+			args[i] = UpdateArgs(start, end, &this->particles, dtSquared, this->pixelsX, this->pixelsY, &this->grid);
+																															// thpool_add_work(this->thpool, updatePositionsThreadVectorOnly, args + i);
+			thpool_add_work(this->thpool, updatePositionsThreadVector, args + i);
+			start += particlesPerThread;
+			end += particlesPerThread;
+		}
+
+		// last thread takes the remaining work
+		args[i] = UpdateArgs(start, len_particles, &this->particles, dtSquared, this->pixelsX, this->pixelsY, &this->grid);
+		thpool_add_work(this->thpool, updatePositionsThreadVector, args + i);
+
+		thpool_wait(this->thpool);
+	} else {
+		UpdateArgs args = UpdateArgs(0, len_particles, &this->particles, dtSquared, this->pixelsX, this->pixelsY, &this->grid);
+		updatePositionsThreadVector(&args);
 	}
-
-	// // printf("\n\n\n");
-
-	thpool_wait(this->thpool);
 
 	// rebuild entire grid, can be done anywhere apparently so I put it here
 	grid.clear();
 	insertIntoGrid();
+
 }
 
 void updatePositionsThread(void *args) {
@@ -78,10 +122,15 @@ void updatePositionsThread(void *args) {
 	constexpr pFloat radius = GRID_PARTICLE_SIZE;
 	ParticleArray *p = info->particles;
 
-	// printf("Parsing from %ld to %ld\n", info->start, info->end);
-
 	for (i = info->start; i < info->end; i++) {
-		p->updateParticlePosition(i, info->dt);
+		const pFloat velocity_x = p->current_x[i] - p->old_x[i];
+		const pFloat velocity_y = p->current_y[i] - p->old_y[i];
+
+		p->old_x[i] = p->current_x[i];
+		p->old_y[i] = p->current_y[i];
+
+		p->current_x[i] += velocity_x + (p->accel_x[i] * info->dtsquared);
+		p->current_y[i] += velocity_y + (p->accel_y[i] * info->dtsquared);
 
 		// applying constraint
 		if (p->current_x[i] + radius > info->pixelsX) {
@@ -95,31 +144,127 @@ void updatePositionsThread(void *args) {
 		} else if (p->current_y[i] - radius < 0) {
 			p->current_y[i] = 0 + radius;
 		}
-
 	}
-
 }
 
-// void GridSandbox::applyCircleConstraint() {
-// 	const pVec2 center = {500.0f, 500.0f};
-// 	const pFloat radius = 500.0f;
+// will also apply square constraint
+// problem: might request a thread to do a random interval like 9 to 17
+// this is not aligned to 32 bytes
+// required changing algorithm to attribute work to threads
+void updatePositionsThreadVector(void *args) {
+	const UpdateArgs *info = (UpdateArgs *)args;
+	
+	size_t i;
+	constexpr pFloat radius = GRID_PARTICLE_SIZE;
+	ParticleArray *p = info->particles;
 
-// 	pVec2 to_center, n;
-// 	Particle *particle;
-// 	pFloat dist_to_center;
-// 	size_t i;
+	const size_t len = info->end - info->start;
+	const size_t simdSize = info->start + len % 8;
 
-// 	for (i = 0; i < len_particles; i++) {
-// 		particle = &(particles[i]);
-// 		to_center = particle->current_pos - center;
-// 		dist_to_center = to_center.length();
-// 		// check if particle is clipping constraint bounds
-// 		if (dist_to_center > radius - particle->radius) {
-// 			n = to_center / dist_to_center;
-// 			particle->current_pos = center + (n * (radius - particle->radius));
-// 		}
-// 	}
-// }
+	// not needed to separate x and y, will asume compiler will take care of it
+	__m256 velocity_x;
+	__m256 velocity_y;
+	__m256 current_x;
+	__m256 current_y;
+	__m256 old_x;
+	__m256 old_y;
+	__m256 accel_x;
+	__m256 accel_y;
+	__m256 newx;
+	__m256 newy;
+	__m256 mask;
+
+	const __m256 dtsquaredVec = _mm256_set1_ps(info->dtsquared);
+	const __m256 radiusVec = _mm256_set1_ps(radius);
+	const __m256 pixelsXVec = _mm256_set1_ps(info->pixelsX);
+	const __m256 pixelsYVec = _mm256_set1_ps(info->pixelsY);
+
+	for (i = info->start; i < simdSize; i += 8) {
+		////////////////////////////////////////// process X
+		current_x = _mm256_load_ps(p->current_x + i);
+		old_x = _mm256_load_ps(p->old_x + i);
+		accel_x = _mm256_load_ps(p->accel_x + i);
+		
+		velocity_x = _mm256_sub_ps(current_x, old_x); // current_x - old_x
+		_mm256_store_ps(p->old_x + i, current_x); // p->old_x[i] = p->current_x[i];
+		current_x = _mm256_add_ps(current_x, _mm256_add_ps(velocity_x, _mm256_mul_ps(accel_x, dtsquaredVec))); // p->current_x[i] += velocity_x + (p->accel_x[i] * info->dtsquared);
+
+		// is it faster to just memset the entire array????????????????????????? need to test
+		_mm256_store_ps(p->accel_x + i, _mm256_setzero_ps()); // p->accel_x[i] = 0;
+	
+		// makes a mask of 0s and 1s, where 1 means the value was greater
+		// if (p->current_x[i] > info->pixelsX - radius)
+		mask = _mm256_cmp_ps(current_x, _mm256_sub_ps(pixelsXVec, radiusVec), _CMP_GT_OQ); // _CMP_GT_OS signals exception for NaN values
+		newx = _mm256_blendv_ps(pixelsXVec, _mm256_sub_ps(pixelsXVec, radiusVec), mask);
+		
+		mask = _mm256_cmp_ps(current_x, radiusVec, _CMP_LT_OQ);
+		// this works but it is not like an else if, it performs checks even if previous condition did not fail
+		newx = _mm256_blendv_ps(newx, radiusVec, mask);
+
+		_mm256_store_ps(p->current_x + i, current_x);
+
+
+		/*possible alternative that has more mah but not reduntant checks
+				__m256 xGreaterVec = _mm256_cmp_ps(currXVec, _mm256_sub_ps(pixelsXVec, radiusVec), _CMP_GT_OQ);
+		__m256 xLessVec = _mm256_cmp_ps(currXVec, radiusVec, _CMP_LT_OQ);
+
+		__m256 newXVec = _mm256_blendv_ps(currXVec, _mm256_sub_ps(pixelsXVec, radiusVec), _mm256_and_ps(xGreaterVec, _mm256_cmp_ps(currXVec, radiusVec, _CMP_GT_OQ)));
+		newXVec = _mm256_blendv_ps(newXVec, currXVec, _mm256_and_ps(xLessVec, _mm256_cmp_ps(currXVec, _mm256_setzero_ps(), _CMP_LT_OQ)));
+		
+		will benchmark in the future
+		*/
+
+
+
+		////////////////////////////////////////// process Y
+		current_y = _mm256_load_ps(p->current_y + i);
+		old_y = _mm256_load_ps(p->old_y + i);
+		accel_y = _mm256_load_ps(p->accel_y + i);
+		
+		velocity_y = _mm256_sub_ps(current_y, old_y);
+		_mm256_store_ps(p->old_y + i, current_y);
+		current_y = _mm256_add_ps(current_y, _mm256_add_ps(velocity_y, _mm256_mul_ps(accel_y, dtsquaredVec)));
+
+		_mm256_store_ps(p->accel_y + i, _mm256_setzero_ps());
+
+		mask = _mm256_cmp_ps(current_y, _mm256_sub_ps(pixelsYVec, radiusVec), _CMP_GT_OQ); // _CMP_GT_OS signals exception for NaN values
+		newy = _mm256_blendv_ps(pixelsXVec, _mm256_sub_ps(pixelsYVec, radiusVec), mask);
+		mask = _mm256_cmp_ps(current_y, radiusVec, _CMP_LT_OQ);
+		newy = _mm256_blendv_ps(newy, radiusVec, mask);
+
+		_mm256_store_ps(p->current_y + i, current_y);
+
+		// printf("alignment: %ld\n", ((size_t)(p->accel_x + i)) % 32); // must be 0 allways, otherwise segfault
+	}
+
+	for (; i < info->end; i++) {
+			// basically p->updateParticlePosition(i, info->dt); but with dtsquared
+			const pFloat velocity_x = p->current_x[i] - p->old_x[i];
+			const pFloat velocity_y = p->current_y[i] - p->old_y[i];
+
+			p->old_x[i] = p->current_x[i];
+			p->old_y[i] = p->current_y[i];
+
+			p->current_x[i] += velocity_x + (p->accel_x[i] * info->dtsquared);
+			p->current_y[i] += velocity_y + (p->accel_y[i] * info->dtsquared);
+
+			p->accel_x[i] = 0;
+			p->accel_y[i] = 0;
+
+		// applying constraint
+		if (p->current_x[i] + radius > info->pixelsX) {
+			p->current_x[i] = info->pixelsX - radius;
+		} else if (p->current_x[i] - radius < 0) {
+			p->current_x[i] = 0 + radius;
+		}
+
+		if (p->current_y[i] + radius > info->pixelsY) {
+			p->current_y[i] = info->pixelsY - radius;
+		} else if (p->current_y[i] - radius < 0) {
+			p->current_y[i] = 0 + radius;
+		}
+	}
+}
 
 struct GridArgs {
 	int start, end;
