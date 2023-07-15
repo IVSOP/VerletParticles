@@ -33,127 +33,11 @@ void Renderer::setCallbacks(GLFWwindow* window) {
 	glfwSetMouseButtonCallback(window, onMouseClick);
 }
 
-Renderer::Renderer(int pixel_width, int pixel_height, Sandbox *sandbox) {
-	this->sandbox = sandbox;
-	this->timestep_acc = 0;
-	
-	if (!glfwInit()) {
-		perror("GLFW window failed to initiate");
-		exit(1);
-	}
-
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-	GLFWwindow *window = glfwCreateWindow(pixel_width, pixel_height, "Hello World", NULL, NULL);
-	this->window = window;
-
-	if (window == NULL) {
-		perror("GLFW window failed to create");
-		glfwTerminate();
-		exit(1);
-	}
-	glfwMakeContextCurrent(window);
-
-	if (glewInit() != GLEW_OK) {
-		std::cout << "GLEW failed\n" << std::endl;
-		exit(1);
-	}
-
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	this->io = io;
-	ImGui::StyleColorsDark();
-	ImGui_ImplGlfw_InitForOpenGL(window, true);
-	ImGui_ImplOpenGL3_Init("#version 450");
-	// io.ConfigFlags |= .....
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	std::cout << glGetString(GL_VERSION) << std::endl;
-
-	// During init, enable debug output
-	glEnable( GL_DEBUG_OUTPUT );
-	glDebugMessageCallback( openglCallbackFunction, NULL );
-	
-	setCallbacks(window);
-
-
-
-
-
-
-
-	makeVAO();
-	makeVBO();
-	makeLayouts();
-	makeIBO();
-
-
-
-
-
-
-
-
-
-	//////////////////////////////////////////// Creating shaders and making program out of the shaders
-	GLCall(const GLuint program = glCreateProgram());
-
-	GLuint VS, FS;
-	{
-		char filename[] = "res/default.vert";
-		const GLchar *vertex_shader = readFromFile(filename);
-		GLCall(VS = glCreateShader(GL_VERTEX_SHADER));
-		GLCall(glShaderSource(VS, 1, &vertex_shader, NULL));
-		GLCall(glCompileShader(VS));
-		GLCall(checkErrorInShader(VS));
-		GLCall(glAttachShader(program, VS));
-		delete[] vertex_shader;
-	}
-
-	{
-		char filename[] = "res/default.frag";
-		const GLchar *fragment_shader = readFromFile(filename);
-		GLCall(FS = glCreateShader(GL_FRAGMENT_SHADER));
-		GLCall(glShaderSource(FS, 1, &fragment_shader, NULL));
-		GLCall(glCompileShader(FS));
-		GLCall(checkErrorInShader(FS));
-		GLCall(glAttachShader(program, FS));
-	}
-	
-	GLCall(glLinkProgram(program));
-
-	int error;
-	glGetProgramiv(program, GL_LINK_STATUS, &error);
-	if (!error) {
-		char idk[1000];
-		int len;
-		glGetProgramInfoLog(program, sizeof(idk), &len, idk);
-		std::cout << "ERROR! " << idk << std::endl;
-	}
-	
-	GLCall(glValidateProgram(program));
-	this->program = program;
-
-	//////////////////////////////////////////// Creating the circle texture. This can andle many textures but I will only need this one
-	GLuint texID, slot = 0;
-	makeTexture(&texID, "res/circle.png", slot);
-	bindTexture(texID, slot);
-
-	// cleanup to ensure everything has to be correctly bound to work
-	GLCall(glDeleteShader(VS));
-	GLCall(glDeleteShader(FS));
-	// unbind
-	GLCall(glBindVertexArray(0));
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
-	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-
-	timestep = 1.0f / FPS;
-	substep = timestep / SUBSTEPS;
+Renderer::Renderer(int _pixel_width, int _pixel_height, Sandbox *_sandbox)
+	: sandbox(_sandbox), pixel_width(_pixel_width), pixel_height(_pixel_height), timestep_acc(0)
+{
+	this->timestep = 1.0f / FPS;
+	this->substep = timestep / SUBSTEPS;
 }
 
 Renderer::~Renderer() {
@@ -408,4 +292,119 @@ void Renderer::onMouseClick(int button, int action, int mods) {
 	} else {
 		this->io.AddMouseButtonEvent(button, action == GLFW_PRESS ? true : false);
 	}
+}
+
+void Renderer::simulate(size_t ticks) {
+	size_t i;
+	for (i = 0; i < 3700; i++) {
+		tick();
+		// renderer.renderSandboxWithoutTick();
+		if (i % 100 == 0) {
+			printf("tick #%ld\n", i);
+		}
+	}
+}
+
+void Renderer::setup() {
+		
+	if (!glfwInit()) {
+		perror("GLFW window failed to initiate");
+		exit(1);
+	}
+
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+	GLFWwindow *window = glfwCreateWindow(pixel_width, pixel_height, "Hello World", NULL, NULL);
+	this->window = window;
+
+	if (window == NULL) {
+		perror("GLFW window failed to create");
+		glfwTerminate();
+		exit(1);
+	}
+	glfwMakeContextCurrent(window);
+
+	if (glewInit() != GLEW_OK) {
+		std::cout << "GLEW failed\n" << std::endl;
+		exit(1);
+	}
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	this->io = io;
+	ImGui::StyleColorsDark();
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init("#version 450");
+	// io.ConfigFlags |= .....
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	std::cout << glGetString(GL_VERSION) << std::endl;
+
+	// During init, enable debug output
+	glEnable( GL_DEBUG_OUTPUT );
+	glDebugMessageCallback( openglCallbackFunction, NULL );
+	
+	setCallbacks(window);
+
+	makeVAO();
+	makeVBO();
+	makeLayouts();
+	makeIBO();
+
+	//////////////////////////////////////////// Creating shaders and making program out of the shaders
+	GLCall(const GLuint program = glCreateProgram());
+
+	GLuint VS, FS;
+	{
+		char filename[] = "res/default.vert";
+		const GLchar *vertex_shader = readFromFile(filename);
+		GLCall(VS = glCreateShader(GL_VERTEX_SHADER));
+		GLCall(glShaderSource(VS, 1, &vertex_shader, NULL));
+		GLCall(glCompileShader(VS));
+		GLCall(checkErrorInShader(VS));
+		GLCall(glAttachShader(program, VS));
+		delete[] vertex_shader;
+	}
+
+	{
+		char filename[] = "res/default.frag";
+		const GLchar *fragment_shader = readFromFile(filename);
+		GLCall(FS = glCreateShader(GL_FRAGMENT_SHADER));
+		GLCall(glShaderSource(FS, 1, &fragment_shader, NULL));
+		GLCall(glCompileShader(FS));
+		GLCall(checkErrorInShader(FS));
+		GLCall(glAttachShader(program, FS));
+	}
+	
+	GLCall(glLinkProgram(program));
+
+	int error;
+	glGetProgramiv(program, GL_LINK_STATUS, &error);
+	if (!error) {
+		char idk[1000];
+		int len;
+		glGetProgramInfoLog(program, sizeof(idk), &len, idk);
+		std::cout << "ERROR! " << idk << std::endl;
+	}
+	
+	GLCall(glValidateProgram(program));
+	this->program = program;
+
+	//////////////////////////////////////////// Creating the circle texture. This can andle many textures but I will only need this one
+	GLuint texID, slot = 0;
+	makeTexture(&texID, "res/circle.png", slot);
+	bindTexture(texID, slot);
+
+	// cleanup to ensure everything has to be correctly bound to work
+	GLCall(glDeleteShader(VS));
+	GLCall(glDeleteShader(FS));
+	// unbind
+	GLCall(glBindVertexArray(0));
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 }

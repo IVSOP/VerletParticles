@@ -642,4 +642,3 @@ GLfloat *GridSandbox::parseColorsByGrid(GLfloat *colors) {
 
 	// return final_colors;
 }
-

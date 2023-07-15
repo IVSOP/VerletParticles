@@ -61,7 +61,6 @@ int main() {
 	// Spawner spawner3(0, 2200, inCircleReverse, &info2);
 	// sandbox.addSpawner(spawner3);
 
-
 	Spawner spawner4(0, 3700, fixedSpawner, &info3);
 	sandbox.addSpawner(spawner4);
 	Spawner spawner5(50, 3700, fixedSpawner, &info4);
@@ -79,17 +78,8 @@ int main() {
 	Spawner spawner11(350, 3000, fixedSpawner, &info10);
 	sandbox.addSpawner(spawner11);
 
-
-		// run simulation once
-		int i;
-		// std::cout << "Running simulation for 3000 ticks" << std::endl;
-		for (i = 0; i < 3700; i++) {
-			renderer.tick();
-			// renderer.renderSandboxWithoutTick();
-			if (i % 100 == 0) {
-				printf("tick #%d\n", i);
-			}
-		}
+	// done through renderer for now because only it knopws the simulation substep
+	renderer.simulate(3700);
 
 		// // get colors according to particle position
 		std::cout << "Calculating colors from this position" << std::endl;
@@ -112,6 +102,7 @@ int main() {
 
 
 
+	renderer.setup();
 	renderer.mainLoop();
 
 

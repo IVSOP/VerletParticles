@@ -25,6 +25,8 @@ class Renderer {
 		Sandbox * sandbox;
 		ImGuiIO io;
 
+		size_t pixel_width, pixel_height;
+
 		void setCallbacks(GLFWwindow* window);
 		static void onKeyPress(GLFWwindow* window, int key, int scancode, int action, int mods);
 		static void onMouseMove(GLFWwindow* window, double xpos, double ypos);
@@ -83,6 +85,9 @@ class Renderer {
 		void onKeyPress(int key, int scancode, int action, int mods);
 		void onMouseMove(double xpos, double ypos);
 		void onMouseClick(int button, int action, int mods);
+
+		void simulate(size_t ticks);
+		void setup();
 };
 
 #endif
